@@ -103,11 +103,20 @@
                         </div>
                         <div class="product-info">
                             <span class="prod-category">Deko / Spielzeug</span>
-                            <h3>Gandalf The White Staff mit LED-Beleuchtung</h3>
+                            <h3>Gandalf The White Staff <br><div class="docs"><a href="https://www.thingiverse.com/thing:6801000">by sarahperdue5</a></div></h3>
                             <div class="tech-specs">
                                 <span class="spec"><b>Material:</b> PLA</span>
                                 <span class="spec"><b>Qualität:</b> 0.20mm</span>
                                 <span class="spec"><b>Infill:</b> 20% Gyroid</span>
+                            </div>
+                            <h4><strong>Varianten</strong></h4>
+                            <div class="color-slider-container">
+                                <button type="button" class="nav-arrow left" onclick="scrollSlider(this, -1)">&#10094;</button>
+                                <button type="button" class="nav-arrow right" onclick="scrollSlider(this, 1)">&#10095;</button>
+                                <div class="color-slider-track">
+                                    <button class="variant-btn active" onclick="jumpToSlide(this, 0)">Mit Beleuchtung (3 LEDs)</button>
+                                    <button class="variant-btn" onclick="jumpToSlide(this, 1)">Ohne Beleuchtung</button>
+                                </div>
                             </div>
                             <div class="product-footer">
                                 <span class="price">CHF 39,95</span>
@@ -128,16 +137,22 @@
                         </div>
                         <div class="product-info">
                             <span class="prod-category">Spielzeug</span>
-                            <h3>Spiral Cone Fidget <a href="https://www.printables.com/model/927393-spiral-cone-fidget-toy/files">by Krakka10</a></h3>
+                            <h3>Spiral Cone Fidget <br><div class="docs"><a href="https://www.printables.com/model/927393-spiral-cone-fidget-toy/files">by Krakka10</a></div></h3>
                             <div class="tech-specs">
                                 <span class="spec"><b>Material:</b> PLA</span>
                                 <span class="spec"><b>Auflösung:</b> 0.20mm</span>
                                 <span class="spec"><b>Infill:</b> 20% Gyroid</span>
                             </div>
-                            <div class="variant-buttons">
-                                <button class="variant-btn active" onclick="jumpToSlide(this, 0)">Schwarz/Rot</button>
-                                <button class="variant-btn" onclick="jumpToSlide(this, 1)">Schwarz/Gelb</button>
-                                <button class="variant-btn" onclick="jumpToSlide(this, 2)">Blau/Weiss</button>
+                            <h4><strong>Farbvarianten</strong></h4>
+                            <div class="color-slider-container">
+                                <button type="button" class="nav-arrow left" onclick="scrollSlider(this, -1)">&#10094;</button>
+                                <button type="button" class="nav-arrow right" onclick="scrollSlider(this, 1)">&#10095;</button>
+                                <div class="color-slider-track">
+                                    <button class="variant-btn active" onclick="jumpToSlide(this, 0)">Schwarz/Rot</button>
+                                    <button class="variant-btn" onclick="jumpToSlide(this, 1)">Schwarz/Gelb</button>
+                                    <button class="variant-btn" onclick="jumpToSlide(this, 2)">Blau/Weiss</button>
+                                    <button class="variant-btn" onclick="jumpToSlide(this, 3)">Weiss/Rot</button>
+                                </div>
                             </div>
                             <div class="product-footer">
                                 <span class="price">CHF 1,95</span>
@@ -227,7 +242,9 @@
                 <p>Umsatzsteuer-ID: keine<br>Handelsregister-Eintrag: keiner</p>
                 
                 <h3>Datenschutzerklärung & AGB</h3>
-                <p>Datenschutzerklärung<br><a href="agb/agb.html">AGB</a></p>
+                <div class="docs">
+                    <p><a href="privacy_policy/privacy_policy.html">Datenschutzerklärung</a><br><a href="agb/agb.html">AGB</a></p>
+                </div>
             </div>
         </section>
     </main>
@@ -256,6 +273,7 @@
         </div>
         <p>&copy; 2026 Fabio3D. Alle Rechte vorbehalten.</p>
     </footer>
+    <script src="color-slider.js"></script>
     <script src="script.js"></script>
     <script src="slider.js"></script>
     <script src="https://kit.fontawesome.com/fba23d88db.js" crossorigin="anonymous"></script>
