@@ -83,8 +83,36 @@ function updateCartUI() {
     if (cart.length === 0) {
         container.innerHTML = '<p class="empty-msg">Dein Warenkorb ist noch leer.</p>';
         totalElement.innerText = 'CHF 0,00';
+        
+        const checkoutButton = document.getElementById('checkout-button');
+        if (checkoutButton) checkoutButton.disabled = true;
         return;
     }
+    
+    container.innerHTML = '';
+    let total = 0;
+    
+    cart.forEach((item) => {
+        total += item.price;
+        const itemRow = document.createElement('div');
+        itemRow.classList.add('cart-item');
+        itemRow.innerHTML = `<span>${item.name}</span><strong>CHF ${item.price.toFixed(2)}</strong>`;
+        container.appendChild(itemRow);
+    });
+    
+    totalElement.innerText = `CHF ${total.toFixed(2)}`;
+
+    const legalCheckbox = document.getElementById('legal-checkbox');
+    const checkoutButton = document.getElementById('checkout-button');
+
+    if (legalCheckbox && checkoutButton) {
+        checkoutButton.disabled = !legalCheckbox.checked;
+
+        legalCheckbox.onchange = function() {
+            checkoutButton.disabled = !this.checked;
+        };
+    }
+}
 
         document.addEventListener('DOMContentLoaded', () => {
                 const legalCheckbox = document.getElementById('legal-checkbox');
