@@ -75,11 +75,7 @@ function updateCartUI() {
     });
     
     totalElement.innerText = `CHF ${total.toFixed(2)}`;
-}
 
-// ==========================================
-// HIER IST DEINE NEUE STRIPE CHECKOUT FUNKTION
-// ==========================================
 async function checkout() {
     if(cart.length === 0) {
         alert("Dein Warenkorb ist leer!");
