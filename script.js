@@ -108,16 +108,15 @@ async function checkout() {
         alert("Dein Warenkorb ist leer!");
         return;
     }
-
-    // 1. AGB-Checkbox abfragen (Stelle sicher, dass die ID im HTML "agb-checkbox" heißt)
-    const agbCheckbox = document.getElementById('agb-checkbox');
-    if (agbCheckbox && !agbCheckbox.checked) {
-        alert("Bitte akzeptiere erst die AGB, um zu bestellen.");
-        return;
-    }
+        
+        const legalCheckbox = document.getElementById('legal-checkbox');
+        if (legalCheckbox && !legalCheckbox.checked) {
+                alert("Bitte akzeptiere die AGB und Datenschutzerklärung, um zu bestellen.");
+                return;
+        }
 
     // Optional: Bestellbutton holen, um Ladetext anzuzeigen (ID anpassen falls nötig)
-    const checkoutButton = document.getElementById('checkout-button');
+    const checkoutButton = document.getElementById('btn btn-primary checkout-btn');
     if (checkoutButton) {
         checkoutButton.innerText = "Wird geladen...";
         checkoutButton.disabled = true;
@@ -168,9 +167,6 @@ function resetCheckoutButton(button) {
         button.disabled = false;
     }
 }
-// ==========================================
-
-
 // AB HIER BLEIBT ALLES EXAKT WIE BEI DIR:
 
 window.addEventListener('DOMContentLoaded', () => {
