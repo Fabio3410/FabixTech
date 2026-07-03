@@ -85,6 +85,17 @@ function updateCartUI() {
         totalElement.innerText = 'CHF 0,00';
         return;
     }
+
+        document.addEventListener('DOMContentLoaded', () => {
+                const legalCheckbox = document.getElementById('legal-checkbox');
+                const checkoutButton = document.getElementById('checkout-button');
+
+    if (legalCheckbox && checkoutButton) {
+        legalCheckbox.addEventListener('change', function() {
+            checkoutButton.disabled = !this.checked;
+        });
+    }
+});
     
     container.innerHTML = '';
     let total = 0;
