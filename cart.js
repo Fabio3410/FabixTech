@@ -200,3 +200,5 @@ function updatePrice(button) {
                 }
         }
 }
+window.toggleCart = toggleCart;
+window.addToCart = addToCart;
