@@ -142,3 +142,11 @@
                 alert('Fehler! Bitte überprüfe deine Internetverbindung!');
             });
         }
+        function updatePrice(button) {
+                const card = button.closest('.product-card');
+                const priceElement = card.querySelector('.price');
+                const newPrice = button.getAttribute('data-price');
+                if (priceElement && newPrice) {
+                        priceElement.textContent = newPrice;
+    }
+}
