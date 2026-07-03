@@ -5,7 +5,7 @@
             document.querySelectorAll('.page-section').forEach(section => {
                 section.classList.remove('active');
             });
-
+                
             const activePage = document.getElementById(`${pageId}-page`);
             if (activePage) {
                 activePage.classList.add('active');
