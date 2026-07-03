@@ -259,8 +259,14 @@
             <p class="empty-msg">Dein Warenkorb ist noch leer.</p>
         </div>
         <div class="sidebar-footer">
-            <div class="total-price"><span>Gesamtsumme:</span> <span id="cart-total">CHF 0,00</span></div>
-            <button class="btn btn-primary checkout-btn" onclick="checkout()">Zur Kasse</button>
+            <div class="total-price"><span>Gesamtsumme:</span> <span id="cart-total">CHF 0,00</span></div
+            <div class="legal-container">
+                <input type="checkbox" id="legal-checkbox">
+                <label for="legal-checkbox">
+                    Ich habe die <a href="agb/agb.html" class="docs" target="_blank">AGB</a> und die <a href="privacy_policy/privacy_policy.html" class="docs" target="_blank">Datenschutzerklärung</a>gelesen und bin mit ihnen einverstanden.
+                </label>
+            </div>
+            <button class="btn btn-primary checkout-btn" disabled onclick="checkout()">Zur Kasse</button>
         </div>
     </div>
 
