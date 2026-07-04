@@ -157,14 +157,7 @@
                             </div>
                             <div class="product-footer">
                                 <span class="currency">CHF </span><span class="price">1,95</span>
-                                <button class="btn-buy" onclick="
-                                    const box = this.closest('.product-card');
-                                    const titel = box.querySelector('.h3').innerText;
-                                    const preisText = box.querySelector('.price').innerText;
-                                    const variante = box.querySelector('.variant-btn active').innerText;
-                                    const preis = parseFloat(preisText.replace(/[^\d.]/g, '')); 
-                                    addToCart(titel, preis, variante);">In den Warenkorb
-                                </button>
+                                <button onclick="addProductFromCard(this)">In den Warenkorb</button>
                             </div>
                         </div>
                     </div>
