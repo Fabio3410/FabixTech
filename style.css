@@ -438,7 +438,7 @@
                display: grid;
                flex-wrap: wrap;
                grid-template-columns: repeat(auto-fit, 320px);
-               gap: 20px;
+               gap: 40px;
                justify-content: center;
                align-content: center;
                max-width: 1200px;
