@@ -148,6 +148,24 @@ function removeFromCart(index) {
     updateCartUI();
 }
 
+function addProductFromCard(buttonElement) {
+    try {
+        const box = buttonElement.closest('.product-card'); 
+        const titel = box.querySelector('.h3').innerText;
+        const preisText = box.querySelector('.price').innerText;
+        const variante = box.querySelector('.variant-btn active').innerText; 
+        
+        const preis = parseFloat(preisText.replace(/[^\d.]/g, ''));
+        
+        addToCart(titel, preis, variante);
+        
+    } catch (error) {
+        console.error("Fehler beim Hinzufügen:", error);
+        alert("Ups! Das Produkt konnte nicht zum Warenkorb hinzugefügt werden.");
+    }
+}
+
+window.addProductFromCard = addProductFromCard;
 window.removeFromCart = removeFromCart;
 window.toggleCart = toggleCart;
 window.addToCart = addToCart;
