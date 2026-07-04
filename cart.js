@@ -1,200 +1,134 @@
 let cart = [];
 
+// 1. WARENKORB ÖFFNEN / SCHLIESSEN
 function toggleCart() {
     const sidebar = document.getElementById('cart-sidebar');
-    sidebar.classList.toggle('open');
+    if (sidebar) {
+        sidebar.classList.toggle('open');
+    }
 }
 
+// 2. PRODUKT HINZUFÜGEN
 function addToCart(name, price) {
     cart.push({ name, price });
     updateCartUI();
-    document.getElementById('cart-sidebar').classList.add('open');
+    const sidebar = document.getElementById('cart-sidebar');
+    if (sidebar) {
+        sidebar.classList.add('open');
+    }
 }
 
+// 3. WARENKORB OBERFLÄCHE AKTUALISIEREN
 function updateCartUI() {
     const countElement = document.getElementById('cart-count');
     const container = document.getElementById('cart-items-container');
     const totalElement = document.getElementById('cart-total');
+    const checkoutButton = document.getElementById('checkout-button');
+    const legalCheckbox = document.getElementById('legal-checkbox');
     
-    countElement.innerText = cart.length;
+    if (countElement) {
+        countElement.innerText = cart.length;
+    }
     
     if (cart.length === 0) {
-        container.innerHTML = '<p class="empty-msg">Dein Warenkorb ist noch leer.</p>';
-        totalElement.innerText = 'CHF 0,00';
-        
-        const checkoutButton = document.getElementById('checkout-button');
+        if (container) container.innerHTML = '<p class="empty-msg">Dein Warenkorb ist noch leer.</p>';
+        if (totalElement) totalElement.innerText = 'CHF 0,00';
         if (checkoutButton) checkoutButton.disabled = true;
         return;
     }
     
-    container.innerHTML = '';
-    let total = 0;
-    
-    cart.forEach((item) => {
-        total += item.price;
-        const itemRow = document.createElement('div');
-        itemRow.classList.add('cart-item');
-        itemRow.innerHTML = `<span>${item.name}</span><strong>CHF ${item.price.toFixed(2)}</strong>`;
-        container.appendChild(itemRow);
-    });
-    
-    totalElement.innerText = `CHF ${total.toFixed(2)}`;
+    if (container) {
+        container.innerHTML = '';
+        let total = 0;
+        
+        cart.forEach((item) => {
+            total += item.price;
+            const itemRow = document.createElement('div');
+            itemRow.classList.add('cart-item');
+            itemRow.innerHTML = `<span>${item.name}</span><strong>CHF ${item.price.toFixed(2)}</strong>`;
+            container.appendChild(itemRow);
+        });
+        
+        if (totalElement) {
+            totalElement.innerText = `CHF ${total.toFixed(2)}`;
+        }
+    }
 
-    const legalCheckbox = document.getElementById('legal-checkbox');
-    const checkoutButton = document.getElementById('checkout-button');
-
-    if (legalCheckbox && checkoutButton) {
-        checkoutButton.disabled = !legalCheckbox.checked;
-
-        legalCheckbox.onchange = function() {
-            checkoutButton.disabled = !this.checked;
-        };
+    // Prüft den Button-Zustand direkt beim Zeichnen des Warenkorbs
+    if (checkoutButton) {
+        const isChecked = legalCheckbox ? legalCheckbox.checked : false;
+        checkoutButton.disabled = !(cart.length > 0 && isChecked);
     }
 }
 
-        document.addEventListener('DOMContentLoaded', () => {
-                const legalCheckbox = document.getElementById('legal-checkbox');
-                const checkoutButton = document.getElementById('checkout-button');
-
-    if (legalCheckbox && checkoutButton) {
-        legalCheckbox.addEventListener('change', function() {
-            checkoutButton.disabled = !this.checked;
-        });
-    }
-});
-    
-    container.innerHTML = '';
-    let total = 0;
-    
-    cart.forEach((item) => {
-        total += item.price;
-        const itemRow = document.createElement('div');
-        itemRow.classList.add('cart-item');
-        itemRow.innerHTML = `<span>${item.name}</span><strong>CHF ${item.price.toFixed(2)}</strong>`;
-        container.appendChild(itemRow);
-    });
-    
-    totalElement.innerText = `CHF ${total.toFixed(2)}`;
-
+// 4. STRIPE CHECKOUT ABSENDEN
 async function checkout() {
-    if(cart.length === 0) {
+    if (cart.length === 0) {
         alert("Dein Warenkorb ist leer!");
         return;
     }
-        
-        const legalCheckbox = document.getElementById('legal-checkbox');
-        if (legalCheckbox && !legalCheckbox.checked) {
-                alert("Bitte akzeptiere die AGB und Datenschutzerklärung, um zu bestellen.");
-                return;
-        }
 
-    // Optional: Bestellbutton holen, um Ladetext anzuzeigen (ID anpassen falls nötig)
-    const checkoutButton = document.getElementById('btn btn-primary checkout-btn');
+    const legalCheckbox = document.getElementById('legal-checkbox');
+    if (legalCheckbox && !legalCheckbox.checked) {
+        alert("Bitte akzeptiere erst die AGB und Datenschutzerklärung.");
+        return;
+    }
+
+    const checkoutButton = document.getElementById('checkout-button');
     if (checkoutButton) {
         checkoutButton.innerText = "Wird geladen...";
         checkoutButton.disabled = true;
     }
 
-    // 2. Daten für Stripe vorbereiten (Umrechnung in Cent + Menge festlegen)
-    // Da dein addToCart für jedes Produkt ein neues Element in die Liste packt,
-    // setzen wir die "quantity" hier für jedes Element einfach fix auf 1.
     const formattedCart = cart.map(item => ({
         name: item.name,
-        price: Math.round(item.price * 100), // Macht aus 25.50 CHF -> 2550 Cent
+        price: Math.round(item.price * 100),
         quantity: 1 
     }));
 
     try {
-        // 3. Verbindung zur Netlify Serverless Function herstellen
         const response = await fetch('/.netlify/functions/create-checkout', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ cart: formattedCart }),
         });
 
         const data = await response.json();
 
         if (data.url) {
-            // Warenkorb leeren und UI zurücksetzen
             cart = [];
             updateCartUI();
-            
-            // Weiterleitung zu Stripe
             window.location.href = data.url;
         } else {
             alert("Fehler beim Checkout: " + data.error);
-            resetCheckoutButton(checkoutButton);
+            if (checkoutButton) {
+                checkoutButton.innerText = "Zur Kasse";
+                checkoutButton.disabled = false;
+            }
         }
     } catch (error) {
         alert("Netzwerkfehler beim Verbinden mit Stripe.");
-        resetCheckoutButton(checkoutButton);
+        if (checkoutButton) {
+            checkoutButton.innerText = "Zur Kasse";
+            checkoutButton.disabled = false;
+        }
     }
 }
 
-// Hilfsfunktion, um den Button bei Fehlern wieder freizuschalten
-function resetCheckoutButton(button) {
-    if (button) {
-        button.innerText = "Zur Kasse";
-        button.disabled = false;
-    }
-}
-// AB HIER BLEIBT ALLES EXAKT WIE BEI DIR:
-
-window.addEventListener('DOMContentLoaded', () => {
-    const hash = window.location.hash.replace('#', '');
-    if(['home', 'shop', 'about', 'contact', 'impressum'].includes(hash)) {
-        switchPage(hash); // Hinweis: Stelle sicher, dass switchPage() in deinem Code existiert
+// ============================================================
+// NEU: KUGELSICHERER GLOBALER LISTENER FÜR DIE CHECKBOX
+// ============================================================
+document.addEventListener('change', (event) => {
+    if (event.target && event.target.id === 'legal-checkbox') {
+        const checkoutButton = document.getElementById('checkout-button');
+        if (checkoutButton) {
+            // Aktiviert den Button NUR, wenn der Haken gesetzt ist UND Artikel im Warenkorb liegen
+            checkoutButton.disabled = !(event.target.checked && cart.length > 0);
+        }
     }
 });
 
-function handleFormSubmit(event) {
-    event.preventDefault();
-
-    function autoResize(element) {
-        element.style.height = 'auto';
-        element.style.height = element.scrollHeight + 'px';
-    }
-    const form = event.target;
-    const data = new FormData(form);
-    
-    fetch('https://formspree.io/f/xkoekone', {
-        method: 'POST',
-        body: data,
-        headers: {
-            'Accept': 'application/json'
-        }
-    }).then(response => {
-        if (response.ok) {
-            alert('Danke! Deine Nachricht wurde gesendet.');
-            form.reset();
-        } else {
-            alert('Es gab ein Problem beim Absenden. Bitte versuche es nochmal.');
-        }
-    }).catch(error => {
-        alert('Fehler! Bitte überprüfe deine Internetverbindung!');
-    });
-}
-
-function updatePrice(button) {
-        const container = button.closest('.color-slider-container');
-        const card = container.parentElement;
-        
-        const newPrice = button.getAttribute('data-price');
-        if (!card || !newPrice) return;
-        const priceElement = card.querySelector('.price');
-        if (priceElement) {
-                priceElement.textContent = newPrice.replace('.', ',');
-        }
-        const buyButton = card.querySelector('.btn-buy');
-        if (buyButton) {
-                const currentOnclick = buyButton.getAttribute('onclick');
-                if (currentOnclick && currentOnclick.includes('addToCart')) {
-                        const updatedOnclick = currentOnclick.replace(/([\d\.]+)\s*\)/, newPrice + ')');
-                        buyButton.setAttribute('onclick', updatedOnclick);
-                }
-        }
-}
+// 5. GLOBALE VERKNÜPFUNG FÜR DIE HTML-BUTTONS
 window.toggleCart = toggleCart;
 window.addToCart = addToCart;
+window.checkout = checkout;
