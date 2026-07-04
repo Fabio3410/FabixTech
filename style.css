@@ -753,19 +753,21 @@
 
        .legal-container {
               margin: 15px 0;
-              font-size: 14px;
-              color: #333;
-              line-height: 1.4;
               display: flex;
               align-items: flex-start;
-              gap: 8px;
+              gap: 10px;
+              font-size: 14px;
        }
-       
+
+       .legal-container input[type="checkbox"] {
+              margin-top: 3px;
+              cursor: pointer;
+       }
+
        .legal-container a {
-            color: #0072e3;
-            text-decoration: none;
-            font-weight: 500;
-            transition: color 0.2s ease;
+              color: #00a2ff; /* Dein Hellblau */
+              text-decoration: none;
+              font-weight: bold;
        }
 
        .legal-container a:hover {
