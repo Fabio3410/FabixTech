@@ -43,14 +43,14 @@ function updateCartUI() {
     if (container) {
         container.innerHTML = '';
         let total = 0;
-        
-        cart.forEach((item) => {
-            total += item.price;
-            const itemRow = document.createElement('div');
-            itemRow.classList.add('cart-item');
-            itemRow.innerHTML = `<span>${item.name}</span><strong>CHF ${item.price.toFixed(2)}</strong>`;
-            container.appendChild(itemRow);
-        });
+
+    cart.forEach((item, index) => {
+        total += item.price;
+        const itemRow = document.createElement('div');
+        itemRow.classList.add('cart-item');
+        itemRow.innerHTML = `<span>${item.name}</span><strong>CHF ${item.price.toFixed(2)}</strong><button class="remove-btn" onclick="removeFromCart(${index})">&times;</button>`;
+        container.appendChild(itemRow);
+    });
         
         if (totalElement) {
             totalElement.innerText = `CHF ${total.toFixed(2)}`;
