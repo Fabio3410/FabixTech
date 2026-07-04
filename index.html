@@ -114,14 +114,13 @@
                                 <button type="button" class="nav-arrow left" onclick="scrollSlider(this, -1)">&#10094;</button>
                                 <button type="button" class="nav-arrow right" onclick="scrollSlider(this, 1)">&#10095;</button>
                                 <div class="color-slider-track">
-                                    <button class="variant-btn active" data-price="39.95" onclick="jumpToSlide(this, 0); updatePrice(this)">Mit Beleuchtung (3 LEDs) und Metallstange</button>
-                                    <button class="variant-btn" data-price="24.95" onclick="jumpToSlide(this, 1); updatePrice(this)">Ohne Beleuchtung mit Metallstange</button>
-                                    <button class="variant-btn" data-price="14.95" onclick="jumpToSlide(this, 2); updatePrice(this)">Ohne Beleuchtung und Metallstange</button>
+                                    <button class="variant-btn active" data-price="39.95" onclick="jumpToSlide(this, 0); updatePrice(this)">Mit Beleuchtung (3 LEDs)</button>
+                                    <button class="variant-btn" data-price="24.95" onclick="jumpToSlide(this, 1); updatePrice(this)">Ohne Beleuchtung</button>
                                 </div>
                             </div>
                             <div class="product-footer">
                                 <span class="currency">CHF </span><span class="price">39,95</span>
-                                <button class="btn-buy" onclick="addToCart('Gandalf The White Staff', 39.95)">In den Warenkorb</button>
+                                <button class="btn-buy" onclick="addProductFromCard(this)">In den Warenkorb</button>
                             </div>
                         </div>
                     </div>
