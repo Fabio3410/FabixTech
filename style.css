@@ -784,8 +784,8 @@
 
        .checkout-button {
               color: white;
-              border: 1px solid var;
-              background-color: var;
+              border: 1px solid var(--accent-blue);
+              background-color: var(--accent-blue);
               border: none;
               padding: 12px 24px;
               font-size: 16px;
