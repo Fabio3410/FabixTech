@@ -1,6 +1,9 @@
-let cart = [];
+let cart = JSON.parse(localStorage.getItem('fabio3d_cart')) || [];
 
-// 1. WARENKORB ÖFFNEN / SCHLIESSEN
+function saveCartToStorage() {
+    localStorage.setItem('fabio3d_cart', JSON.stringify(cart));
+}
+
 function toggleCart() {
     const sidebar = document.getElementById('cart-sidebar');
     if (sidebar) {
@@ -8,17 +11,17 @@ function toggleCart() {
     }
 }
 
-// 2. PRODUKT HINZUFÜGEN
 function addToCart(name, price) {
     cart.push({ name, price });
+    saveCartToStorage();
     updateCartUI();
+    
     const sidebar = document.getElementById('cart-sidebar');
     if (sidebar) {
         sidebar.classList.add('open');
     }
 }
 
-// 3. WARENKORB OBERFLÄCHE AKTUALISIEREN
 function updateCartUI() {
     const countElement = document.getElementById('cart-count');
     const container = document.getElementById('cart-items-container');
@@ -54,14 +57,12 @@ function updateCartUI() {
         }
     }
 
-    // Prüft den Button-Zustand direkt beim Zeichnen des Warenkorbs
     if (checkoutButton) {
         const isChecked = legalCheckbox ? legalCheckbox.checked : false;
         checkoutButton.disabled = !(cart.length > 0 && isChecked);
     }
 }
 
-// 4. STRIPE CHECKOUT ABSENDEN
 async function checkout() {
     if (cart.length === 0) {
         alert("Dein Warenkorb ist leer!");
@@ -97,6 +98,7 @@ async function checkout() {
 
         if (data.url) {
             cart = [];
+            saveCartToStorage();
             updateCartUI();
             window.location.href = data.url;
         } else {
@@ -115,20 +117,19 @@ async function checkout() {
     }
 }
 
-// ============================================================
-// NEU: KUGELSICHERER GLOBALER LISTENER FÜR DIE CHECKBOX
-// ============================================================
+document.addEventListener('DOMContentLoaded', () => {
+    updateCartUI();
+});
+
 document.addEventListener('change', (event) => {
     if (event.target && event.target.id === 'legal-checkbox') {
         const checkoutButton = document.getElementById('checkout-button');
         if (checkoutButton) {
-            // Aktiviert den Button NUR, wenn der Haken gesetzt ist UND Artikel im Warenkorb liegen
-            checkoutButton.disabled = !(event.target.checked && cart.length > 0);
+            checkoutButton.disabled = !event.target.checked;
         }
     }
 });
 
-// 5. GLOBALE VERKNÜPFUNG FÜR DIE HTML-BUTTONS
 window.toggleCart = toggleCart;
 window.addToCart = addToCart;
 window.checkout = checkout;
