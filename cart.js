@@ -130,6 +130,15 @@ document.addEventListener('change', (event) => {
     }
 });
 
+
+function removeFromCart(index) {
+    cart.splice(index, 1); 
+    
+    saveCartToStorage();
+    updateCartUI();
+}
+
+window.removeFromCart = removeFromCart;
 window.toggleCart = toggleCart;
 window.addToCart = addToCart;
 window.checkout = checkout;
