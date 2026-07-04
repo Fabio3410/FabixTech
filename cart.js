@@ -151,12 +151,11 @@ function removeFromCart(index) {
 function addProductFromCard(buttonElement) {
     try {
         const box = buttonElement.closest('.product-card'); 
-        const titel = box.querySelector('.h3').innerText;
+        const titelText = box.querySelector('h3').innerText;
+        const titel = titelText.split('\n')[0].trim();
         const preisText = box.querySelector('.price').innerText;
-        const variante = box.querySelector('.variant-btn active').innerText; 
-        
-        const preis = parseFloat(preisText.replace(/[^\d.]/g, ''));
-        
+        const preis = parseFloat(preisText.replace(',', '.'));
+        const variante = box.querySelector('.variant-btn.active').innerText;    
         addToCart(titel, preis, variante);
         
     } catch (error) {
