@@ -434,7 +434,7 @@
             background: #f1f5f9;
         }
 
-        .products-grid {
+        .product-grid {
                display: grid;
                flex-wrap: wrap;
                grid-template-columns: repeat(auto-fit, 320px);
