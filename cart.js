@@ -11,8 +11,10 @@ function toggleCart() {
     }
 }
 
-function addToCart(name, price) {
-    cart.push({ name, price });
+function addToCart(name, price, variant) {
+    const selectedVariant = variant || 'Standard';
+    
+    cart.push({ name, price, variant: selectedVariant });
     saveCartToStorage();
     updateCartUI();
     
@@ -43,14 +45,22 @@ function updateCartUI() {
     if (container) {
         container.innerHTML = '';
         let total = 0;
-
-    cart.forEach((item, index) => {
-        total += item.price;
-        const itemRow = document.createElement('div');
-        itemRow.classList.add('cart-item');
-        itemRow.innerHTML = `<span>${item.name}</span><strong>CHF ${item.price.toFixed(2)}</strong><button class="remove-btn" onclick="removeFromCart(${index})">&times;</button>`;
-        container.appendChild(itemRow);
-    });
+        
+        cart.forEach((item, index) => {
+            total += item.price;
+            const itemRow = document.createElement('div');
+            itemRow.classList.add('cart-item');
+            
+            itemRow.innerHTML = `
+            <div style="display: flex; flex-direction: column; flex-grow: 1; text-align: left; margin-right: 10px;">
+            <span style="font-weight: 500; color: #333333; font-size: 15px;">${item.name}</span>
+            <span style="font-size: 12px; color: #777777; margin-top: 2px;">Variante: ${item.variant}</span>
+        </div>
+        <strong style="margin-right: 12px; white-space: nowrap; align-self: center;">CHF ${item.price.toFixed(2)}</strong>
+        <button class="remove-btn" onclick="removeFromCart(${index})" style="align-self: center;">&times;</button>
+    `;
+    container.appendChild(itemRow);
+});
         
         if (totalElement) {
             totalElement.innerText = `CHF ${total.toFixed(2)}`;
