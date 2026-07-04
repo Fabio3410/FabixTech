@@ -125,7 +125,7 @@ document.addEventListener('change', (event) => {
     if (event.target && event.target.id === 'legal-checkbox') {
         const checkoutButton = document.getElementById('checkout-button');
         if (checkoutButton) {
-            checkoutButton.disabled = !event.target.checked;
+            checkoutButton.disabled = !(event.target.checked && cart.length > 0);
         }
     }
 });
