@@ -89,3 +89,29 @@
                         console.log("Geänderte ID für dieses Produkt:", hauptButton.dataset.id);
                 });
         });
+
+        document.querySelectorAll('.variant-btn').forEach(btn => {
+                btn.addEventListener('click', (event) => {
+                        const gewaehlteId = event.target.dataset.id;
+                        const produktKarte = event.target.closest('.product-card');
+                        const hauptButton = produktKarte.querySelector('.btn-buy');
+                        hauptButton.dataset.id = gewaehlteId;
+                        produktKarte.querySelectorAll('.variant-btn').forEach(b => b.classList.remove('active'));
+                        event.target.classList.add('active');
+                });
+        });
+
+        document.getElementById('checkout-button').addEventListener('click', async () => {
+                const response = await fetch('/api/checkout', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ cartIds: meinWarenkorbIds }) 
+                });
+                
+                const data = await response.json();
+                if (data.url) {
+                        window.location.href = data.url;
+                } else {
+                        alert('Fehler: ' + data.error);
+                }
+        });
