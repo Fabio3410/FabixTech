@@ -95,7 +95,7 @@
                         <div class="slider-container">
                             <div class="slides">
                                 <a href="products/gandalf-staff.html" class="product-img-link">
-                                    <img src="images/image.jpg">
+                                    <img>
                                     <img>
                                     <img>
                                 </a>
@@ -116,13 +116,13 @@
                                 <button type="button" class="nav-arrow left" onclick="scrollSlider(this, -1)">&#10094;</button>
                                 <button type="button" class="nav-arrow right" onclick="scrollSlider(this, 1)">&#10095;</button>
                                 <div class="color-slider-track">
-                                    <button class="variant-btn active" data-price="39.95" onclick="jumpToSlide(this, 0); updatePrice(this)">Mit Beleuchtung (3 LEDs)</button>
-                                    <button class="variant-btn" data-price="24.95" onclick="jumpToSlide(this, 1); updatePrice(this)">Ohne Beleuchtung</button>
+                                    <button class="variant-btn active" data-price="39.95" data-id="gandalf_staff_mit_beleuchtung" onclick="jumpToSlide(this, 0); updatePrice(this)">Mit Beleuchtung (3 LEDs)</button>
+                                    <button class="variant-btn" data-price="24.95" data-id="gandalf_staff_ohne_beleuchtung" onclick="jumpToSlide(this, 1); updatePrice(this)">Ohne Beleuchtung</button>
                                 </div>
                             </div>
                             <div class="product-footer">
                                 <span class="currency">CHF </span><span class="price">39,95</span>
-                                <button class="btn-buy" onclick="addProductFromCard(this)">In den Warenkorb</button>
+                                <button class="btn-buy" data-id="gandalf_staff_mit_beleuchtung" onclick="addProductFromCard(this)">In den Warenkorb</button>
                             </div>
                         </div>
                     </div>
@@ -152,15 +152,15 @@
                                 <button type="button" class="nav-arrow left" onclick="scrollSlider(this, -1)">&#10094;</button>
                                 <button type="button" class="nav-arrow right" onclick="scrollSlider(this, 1)">&#10095;</button>
                                 <div class="color-slider-track">
-                                    <button class="variant-btn active" onclick="jumpToSlide(this, 0)">Schwarz/Rot</button>
-                                    <button class="variant-btn" onclick="jumpToSlide(this, 1)">Schwarz/Gelb</button>
-                                    <button class="variant-btn" onclick="jumpToSlide(this, 2)">Schwarz/Weiss</button>
-                                    <button class="variant-btn" onclick="jumpToSlide(this, 3)">Rot/Weiss</button>
+                                    <button class="variant-btn active" data-id="spiral_cone_schwarz_rot" onclick="jumpToSlide(this, 0)">Schwarz/Rot</button>
+                                    <button class="variant-btn" data-id="spiral_cone_schwarz_gelb" onclick="jumpToSlide(this, 1)">Schwarz/Gelb</button>
+                                    <button class="variant-btn" data-id="spiral_cone_schwarz_weiss" onclick="jumpToSlide(this, 2)">Schwarz/Weiss</button>
+                                    <button class="variant-btn" data-id="spiral_cone_rot_weiss" onclick="jumpToSlide(this, 3)">Rot/Weiss</button>
                                 </div>
                             </div>
                             <div class="product-footer">
                                 <span class="currency">CHF </span><span class="price">1,95</span>
-                                <button class="btn-buy" onclick="addProductFromCard(this)">In den Warenkorb</button>
+                                <button class="btn-buy" data-id="spiral_cone_schwarz_rot" onclick="addProductFromCard(this)">In den Warenkorb</button>
                             </div>
                         </div>
                     </div>
@@ -190,14 +190,14 @@
                                 <button type="button" class="nav-arrow left" onclick="scrollSlider(this, -1)">&#10094;</button>
                                 <button type="button" class="nav-arrow right" onclick="scrollSlider(this, 1)">&#10095;</button>
                                 <div class="color-slider-track">
-                                    <button class="variant-btn active" data-price="1.49" onclick="jumpToSlide(this, 0); updatePrice(this)">Grün</button>
-                                    <button class="variant-btn" data-price="1.49" onclick="jumpToSlide(this, 1); updatePrice(this)">Gelb</button>
-                                    <button class="variant-btn" data-price="1.49" onclick="jumpToSlide(this, 1); updatePrice(this)">Schwarz</button>
+                                    <button class="variant-btn active" data-id="articulated_snake_gruen" data-price="1.49" onclick="jumpToSlide(this, 0); updatePrice(this)">Grün</button>
+                                    <button class="variant-btn" data-id="articulated_snake_gelb" data-price="1.49" onclick="jumpToSlide(this, 1); updatePrice(this)">Gelb</button>
+                                    <button class="variant-btn" data-id="articulated_snake_schwarz" data-price="1.49" onclick="jumpToSlide(this, 1); updatePrice(this)">Schwarz</button>
                                 </div>
                             </div>
                             <div class="product-footer">
                                 <span class="currency">CHF </span><span class="price">1,49</span>
-                                <button class="btn-buy" onclick="addProductFromCard(this)">In den Warenkorb</button>
+                                <button class="btn-buy" data-id="articulated_snake_gruen" onclick="addProductFromCard(this)">In den Warenkorb</button>
                             </div>
                         </div>
                     </div>
