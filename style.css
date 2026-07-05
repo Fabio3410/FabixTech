@@ -520,6 +520,7 @@
             justify-content: space-between;
             align-items: center;
         }
+
         .color-slider-container {
             position: relative;
             width: 100%;
@@ -539,6 +540,10 @@
         .color-slider-track::-webkit-scrollbar {
             display: none;
         }
+
+       .color-slider-container.hide-arrows .nav-arrow {
+              display: none !important;
+       }
 
         .nav-arrow {
             position: absolute;
