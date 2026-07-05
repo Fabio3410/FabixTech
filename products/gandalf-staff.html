@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>Gandalf The White Staff - Details</title>
+    <link rel="stylesheet" href="style.css"> <script src="cart.js" defer></script> 
+</head>
+<body>
+
+    <a href="index.html" style="display: inline-block; margin: 20px;">&larr; Zurück zum Shop</a>
+
+    <div class="product-card detail-view">
+        <div class="product-info">
+            <h3>Gandalf The White Staff</h3>
+            
+            <div class="long-description">
+                <p></p>
+            </div>
+
+            <div class="color-slider-track">
+                <button class="variant-btn active" data-price="39.95" onclick="updatePrice(this)">Mit Beleuchtung</button>
+                <button class="variant-btn" data-price="24.95" onclick="updatePrice(this)">Ohne Beleuchtung</button>
+            </div>
+
+            <div class="product-footer">
+                <span class="currency">CHF </span><span class="price">39,95</span>
+                <button class="btn-buy" onclick="addProductFromCard(this)">In den Warenkorb</button>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>
