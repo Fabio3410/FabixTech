@@ -484,6 +484,17 @@
             margin-bottom: 1rem;
         }
 
+       .product-link {
+              color: black;
+              text-decoration: none;
+              cursor: pointer;
+       }
+
+       .product-link:hover {
+              text-decoration: none;
+              cursor: pointer;
+       }
+
         .tech-specs {
             background: #f8fafc;
             border-radius: 6px;
