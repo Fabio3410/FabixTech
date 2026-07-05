@@ -77,3 +77,15 @@
                         }
                 }
         }
+
+        document.querySelectorAll('.varianten-btn').forEach(btn => {
+                btn.addEventListener('click', (event) => {
+                        const gewaehlteId = event.target.dataset.id;
+                        const produktKarte = event.target.closest('.produkt-karte');
+                        const hauptButton = produktKarte.querySelector('.warenkorb-btn');
+                        hauptButton.dataset.id = gewaehlteId;
+                        produktKarte.querySelectorAll('.varianten-btn').forEach(b => b.classList.remove('aktiv'));
+                        event.target.classList.add('aktiv');
+                        console.log("Geänderte ID für dieses Produkt:", hauptButton.dataset.id);
+                });
+        });
