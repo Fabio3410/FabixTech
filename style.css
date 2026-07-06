@@ -541,8 +541,8 @@
             display: none;
         }
 
-       .color-slider-container.hide-arrows .nav-arrow {
-              display: none !important;
+       .color-slider-container.hide #nav-arrow {
+              visibility: hidden;
        }
 
         .nav-arrow {
