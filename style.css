@@ -546,7 +546,7 @@
        }
 
        .slides.hide #slides-arrow {
-              visibility: hidden;
+              visibility: hidden !important;
        }
 
         .nav-arrow {
