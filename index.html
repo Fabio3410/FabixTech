@@ -186,9 +186,9 @@
                                 <span class="spec"><b>Infill:</b> 20% Gyroid</span>
                             </div>
                             <h4><strong>Varianten</strong></h4>
-                            <div class="color-slider-container hide-arrows">
-                                <button type="button" class="nav-arrow left" onclick="scrollSlider(this, -1)">&#10094;</button>
-                                <button type="button" class="nav-arrow right" onclick="scrollSlider(this, 1)">&#10095;</button>
+                            <div class="color-slider-container hide">
+                                <button type="button" class="nav-arrow left" id="nav-arrow" onclick="scrollSlider(this, -1)">&#10094;</button>
+                                <button type="button" class="nav-arrow right" id="nav-arrow" onclick="scrollSlider(this, 1)">&#10095;</button>
                                 <div class="color-slider-track">
                                     <button class="variant-btn active" data-id="articulated_snake_gruen" data-price="1.49" onclick="jumpToSlide(this, 0); updatePrice(this)">Grün</button>
                                     <button class="variant-btn" data-id="articulated_snake_gelb" data-price="1.49" onclick="jumpToSlide(this, 1); updatePrice(this)">Gelb</button>
