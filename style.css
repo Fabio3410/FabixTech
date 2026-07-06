@@ -545,7 +545,7 @@
               visibility: hidden;
        }
 
-       .slider-container.hide #slides-arrow {
+       .slides.hide #slides-arrow {
               visibility: hidden;
        }
 
