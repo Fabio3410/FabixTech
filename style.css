@@ -545,6 +545,10 @@
               visibility: hidden;
        }
 
+       .slider-container.hide #slides-arrow {
+              visibility: hidden;
+       }
+
         .nav-arrow {
             position: absolute;
             top: 50%;
