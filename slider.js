@@ -15,8 +15,13 @@ function updateActiveButton(container, currentIndex) {
 }
 
 function changeSlide(buttonElement, direction) {
-  const container = buttonElement.closest('.slider-container');
-  if (!container) return;
+  const card = buttonElement.closest('.product-card');
+  if (!card) return;
+
+  const container = card.querySelector('.slider-container');
+  const slidesContainer = card.querySelector('.slides');
+  
+  if (!container || !slidesContainer) return;
 
   if (!container.id) {
     container.id = 'slider-' + Math.random().toString(36).substr(2, 9);
@@ -28,8 +33,7 @@ function changeSlide(buttonElement, direction) {
   }
   let currentSlide = sliderIndexes.get(sliderId);
 
-  const slidesContainer = container.querySelector('.slides');
-  const totalSlides = container.querySelectorAll('.slides img').length;
+  const totalSlides = slidesContainer.querySelectorAll('img').length;
 
   currentSlide += direction;
 
@@ -38,7 +42,7 @@ function changeSlide(buttonElement, direction) {
   } else if (currentSlide < 0) {
     currentSlide = totalSlides - 1;
   }
-
+  
   sliderIndexes.set(sliderId, currentSlide);
   slidesContainer.style.transform = `translateX(-${currentSlide * 100}%)`;
 
