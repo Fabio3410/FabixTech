@@ -11,28 +11,7 @@
 </head>
 <body>
 
-    <a href="../index.html" style="display: inline-block; margin: 20px;">&larr; Zurück zum Shop</a>
-
-    <div class="product-card detail-view">
-        <div class="product-info">
-            <h3>Gandalf The White Staff</h3>
-            
-            <div class="long-description">
-                <p></p>
-            </div>
-
-            <div class="color-slider-track">
-                <button class="variant-btn active" data-id="gandalf_staff_mit_beleuchtung" data-price="39.95" onclick="updatePrice(this)">Mit Beleuchtung</button>
-                <button class="variant-btn" data-id="gandalf_staff_ohne_beleuchtung" data-price="24.95" onclick="updatePrice(this)">Ohne Beleuchtung</button>
-            </div>
-
-            <div class="product-footer">
-                <span class="currency">CHF </span><span class="price">39,95</span>
-                <button class="btn-buy" onclick="addProductFromCard(this)">In den Warenkorb</button>
-            </div>
-        </div>
-    </div>
-
+    <a class="docs" href="../index.html" style="display: inline-block; margin: 20px;">&larr; Zurück zum Shop</a>
 
     <div class="product-card-detail-view">
         <h1>Gandalf The White Staff</h1>
@@ -72,5 +51,15 @@
             </div>
         </div>
     </div>
+    <footer>
+    <div class="footer-links">
+        <a onclick="switchPage('home')">Home</a> | 
+        <a onclick="switchPage('shop')">Shop</a> | 
+        <a onclick="switchPage('about')">Über mich</a> | 
+        <a onclick="switchPage('contact')">Kontakt</a> | 
+        <a onclick="switchPage('impressum')">Impressum</a>
+    </div>
+    <p>&copy; 2026 Fabio3D. Alle Rechte vorbehalten.</p>
+    </footer>
 </body>
 </html>
