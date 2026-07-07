@@ -157,6 +157,48 @@ html {
     margin-bottom: 15px;
 }
 
+.arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: rgba(255, 255, 255, 0.7);
+    border: none;
+    font-size: 20px;
+    padding: 10px 14px;
+    cursor: pointer;
+    border-radius: 50%;
+    user-select: none;
+    transition: background 0.2s;
+    z-index: 10;
+}
+
+.arrow:hover {
+    background-color: rgba(255, 255, 255, 1);
+}
+
+.slider-container {
+    position: relative;
+    width: 100%;
+    height: 240px;
+    background-color: #f4f5f7;
+    border-radius: 8px 8px 0 0;
+    overflow: hidden;
+}
+
+.slides {
+    display: flex;
+    width: 100%;
+    height: 100%;
+    transition: transform 0.3s ease-in-out;
+}
+
+.slides img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    flex: 0 0 100%;
+}
+
 .long-description {
     font-size: 15px;
     line-height: 1.6;
@@ -208,6 +250,51 @@ html {
     justify-content: space-between;
     padding-top: 20px;
     border-top: 1px solid #eee;
+}
+
+.color-slider-track::-webkit-scrollbar {
+    display: none;
+}
+
+.color-slider-container.hide #nav-arrow {
+    visibility: hidden;
+}
+
+.slides.hide #slides-arrow {
+    visibility: hidden !important;
+}
+
+.nav-arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 10;
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid #ced4da;
+    border-radius: 50%;
+    width: 26px;
+    height: 26px;
+    font-size: 11px;
+    cursor: pointer;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1); 
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease, background 0.2s;
+}
+
+.nav-arrow.left {
+    left: 5px; 
+}
+
+.nav-arrow.right { 
+    right: 5px; 
+}
+
+.product-card:hover .nav-arrow {
+    opacity: 1;
+    pointer-events: auto; 
 }
 
 .sidebar {
@@ -337,6 +424,17 @@ html {
 .btn-buy:hover {
     background-color: #f0f7ff;
 }
+
+footer {
+    text-align: center;
+    padding: 3rem 2rem;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    border-top: 1px solid var(--border-color);
+    margin-top: 6rem;
+    background-color: #ffffff;
+}
+
 
 .footer-links {
     margin-bottom: 1rem;
