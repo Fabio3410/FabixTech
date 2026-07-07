@@ -1,4 +1,3 @@
-/* --- GLOBALE STRUKTUR --- */
 body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     background-color: #f8f9fa;
@@ -7,34 +6,30 @@ body {
     padding: 0;
 }
 
-/* --- FIX 1: Abstand zur fixierten Navigationsleiste --- */
 .product-details {
     max-width: 1100px;
     margin: 0 auto;
-    padding: 90px 20px 40px 20px; /* 90px schiebt den Inhalt unter deine Header-Leiste */
+    padding: 90px 20px 40px 20px;
     box-sizing: border-box;
 }
 
-/* Zurück zum Shop Link */
 .docs a {
     color: #0066cc;
     text-decoration: none;
     font-weight: 600;
 }
 
-/* --- GRID-LAYOUT --- */
 .product-card-detail-view {
     background-color: #ffffff;
     border-radius: 12px;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
     padding: 30px;
     display: grid;
-    grid-template-columns: 1fr 1fr; /* Erzwingt exakt zwei gleich große Hälften */
+    grid-template-columns: 1fr 1fr;
     gap: 40px;
     align-items: start;
 }
 
-/* Überschrift über die gesamte Breite */
 .product-card-detail-view h1 {
     grid-column: 1 / -1;
     font-size: 32px;
@@ -44,11 +39,10 @@ body {
     color: #000000;
 }
 
-/* --- LINKER BEREICH (Slider + Grauer Kasten) --- */
 .detail-left-side {
     display: flex;
     flex-direction: column;
-    gap: 20px; /* Abstand zwischen Slider-Bild und grauem Kasten */
+    gap: 20px;
     width: 100%;
 }
 
@@ -58,7 +52,7 @@ body {
     background-color: #f4f5f7;
     border-radius: 10px;
     overflow: hidden;
-    aspect-ratio: 1 / 1; /* Hält den Slider quadratisch */
+    aspect-ratio: 1 / 1;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -75,11 +69,9 @@ body {
     height: 100%;
     object-fit: cover;
 }
-
-/* FIX 2: Der graue Kasten auf der linken Seite */
 .tech-specs {
     background-color: #f8f9fa;
-    border-left: 4px solid #00baee; /* Die hellblaue Linie aus deinem Original-Design */
+    border-left: 4px solid #00baee;
     padding: 15px;
     border-radius: 0 6px 6px 0;
     display: flex;
@@ -92,7 +84,6 @@ body {
     color: #333;
 }
 
-/* --- RECHTER BEREICH (Text & Varianten) --- */
 .product-info {
     display: flex;
     flex-direction: column;
@@ -120,7 +111,6 @@ body {
     color: #000;
 }
 
-/* Varianten Slider Track */
 .color-slider-container {
     display: flex;
     align-items: center;
@@ -152,7 +142,6 @@ body {
     color: #0066cc;
 }
 
-/* --- FOOTER (Preis & Kaufen) --- */
 .product-footer {
     margin-top: auto;
     display: flex;
@@ -162,7 +151,6 @@ body {
     border-top: 1px solid #eee;
 }
 
-/* Hält CHF und den Betrag beieinander */
 .price-block {
     display: flex;
     gap: 6px;
@@ -187,13 +175,12 @@ body {
     background-color: #f0f7ff;
 }
 
-/* --- MOBILANSICHT --- */
 @media (max-width: 768px) {
     .product-details {
         padding-top: 80px;
     }
     .product-card-detail-view {
-        grid-template-columns: 1fr; /* Auf Handys wird alles untereinander angezeigt */
+        grid-template-columns: 1fr;
         gap: 20px;
     }
 }
