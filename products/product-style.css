@@ -301,7 +301,7 @@ html {
 .sidebar {
     position: fixed;
     top: 0;
-    right: -400px;
+    right: -500px;
     width: 400px;
     height: 100%;
     background-color: var(--bg-card);
@@ -312,6 +312,7 @@ html {
     padding: 2rem;
     display: flex;
     flex-direction: column;
+    height: 100vh !important;
 }
 
 .sidebar.open {
