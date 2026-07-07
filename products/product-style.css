@@ -23,6 +23,10 @@
             color: var(--text-main);
         }
 
+       .body {
+            margin: 0 auto;
+       }
+
         .navbar {
             position: fixed;
             top: 0;
