@@ -312,7 +312,8 @@ html {
     padding: 2rem;
     display: flex;
     flex-direction: column;
-    height: 100vh !important;
+    overflow-y: auto !important;
+    box-sizing: border-box !important;
 }
 
 .sidebar.open {
