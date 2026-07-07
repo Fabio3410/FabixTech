@@ -31,7 +31,9 @@
             border: 1px solid var(--border-color);
             transition: all 0.2s;
             font-weight: 600;
-            max-width: 90px;
+            max-width: 70px;
+            padding-right: 30px;
+            padding-top: 10px;
         }
 
         .cart-icon:hover {
