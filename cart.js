@@ -31,28 +31,28 @@ function updateCartUI() {
     const checkoutButton = document.getElementById('checkout-button');
     const legalCheckbox = document.getElementById('legal-checkbox');
     let total = 0;
-    
+
     if (countElement) {
         countElement.innerText = cart.length;
     }
-    
+
     if (cart.length === 0) {
         if (container) container.innerHTML = '<p class="empty-msg">Dein Warenkorb ist noch leer.</p>';
         if (totalElement) totalElement.innerText = 'CHF 0,00';
         if (checkoutButton) checkoutButton.disabled = true;
         return;
     }
-    
+
     if (container) {
         container.innerHTML = '';
-        
+
         cart.forEach((item, index) => {
             const sichererPreis = Number(item.price) || 0;
             total += sichererPreis;
-            
+
             const itemRow = document.createElement('div');
             itemRow.classList.add('cart-item');
-            
+
             itemRow.innerHTML = `
                 <div style="display: flex; flex-direction: column; flex-grow: 1; text-align: left; margin-right: 10px;">
                     <span style="font-weight: 500; color: #333333; font-size: 15px;">${item.name || 'Unbekanntes Produkt'}</span>
@@ -69,18 +69,10 @@ function updateCartUI() {
         totalElement.innerText = `CHF ${total.toFixed(2)}`;
     }
     if (checkoutButton) {
-        checkoutButton.disabled = false;
-    }
-}
-        
-        if (totalElement) {
-            totalElement.innerText = `CHF ${total.toFixed(2)}`;
-        }
-
-    if (checkoutButton) {
         const isChecked = legalCheckbox ? legalCheckbox.checked : false;
         checkoutButton.disabled = !(cart.length > 0 && isChecked);
     }
+}
 
 async function checkout() {
     if (cart.length === 0) {
