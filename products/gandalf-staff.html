@@ -13,6 +13,22 @@
 
     <a class="docs" href="../index.html" style="display: inline-block; margin: 20px;">&larr; Zurück zum Shop</a>
 
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="#home" class="logo" onclick="switchPage('home')">FABIO<span class="gradient-text">3D</span></a>
+            <ul class="nav-links">
+                <li><a class="nav-link active" onclick="switchPage('home')">Home</a></li>
+                <li><a class="nav-link" onclick="switchPage('shop')">Shop</a></li>
+                <li><a class="nav-link" onclick="switchPage('about')">Über mich</a></li>
+                <li><a class="nav-link" onclick="switchPage('contact')">Kontakt</a></li>
+                <li><a class="nav-link" onclick="switchPage('impressum')">Impressum</a></li>
+            </ul>
+            <div class="cart-icon" onclick="toggleCart()">
+                <i class="fa-solid fa-cart-shopping"></i> <span id="cart-count">0</span>
+            </div>
+        </div>
+    </nav>
+
     <div class="product-card-detail-view">
         <h1>Gandalf The White Staff</h1>
         <div class="slider-container" hide>
