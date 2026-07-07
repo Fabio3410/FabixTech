@@ -6,6 +6,25 @@ body {
     padding: 0;
 }
 
+:root {
+    --bg-dark: #f8fafc;       
+    --bg-card: #ffffff;       
+    --accent-cyan: #0ea5e9;   
+    --accent-blue: #2563eb;   
+    --text-main: #0f172a;
+    --text-muted: #64748b;    
+    --border-color: #e2e8f0;  
+    --shadow-sm: 0 2px 4px rgba(0,0,0,0.02);
+    --shadow-md: 0 10px 25px rgba(15, 23, 42, 0.08);
+}
+
+html {
+    scroll-behavior: smooth;
+    font-family: 'Inter', sans-serif;
+    background-color: var(--bg-dark);
+    color: var(--text-main);
+}
+
 .product-details {
     max-width: 1100px;
     margin: 0 auto;
@@ -13,11 +32,51 @@ body {
     box-sizing: border-box;
 }
 
+.navbar {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    background-color: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--border-color);
+    z-index: 1000;
+    box-shadow: var(--shadow-sm);
+}
+
+.nav-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 1.2rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.cart-icon {
+    cursor: pointer;
+    background: var(--bg-card);
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    border: 1px solid var(--border-color);
+    transition: all 0.2s;
+    font-weight: 600;
+}
+
+.cart-icon:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-sm);
+}
+
 .docs a {
     color: #0066cc;
     text-decoration: none;
     font-weight: 600;
 }
+        
+.docs a:hover {
+    text-decoration: underline;
+}
+
 
 .product-card-detail-view {
     background-color: #ffffff;
@@ -151,6 +210,110 @@ body {
     border-top: 1px solid #eee;
 }
 
+.sidebar {
+    position: fixed;
+    top: 0;
+    right: -400px;
+    width: 400px;
+    height: 100%;
+    background-color: var(--bg-card);
+    border-left: 1px solid var(--border-color);
+    box-shadow: -10px 0 30px rgba(0,0,0,0.05);
+    z-index: 2000;
+    transition: right 0.3s ease;
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+}
+
+.sidebar.open {
+    right: 0;
+}
+
+.sidebar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 1rem;
+    margin-bottom: 1rem;
+}
+
+.close-btn {
+    font-size: 2rem;
+    cursor: pointer;
+    color: var(--text-muted);
+}
+
+.close-btn:hover {
+    color: var(--text-main);
+}
+
+#cart-items-container {
+    flex-grow: 1;
+    overflow-y: auto;
+}
+
+.cart-item {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+    padding: 0.8rem;
+    background: #f8fafc;
+    border-radius: 6px;
+    border: 1px solid var(--border-color);
+}
+
+.remove-btn {
+    background: none;
+    border: none;
+    color: #A9A9A9;
+    cursor: pointer;
+    font-size: 25px;
+}
+
+.sidebar-footer {
+    border-top: 1px solid var(--border-color);
+    padding-top: 1rem;
+}
+
+.total-price {
+    font-size: 1.2rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    display: flex;
+    justify-content: space-between;
+}
+
+.checkout-button {
+    width: 100%;
+}
+
+.checkout-button {
+    color: white;
+    border: 1px solid var(--accent-blue);
+    background-color: var(--accent-blue);
+    border: none;
+    padding: 12px 24px;
+    font-size: 16px;
+    font-weight: bold;
+    border-radius: 8px;
+    cursor: pointer;
+    width: 100%;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.checkout-button:not(:disabled):hover {
+    transform: scale(1.02);
+}
+
+.checkout-button:disabled {
+    background-color: #cccccc;
+    color: #666666;
+    cursor: not-allowed;
+    transform: none;
+}
+
 .price-block {
     display: flex;
     gap: 6px;
@@ -173,6 +336,22 @@ body {
 
 .btn-buy:hover {
     background-color: #f0f7ff;
+}
+
+.footer-links {
+    margin-bottom: 1rem;
+}
+
+.footer-links a {
+    margin: 0 0.5rem;
+    cursor: pointer;
+    font-weight: 600;
+    color: var(--text-muted);
+    transition: color 0.2s;
+}
+
+.footer-links a:hover {
+    color: var(--accent-blue);
 }
 
 @media (max-width: 768px) {
