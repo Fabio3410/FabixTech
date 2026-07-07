@@ -30,6 +30,7 @@ function updateCartUI() {
     const totalElement = document.getElementById('cart-total');
     const checkoutButton = document.getElementById('checkout-button');
     const legalCheckbox = document.getElementById('legal-checkbox');
+    let total = 0;
     
     if (countElement) {
         countElement.innerText = cart.length;
@@ -44,34 +45,42 @@ function updateCartUI() {
     
     if (container) {
         container.innerHTML = '';
-        let total = 0;
         
         cart.forEach((item, index) => {
-            total += item.price;
+            const sichererPreis = Number(item.price) || 0;
+            total += sichererPreis;
+            
             const itemRow = document.createElement('div');
             itemRow.classList.add('cart-item');
             
             itemRow.innerHTML = `
-            <div style="display: flex; flex-direction: column; flex-grow: 1; text-align: left; margin-right: 10px;">
-            <span style="font-weight: 500; color: #333333; font-size: 15px;">${item.name}</span>
-            <span style="font-size: 12px; color: #777777; margin-top: 2px;">Variante: ${item.variant}</span>
-        </div>
-        <strong style="margin-right: 12px; white-space: nowrap; align-self: center;">CHF ${item.price.toFixed(2)}</strong>
-        <button class="remove-btn" onclick="removeFromCart(${index})" style="align-self: center;">&times;</button>
-    `;
-    container.appendChild(itemRow);
-});
+                <div style="display: flex; flex-direction: column; flex-grow: 1; text-align: left; margin-right: 10px;">
+                    <span style="font-weight: 500; color: #333333; font-size: 15px;">${item.name || 'Unbekanntes Produkt'}</span>
+                    <span style="font-size: 12px; color: #777777; margin-top: 2px;">Variante: ${item.variant || 'Standard'}</span>
+                </div>
+                <strong style="margin-right: 12px; white-space: nowrap; align-self: center;">CHF ${sichererPreis.toFixed(2)}</strong>
+                <button class="remove-btn" onclick="removeFromCart(${index})" style="align-self: center;">&times;</button>
+            `;
+            container.appendChild(itemRow);
+        });
+    }
+
+    if (totalElement) {
+        totalElement.innerText = `CHF ${total.toFixed(2)}`;
+    }
+    if (checkoutButton) {
+        checkoutButton.disabled = false;
+    }
+}
         
         if (totalElement) {
             totalElement.innerText = `CHF ${total.toFixed(2)}`;
         }
-    }
 
     if (checkoutButton) {
         const isChecked = legalCheckbox ? legalCheckbox.checked : false;
         checkoutButton.disabled = !(cart.length > 0 && isChecked);
     }
-}
 
 async function checkout() {
     if (cart.length === 0) {
@@ -150,17 +159,33 @@ function removeFromCart(index) {
 
 function addProductFromCard(buttonElement) {
     try {
-        const box = buttonElement.closest('.product-card'); 
-        const titelText = box.querySelector('h3').innerText;
+        const box = buttonElement.closest('.product-card') || buttonElement.closest('.product-detail') || document.body; 
+
+        const titleElement = box.querySelector('h1') || box.querySelector('h3');
+        if (!titleElement) throw new Error("Produkt-Titel wurde im HTML nicht gefunden!");
+        
+        const titelText = titleElement.innerText;
         const titel = titelText.split('\n')[0].trim();
-        const preisText = box.querySelector('.price').innerText;
+
+        const priceElement = box.querySelector('.price');
+        if (!priceElement) throw new Error("Preis-Element (.price) wurde im HTML nicht gefunden!");
+        
+        let preisText = priceElement.innerText;
+        preisText = preisText.replace(/[^0-9.,]/g, ''); 
         const preis = parseFloat(preisText.replace(',', '.'));
-        const variante = box.querySelector('.variant-btn.active').innerText;    
+
+        const activeVariantBtn = box.querySelector('.variant-btn.active');
+        const variante = activeVariantBtn ? activeVariantBtn.innerText.trim() : 'Standard';    
+
+        if (isNaN(preis)) {
+            throw new Error("Der ausgelesene Preis ist keine gültige Zahl!");
+        }
+
         addToCart(titel, preis, variante);
         
     } catch (error) {
         console.error("Fehler beim Hinzufügen:", error);
-        alert("Ups! Das Produkt konnte nicht zum Warenkorb hinzugefügt werden.");
+        alert("Ups! Das Produkt konnte nicht hinzugefügt werden: " + error.message);
     }
 }
 
