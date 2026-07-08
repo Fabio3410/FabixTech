@@ -233,6 +233,11 @@ html {
     transition: all 0.2s ease;
 }
 
+.variant-btn:hover {
+    background-color: #eef2f5;
+    border-color: #0066cc;
+}
+
 .variant-btn.active {
     background-color: #ffffff;
     border: 1px solid #0066cc;
@@ -420,7 +425,8 @@ html {
 }
 
 .btn-buy:hover {
-    background-color: #f0f7ff;
+    background-color: var(--accent-blue);
+    color: #ffffff;
 }
 
 footer {
