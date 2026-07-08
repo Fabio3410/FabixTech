@@ -30,7 +30,10 @@ function updateCartUI() {
     const totalElement = document.getElementById('cart-total');
     const checkoutButton = document.getElementById('checkout-button');
     const legalCheckbox = document.getElementById('legal-checkbox');
+    const shippingElement = document.getElementById('cart-shipping');
+    
     let total = 0;
+    const versandKosten = 5.70;
 
     if (countElement) {
         countElement.innerText = cart.length;
@@ -39,6 +42,7 @@ function updateCartUI() {
     if (cart.length === 0) {
         if (container) container.innerHTML = '<p class="empty-msg">Dein Warenkorb ist noch leer.</p>';
         if (totalElement) totalElement.innerText = 'CHF 0,00';
+        if (shippingElement) shippingElement.innerText = 'CHF 0,00';
         if (checkoutButton) checkoutButton.disabled = true;
         return;
     }
@@ -65,9 +69,14 @@ function updateCartUI() {
         });
     }
 
+    if (shippingElement) {
+        shippingElement.innerText = `CHF ${versandKosten.toFixed(2)}`;
+    }
+
     if (totalElement) {
         totalElement.innerText = `CHF ${total.toFixed(2)}`;
     }
+
     if (checkoutButton) {
         const isChecked = legalCheckbox ? legalCheckbox.checked : false;
         checkoutButton.disabled = !(cart.length > 0 && isChecked);
