@@ -299,7 +299,11 @@
             <p class="empty-msg">Dein Warenkorb ist noch leer.</p>
         </div>
         <div class="sidebar-footer">
-            <div class="total-price"><span>Gesamtsumme:</span> <span id="cart-total">CHF 0,00</span></div
+            <div class="total-price"><span>Gesamtsumme:</span> <span id="cart-total">CHF 0,00</span></div>
+            <div class="cart-shipping-row" style="display: flex; justify-content: space-between; margin-top: 5px; font-size: 14px; color: #555;">
+                <span>Versand (wird bei Stripe berechnet):</span>
+                <span id="cart-shipping">CHF 0.00</span>
+            </div>
             <div style="margin-top: 15px; font-size: 14px; line-height: 1.5; color: #333333;">
                 <input type="checkbox" id="legal-checkbox" style="vertical-align: middle; margin-right: 6px; cursor: pointer;">
                 <label for="legal-checkbox" style="vertical-align: middle; cursor: pointer;">
