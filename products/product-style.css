@@ -227,6 +227,7 @@ html {
     border-radius: 6px;
     padding: 8px 14px;
     font-size: 13px;
+    font-weight: bold;
     font-weight: 500;
     cursor: pointer;
     white-space: nowrap;
