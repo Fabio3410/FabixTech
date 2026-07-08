@@ -19,7 +19,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const priceElement = document.querySelector('.price');
             
             if (priceElement && variantPrice) {
-                priceElement.innerText = `CHF ${parseFloat(variantPrice).toFixed(2)}`;
+                priceElement.innerText = `${parseFloat(variantPrice).toFixed(2)}`;
             }
 
             if (typeof currentProduct !== 'undefined') {
