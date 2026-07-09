@@ -3,8 +3,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     productCards.forEach(card => {
         const imgElement = card.querySelector('.product-img');
-        const prevBtn = card.querySelector('.arrow prev');
-        const nextBtn = card.querySelector('.arrow next');
+        const prevBtn = card.querySelector('.arrow.prev');
+        const nextBtn = card.querySelector('.arrow.next');
 
         if (imgElement && prevBtn && nextBtn) {
 
