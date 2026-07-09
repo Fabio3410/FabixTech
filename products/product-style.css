@@ -125,6 +125,15 @@ html {
     display: flex;
 }
 
+.product-img {
+    transition: opacity 0.15s ease-in-out;
+    opacity: 1;
+}
+
+.product-img.fade-out {
+    opacity: 0;
+}
+
 .tech-specs {
     background-color: #f8f9fa;
     border-left: 4px solid #00baee;
