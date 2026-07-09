@@ -13,21 +13,37 @@ document.addEventListener('DOMContentLoaded', () => {
             
             const images = imagesData.split(','); 
             let currentIndex = 0;
-
+            
             nextBtn.addEventListener('click', (event) => {
                 event.preventDefault();
                 event.stopPropagation();
+                const currentImagesData = imgElement.getAttribute('data-images');
+                const images = currentImagesData.split(',');
+                let currentIndex = parseInt(imgElement.getAttribute('data-index')) || 0;
+                imgElement.classList.add('fade-out');
                 
-                currentIndex = (currentIndex + 1) % images.length; 
-                imgElement.src = images[currentIndex].trim();
+                setTimeout(() => {
+                    currentIndex = (currentIndex + 1) % images.length; 
+                    imgElement.setAttribute('data-index', currentIndex); // Index im HTML abspeichern
+                    imgElement.src = images[currentIndex].trim();
+                    imgElement.classList.remove('fade-out');
+                }, 150);
             });
-          
+            
             prevBtn.addEventListener('click', (event) => {
                 event.preventDefault();
                 event.stopPropagation();
+                const currentImagesData = imgElement.getAttribute('data-images');
+                const images = currentImagesData.split(',');
+                let currentIndex = parseInt(imgElement.getAttribute('data-index')) || 0;
+                imgElement.classList.add('fade-out');
                 
-                currentIndex = (currentIndex - 1 + images.length) % images.length;
-                imgElement.src = images[currentIndex].trim();
+                setTimeout(() => {
+                    currentIndex = (currentIndex - 1 + images.length) % images.length;
+                    imgElement.setAttribute('data-index', currentIndex);
+                    imgElement.src = images[currentIndex].trim();
+                    imgElement.classList.remove('fade-out');
+                }, 150);
             });
         }
     });
