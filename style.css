@@ -130,6 +130,15 @@
               opacity: 1;
               pointer-events: auto;
        }
+
+       .product-img {
+              transition: opacity 0.15s ease-in-out;
+              opacity: 1;
+       }
+
+       .product-img.fade-out {
+              opacity: 0;
+       }
        
        .arrow {
               position: absolute;
