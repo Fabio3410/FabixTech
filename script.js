@@ -49,6 +49,17 @@
                         produktKarte.querySelectorAll('.variant-btn').forEach(b => b.classList.remove('active'));
                         event.target.classList.add('active');
                         console.log("Geänderte ID für dieses Produkt:", hauptButton.dataset.id);
+                        const variantImages = button.getAttribute('data-variant-images');
+                        const imgElement = document.querySelector('.product-img'); 
+                        if (variantImages && imgElement) {
+                                imgElement.setAttribute('data-images', variantImages);
+                                imgElement.setAttribute('data-index', '0');
+                                imgElement.classList.add('fade-out');
+                                setTimeout(() => {
+                                        imgElement.src = variantImages.split(',')[0].trim();
+                                        imgElement.classList.remove('fade-out');
+                                }, 150);
+                        }
                 });
         });
 
