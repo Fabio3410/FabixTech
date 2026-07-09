@@ -21,6 +21,10 @@ function switchPage(pageId) {
     window.scrollTo(0, 0);
 }
 
+window.jumpToSlide = function(index) {
+    console.log("jumpToSlide abgefangen für Index:", index);
+};
+
 document.querySelectorAll('.variant-btn').forEach(btn => {
     btn.addEventListener('click', (event) => {
         const gewaehlteId = event.target.dataset.id;
@@ -31,18 +35,19 @@ document.querySelectorAll('.variant-btn').forEach(btn => {
         const hauptButton = produktKarte.querySelector('.btn-buy');
         if (hauptButton) {
             hauptButton.dataset.id = gewaehlteId;
-            console.log("Geänderte ID für dieses Produkt:", hauptButton.dataset.id);
         }
-        
+
         produktKarte.querySelectorAll('.variant-btn').forEach(b => b.classList.remove('active'));
         event.target.classList.add('active');
+
+        updatePrice(event.target);
 
         const imgElement = produktKarte.querySelector('.product-img');
         const variantImages = event.target.getAttribute('data-variant-images');
 
         if (variantImages && imgElement) {
             imgElement.setAttribute('data-images', variantImages);
-            imgElement.setAttribute('data-index', '0');
+            imgElement.setAttribute('data-index', '0'); // Reset auf das 1. Bild der Variante
             imgElement.classList.add('fade-out');
             
             setTimeout(() => {
@@ -53,11 +58,33 @@ document.querySelectorAll('.variant-btn').forEach(btn => {
     });
 });
 
+function updatePrice(button) {
+    const card = button.closest('.product-card');
+    const newPrice = button.getAttribute('data-price');
+    
+    if (!card || !newPrice) return;
+    
+    // Preis-Text im HTML austauschen
+    const priceElement = card.querySelector('.price');
+    if (priceElement) {
+        priceElement.textContent = newPrice.replace('.', ',');
+    }
+
+    const buyButton = card.querySelector('.btn-buy');
+    if (buyButton) {
+        const currentOnclick = buyButton.getAttribute('onclick');
+        if (currentOnclick && currentOnclick.includes('addToCart')) {
+            const updatedOnclick = currentOnclick.replace(/([\d\.]+)\s*\)/, newPrice + ')');
+            buyButton.setAttribute('onclick', updatedOnclick);
+        }
+    }
+}
+
 const checkoutBtn = document.getElementById('checkout-button');
 if (checkoutBtn) {
     checkoutBtn.addEventListener('click', async () => {
         if (typeof meinWarenkorbIds === 'undefined') {
-            console.error("Fehler: 'meinWarenkorbIds' ist im Skript nicht definiert.");
+            console.error("Fehler: 'meinWarenkorbIds' ist nicht definiert.");
             return;
         }
 
@@ -74,27 +101,4 @@ if (checkoutBtn) {
             alert('Fehler: ' + data.error);
         }
     });
-}
-
-function updatePrice(button) {
-    const container = button.closest('.color-slider-container');
-    if (!container) return;
-    
-    const card = container.parentElement;
-    const newPrice = button.getAttribute('data-price');
-    if (!card || !newPrice) return;
-    
-    const priceElement = card.querySelector('.price');
-    if (priceElement) {
-        priceElement.textContent = newPrice.replace('.', ',');
-    }
-    
-    const buyButton = card.querySelector('.btn-buy');
-    if (buyButton) {
-        const currentOnclick = buyButton.getAttribute('onclick');
-        if (currentOnclick && currentOnclick.includes('addToCart')) {
-            const updatedOnclick = currentOnclick.replace(/([\d\.]+)\s*\)/, newPrice + ')');
-            buyButton.setAttribute('onclick', updatedOnclick);
-        }
-    }
 }
