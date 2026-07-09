@@ -126,6 +126,11 @@
             border-bottom: 1px solid var(--border-color);
         }
 
+       .product-card:hover .arrow {
+              opacity: 1;
+              pointer-events: auto;
+       }
+       
        .arrow {
               position: absolute;
               top: 50%;
@@ -139,6 +144,9 @@
               user-select: none;
               transition: background 0.2s;
               z-index: 10;
+              opacity: 0;
+              pointer-events: none;
+              transition: opacity 0.25s ease-in-out;
        }
 
        .arrow:hover {
