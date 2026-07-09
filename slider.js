@@ -1,69 +1,34 @@
-const sliderIndexes = new Map();
+document.addEventListener('DOMContentLoaded', () => {
+    const productCards = document.querySelectorAll('.product-card');
 
-function updateActiveButton(container, currentIndex) {
-  const card = container.closest('.product-card');
-  if (!card) return;
-  
-  const buttons = card.querySelectorAll('.variant-btn');
-  buttons.forEach((btn, index) => {
-    if (index === currentIndex) {
-      btn.classList.add('active');
-    } else {
-      btn.classList.remove('active');
-    }
-  });
-}
+    productCards.forEach(card => {
+        const imgElement = card.querySelector('.product-img');
+        const prevBtn = card.querySelector('.arrow prev');
+        const nextBtn = card.querySelector('.arrow next');
 
-function changeSlide(buttonElement, direction) {
-  const card = buttonElement.closest('.product-card');
-  if (!card) return;
+        if (imgElement && prevBtn && nextBtn) {
 
-  const container = card.querySelector('.slider-container');
-  const slidesContainer = card.querySelector('.slides');
-  
-  if (!container || !slidesContainer) return;
+            const imagesData = imgElement.getAttribute('data-images');
+            if (!imagesData) return;
+            
+            const images = imagesData.split(','); 
+            let currentIndex = 0;
 
-  if (!container.id) {
-    container.id = 'slider-' + Math.random().toString(36).substr(2, 9);
-  }
-  const sliderId = container.id;
-
-  if (!sliderIndexes.has(sliderId)) {
-    sliderIndexes.set(sliderId, 0);
-  }
-  let currentSlide = sliderIndexes.get(sliderId);
-
-  const totalSlides = slidesContainer.querySelectorAll('img').length;
-
-  currentSlide += direction;
-
-  if (currentSlide >= totalSlides) {
-    currentSlide = 0;
-  } else if (currentSlide < 0) {
-    currentSlide = totalSlides - 1;
-  }
-  
-  sliderIndexes.set(sliderId, currentSlide);
-  slidesContainer.style.transform = `translateX(-${currentSlide * 100}%)`;
-
-  updateActiveButton(container, currentSlide);
-}
-
-function jumpToSlide(buttonElement, slideIndex) {
-  const card = buttonElement.closest('.product-card');
-  if (!card) return;
-
-  const container = card.querySelector('.slider-container');
-  const slidesContainer = card.querySelector('.slides');
-  
-  if (!container || !slidesContainer) return;
-
-  if (!container.id) {
-    container.id = 'slider-' + Math.random().toString(36).substr(2, 9);
-  }
-  const sliderId = container.id;
-
-  sliderIndexes.set(sliderId, slideIndex);
-  slidesContainer.style.transform = `translateX(-${slideIndex * 100}%)`;
-  updateActiveButton(container, slideIndex);
-}
+            nextBtn.addEventListener('click', (event) => {
+                event.preventDefault();
+                event.stopPropagation();
+                
+                currentIndex = (currentIndex + 1) % images.length; 
+                imgElement.src = images[currentIndex].trim();
+            });
+          
+            prevBtn.addEventListener('click', (event) => {
+                event.preventDefault();
+                event.stopPropagation();
+                
+                currentIndex = (currentIndex - 1 + images.length) % images.length;
+                imgElement.src = images[currentIndex].trim();
+            });
+        }
+    });
+});
