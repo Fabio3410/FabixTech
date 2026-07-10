@@ -24,7 +24,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 setTimeout(() => {
                     currentIndex = (currentIndex + 1) % images.length; 
-                    imgElement.setAttribute('data-index', currentIndex); // Index im HTML abspeichern
+                    imgElement.setAttribute('data-index', currentIndex);
                     imgElement.src = images[currentIndex].trim();
                     imgElement.classList.remove('fade-out');
                 }, 150);
