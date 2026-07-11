@@ -1,0 +1,52 @@
+name: HTML Links automatisch bereinigen
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  clean-html-links:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+    - name: Code auschecken
+      uses: actions/checkout@v4
+
+    - name: Python starten und Links bereinigen
+      run: |
+        python3 -c "
+        import os, re
+        link_regex = re.compile(r'href=[\"\']([^\"\'#]+\.html)(#[^\"\'\s]*)?[\"\']')
+        
+        for root, dirs, files in os.walk('.'):
+            if '.github' in root or '.git' in root:
+                continue
+            for file in files:
+                if file.endswith('.html'):
+                    file_path = os.path.join(root, file)
+                    with open(file_path, 'r', encoding='utf-8') as f:
+                        content = f.read()
+                    
+                    def replace(match):
+                        url = match.group(1)
+                        anchor = match.group(2) if match.group(2) else ''
+                        if url.startswith(('http://', 'https://', '//')):
+                            return match.group(0)
+                        clean_url = url.rsplit('.html', 1)[0]
+                        quote = match.group(0)[5]
+                        return f'href={quote}{clean_url}{anchor}{quote}'
+                    
+                    new_content, count = link_regex.subn(replace, content)
+                    if count > 0:
+                        with open(file_path, 'w', encoding='utf-8') as f:
+                            f.write(new_content)
+                        print(f'Bereinigt: {file_path} ({count} Links)')
+        "
+
+    - name: Änderungen automatisch auf GitHub speichern
+      uses: stefanzweifel/git-auto-commit-action@v5
+      with:
+        commit_message: "🤖 Automatische Bereinigung: .html aus internen Links entfernt"
