@@ -51,6 +51,7 @@ export async function onRequestPost(context) {
       payment_method_types: ['card', 'twint'],
       line_items: stripeLineItems,
       mode: 'payment',
+      allow_promotion_codes: true,
       success_url: `${new URL(context.request.url).origin}/erfolg.html`,
       cancel_url: `${new URL(context.request.url).origin}/index.html`,
     });
