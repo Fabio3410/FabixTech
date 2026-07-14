@@ -63,8 +63,6 @@ function updatePrice(button) {
     const newPrice = button.getAttribute('data-price');
     
     if (!card || !newPrice) return;
-    
-    // Preis-Text im HTML austauschen
     const priceElement = card.querySelector('.price');
     if (priceElement) {
         priceElement.textContent = newPrice.replace('.', ',');
