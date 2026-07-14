@@ -95,12 +95,6 @@ async function checkout() {
         return;
     }
 
-    const checkoutButton = document.getElementById('checkout-button');
-    if (checkoutButton) {
-        checkoutButton.innerText = "Wird geladen...";
-        checkoutButton.disabled = true;
-    }
-
     const formattedCart = cart.map(item => ({
         name: item.name,
         price: Math.round(item.price * 100),
