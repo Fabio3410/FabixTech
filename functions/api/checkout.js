@@ -26,9 +26,10 @@ export async function onRequestPost(context) {
         });
 
         const session = await stripe.checkout.sessions.create({
-          automatic_payment_methods: {
-            enabled: true,
-            },
+            payment_method_types: [
+            'card',
+            'twint'
+            ],
             line_items: lineItems,
             mode: 'payment',
             allow_promotion_codes: true,
