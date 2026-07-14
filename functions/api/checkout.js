@@ -7,63 +7,46 @@ const PRODUKT_DATENBANK = {
   'spiral_cone_fidget_schwarz_rot': { name: 'Spiral Cone Fidget (Schwarz/Rot)', preisInRappen: 195 },
   'gandalf_the_white_staff': { name: 'Gandalf The White Staff', preisInRappen: 3995 }
 };
-
 export async function onRequestPost(context) {
-  try {
-    const stripe = new Stripe(context.env.STRIPE_SECRET_KEY);
-    const { cartIds } = await context.request.json();
+    try {
+        const stripe = new Stripe(context.env.STRIPE_SECRET_KEY);
+        const { cart } = await context.request.json();
 
-    if (!cartIds || !Array.isArray(cartIds) || cartIds.length === 0) {
-      return new Response(JSON.stringify({ error: 'Der Warenkorb ist leer.' }), { 
-        status: 400,
-        headers: { 'Content-Type': 'application/json' }
-      });
-    }
-
-    const produktMengen = {};
-    cartIds.forEach(id => {
-      produktMengen[id] = (produktMengen[id] || 0) + 1;
-    });
-
-    const stripeLineItems = [];
-
-    for (const [id, quantity] of Object.entries(produktMengen)) {
-      const produkt = PRODUKT_DATENBANK[id];
-      
-      if (!produkt) {
-        return new Response(JSON.stringify({ error: `Produkt "${id}" wurde nicht gefunden.` }), { 
-          status: 400,
-          headers: { 'Content-Type': 'application/json' }
+        // 3. Hier deine Line-Items für Stripe erstellen (Diesen Teil aus deinem alten Netlify-Code kopieren!)
+        const lineItems = cart.map(item => {
+            return {
+                price_data: {
+                    currency: 'chf', // oder deine Währung
+                    product_data: {
+                        name: item.name,
+                    },
+                    unit_amount: item.price, // Preis ist bereits in Rappen/Cent!
+                },
+                quantity: item.quantity,
+            };
         });
-      }
 
-      stripeLineItems.push({
-        price_data: {
-          currency: 'chf',
-          product_data: { name: produkt.name },
-          unit_amount: produkt.preisInRappen,
-        },
-        quantity: quantity,
-      });
+        // 4. Stripe Checkout Session erstellen (Pfade für Success/Cancel evtl. anpassen)
+        const session = await stripe.checkout.sessions.create({
+            payment_method_types: ['card, twint'],
+            line_items: lineItems,
+            mode: 'payment',
+            allow_promotion_codes: true,
+            success_url: `${new URL(context.request.url).origin}/?success=true`,
+            cancel_url: `${new URL(context.request.url).origin}/?canceled=true`,
+        });
+
+        // 5. Erfolgreiche Antwort mit der Stripe-Zahlungs-URL zurückgeben
+        return new Response(JSON.stringify({ url: session.url }), {
+            status: 200,
+            headers: { 'Content-Type': 'application/json' }
+        });
+
+    } catch (error) {
+        console.error("Stripe Fehler:", error);
+        return new Response(JSON.stringify({ error: error.message }), {
+            status: 500,
+            headers: { 'Content-Type': 'application/json' }
+        });
     }
-
-    const session = await stripe.checkout.sessions.create({
-      payment_method_types: ['card', 'twint'],
-      line_items: stripeLineItems,
-      mode: 'payment',
-      allow_promotion_codes: true,
-      success_url: `${new URL(context.request.url).origin}/erfolg.html`,
-      cancel_url: `${new URL(context.request.url).origin}/index.html`,
-    });
-
-    return new Response(JSON.stringify({ url: session.url }), {
-      headers: { 'Content-Type': 'application/json' },
-    });
-
-  } catch (err) {
-    return new Response(JSON.stringify({ error: err.message }), {
-      status: 500,
-      headers: { 'Content-Type': 'application/json' },
-    });
-  }
 }
