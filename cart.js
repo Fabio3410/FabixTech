@@ -94,6 +94,12 @@ async function checkout() {
         alert("Bitte akzeptiere erst die AGB und Datenschutzerklärung.");
         return;
     }
+    
+    const checkoutBtn = document.getElementById('checkout-button');
+    if (checkoutBtn) {
+        checkoutBtn.innerText = "Wird geladen...";
+        checkoutBtn.disabled = true;
+    }
 
     const formattedCart = cart.map(item => ({
         name: item.name,
@@ -102,7 +108,7 @@ async function checkout() {
     }));
 
     try {
-        const response = await fetch('/api/checkout.js', {
+        const response = await fetch('/api/checkout', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ cart: formattedCart }),
