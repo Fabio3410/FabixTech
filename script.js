@@ -47,7 +47,7 @@ document.querySelectorAll('.variant-btn').forEach(btn => {
 
         if (variantImages && imgElement) {
             imgElement.setAttribute('data-images', variantImages);
-            imgElement.setAttribute('data-index', '0'); // Reset auf das 1. Bild der Variante
+            imgElement.setAttribute('data-index', '0');
             imgElement.classList.add('fade-out');
             
             setTimeout(() => {
