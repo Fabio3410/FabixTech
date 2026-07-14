@@ -12,23 +12,23 @@ export async function onRequestPost(context) {
         const stripe = new Stripe(context.env.STRIPE_SECRET_KEY);
         const { cart } = await context.request.json();
 
-        // 3. Hier deine Line-Items für Stripe erstellen (Diesen Teil aus deinem alten Netlify-Code kopieren!)
         const lineItems = cart.map(item => {
             return {
                 price_data: {
-                    currency: 'chf', // oder deine Währung
+                    currency: 'chf',
                     product_data: {
                         name: item.name,
                     },
-                    unit_amount: item.price, // Preis ist bereits in Rappen/Cent!
+                    unit_amount: item.price,
                 },
                 quantity: item.quantity,
             };
         });
 
-        // 4. Stripe Checkout Session erstellen (Pfade für Success/Cancel evtl. anpassen)
         const session = await stripe.checkout.sessions.create({
-            payment_method_types: ['card'],
+          automatic_payment_methods: {
+            enabled: true,
+            },
             line_items: lineItems,
             mode: 'payment',
             allow_promotion_codes: true,
@@ -36,7 +36,6 @@ export async function onRequestPost(context) {
             cancel_url: `${new URL(context.request.url).origin}/?canceled=true`,
         });
 
-        // 5. Erfolgreiche Antwort mit der Stripe-Zahlungs-URL zurückgeben
         return new Response(JSON.stringify({ url: session.url }), {
             status: 200,
             headers: { 'Content-Type': 'application/json' }
