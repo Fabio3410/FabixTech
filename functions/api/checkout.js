@@ -28,7 +28,7 @@ export async function onRequestPost(context) {
 
         // 4. Stripe Checkout Session erstellen (Pfade für Success/Cancel evtl. anpassen)
         const session = await stripe.checkout.sessions.create({
-            payment_method_types: ['card, twint'],
+            payment_method_types: ['card'],
             line_items: lineItems,
             mode: 'payment',
             allow_promotion_codes: true,
