@@ -7,7 +7,11 @@ export async function onRequestPost(context) {
 
     let event;
     try {
-        event = stripe.webhooks.constructEvent(body, signature, context.env.STRIPE_WEBHOOK_SECRET);
+        event = await stripe.webhooks.constructEventAsync(
+            body, 
+            signature, 
+            context.env.STRIPE_WEBHOOK_SECRET
+        );
     } catch (err) {
         console.error("Webhook Signatur-Fehler:", err.message);
         return new Response(`Webhook Error: ${err.message}`, { status: 400 });
@@ -18,6 +22,7 @@ export async function onRequestPost(context) {
         const metadata = session.metadata || {};
 
         console.log("Webhook erfolgreich aufgerufen! Metadaten erhalten:", JSON.stringify(metadata));
+
         for (const key in metadata) {
             if (key.startsWith('prod_')) {
                 const productId = key.replace('prod_', '');
