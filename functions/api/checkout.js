@@ -14,7 +14,6 @@ export async function onRequestPost(context) {
         const { cart } = await context.request.json();
 
         const lineItems = cart.map(item => {
-            // --- NEU: Wir prüfen, ob eine Farbe mitgeschickt wurde ---
             const produktBeschreibung = item.farbe ? `Farbe: ${item.farbe}` : '';
 
             return {
@@ -22,11 +21,11 @@ export async function onRequestPost(context) {
                     currency: 'chf',
                     product_data: {
                         name: item.name,
-                        description: produktBeschreibung, // <-- HIER übergeben wir die Farbe an Stripe!
+                        description: produktBeschreibung,
                     },
                     unit_amount: item.price,
                 },
-                quantity: item.quantity, // Hier wird jetzt die echte Menge (z.B. 3) übergeben
+                quantity: item.quantity,
             };
         });
 
