@@ -1,3 +1,5 @@
+const sleep = ms => new Promise(res => setTimeout(res, ms));
+
 function switchPage(pageId) {
     document.querySelectorAll('.nav-links .nav-link').forEach(link => {
         link.classList.remove('active');
@@ -75,7 +77,6 @@ function updatePrice(button) {
         }
     }
 }
-
 async function fetchAllStocks() {
     const variantButtons = document.querySelectorAll('.variant-btn');
     
@@ -97,6 +98,7 @@ async function fetchAllStocks() {
         } catch (err) {
             console.error("Fehler beim Bestandsabruf für", productId, err);
         }
+        await sleep(100);
     }
     document.querySelectorAll('.product-card').forEach(card => {
         updateMainButtonStock(card);
