@@ -30,8 +30,4 @@ export async function onRequestGet(context) {
     return new Response(html, {
       headers: { 'Content-Type': 'text/html; charset=utf-8' },
     });
-    
-    catch (error) {
-    return new Response("Fehler: " + error.message, { status: 500 });
-  }
 }
