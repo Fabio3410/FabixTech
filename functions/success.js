@@ -54,10 +54,31 @@ export async function onRequestGet(context) {
             .card { background: #fff; padding: 30px; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); max-width: 400px; width: 90%; }
             h1 { text-align: center; font-size: 22px; }
             .btn { display: block; text-align: center; background: #635bff; color: white; padding: 12px; border-radius: 8px; text-decoration: none; margin-top: 20px; font-weight: bold; }
+            .icon {
+              display: flex;
+              justify-content: center;
+              align-items: center;
+              width: 56px;
+              height: 56px;
+              background-color: #FEE2E2;
+              color: #FEE2E2;
+              font-size: 24px;
+              font-weight: bold;
+              border-radius: 50%;
+              margin: 0 auto 24px auto;
+          }
+
+          .icon img {
+              width: 56px;
+              height: 56px;
+              }
         </style>
     </head>
     <body>
         <div class="card">
+            <div class="icon">
+                <img src="../images/success.png">
+            </div>
             <h1>${begruessungText}</h1>
             <p style="text-align: center; color:  #8792a2;">Deine Zahlung war erfolgreich.</p>
             
