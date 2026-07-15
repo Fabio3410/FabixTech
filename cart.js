@@ -13,8 +13,14 @@ function toggleCart() {
 
 function addToCart(name, price, variant) {
     const selectedVariant = variant || 'Standard';
-    
-    cart.push({ name, price, variant: selectedVariant });
+    const bestehenderArtikel = cart.find(item => item.name === name && item.variant === selectedVariant);
+
+    if (bestehenderArtikel) {
+        bestehenderArtikel.quantity = (bestehenderArtikel.quantity || 1) + 1;
+    } else {
+        cart.push({ name, price, variant: selectedVariant, quantity: 1 });
+    }
+
     saveCartToStorage();
     updateCartUI();
     
@@ -33,16 +39,20 @@ function updateCartUI() {
     const shippingElement = document.getElementById('cart-shipping');
     
     let total = 0;
+    let anzahlGesamt = 0;
     const versandKosten = 5.70;
+    cart.forEach(item => {
+        anzahlGesamt += (item.quantity || 1);
+    });
 
     if (countElement) {
-        countElement.innerText = cart.length;
+        countElement.innerText = anzahlGesamt;
     }
 
     if (cart.length === 0) {
         if (container) container.innerHTML = '<p class="empty-msg">Dein Warenkorb ist noch leer.</p>';
-        if (totalElement) totalElement.innerText = 'CHF 0,00';
-        if (shippingElement) shippingElement.innerText = 'CHF 0,00';
+        if (totalElement) totalElement.innerText = 'CHF 0.00';
+        if (shippingElement) shippingElement.innerText = 'CHF 0.00';
         if (checkoutButton) checkoutButton.disabled = true;
         return;
     }
@@ -52,7 +62,9 @@ function updateCartUI() {
 
         cart.forEach((item, index) => {
             const sichererPreis = Number(item.price) || 0;
-            total += sichererPreis;
+            const menge = Number(item.quantity) || 1;
+            const zeilenTotal = sichererPreis * menge;
+            total += zeilenTotal;
 
             const itemRow = document.createElement('div');
             itemRow.classList.add('cart-item');
@@ -60,9 +72,12 @@ function updateCartUI() {
             itemRow.innerHTML = `
                 <div style="display: flex; flex-direction: column; flex-grow: 1; text-align: left; margin-right: 10px;">
                     <span style="font-weight: 500; color: #333333; font-size: 15px;">${item.name || 'Unbekanntes Produkt'}</span>
-                    <span style="font-size: 12px; color: #777777; margin-top: 2px;">Variante: ${item.variant || 'Standard'}</span>
+                    <span style="font-size: 12px; color: #777777; margin-top: 2px;">
+                        Variante: ${item.variant || 'Standard'} 
+                        <span style="color: #2563eb; font-weight: bold; margin-left: 6px;">(x${menge})</span>
+                    </span>
                 </div>
-                <strong style="margin-right: 12px; white-space: nowrap; align-self: center;">CHF ${sichererPreis.toFixed(2)}</strong>
+                <strong style="margin-right: 12px; white-space: nowrap; align-self: center;">CHF ${zeilenTotal.toFixed(2)}</strong>
                 <button class="remove-btn" onclick="removeFromCart(${index})" style="align-self: center;">&times;</button>
             `;
             container.appendChild(itemRow);
@@ -100,25 +115,14 @@ async function checkout() {
         checkoutBtn.innerText = "Wird geladen...";
         checkoutBtn.disabled = true;
     }
+    
+    const formattedCart = cart.map(item => ({
+        name: item.name,
+        price: Math.round(item.price * 100),
+        quantity: item.quantity || 1,
+        farbe: item.variant || 'Standard'
+    }));
 
-    const aktiverKnopf = document.querySelector('.variant-btn.active');
-    const gewaehlteFarbe = aktiverKnopf ? aktiverKnopf.innerText.trim() : 'Standard';
-    const gruppierterWarenkorb = {};
-
-    cart.forEach(item => {
-        const schluessel = `${item.name}_${gewaehlteFarbe}`;
-        if (!gruppierterWarenkorb[schluessel]) {
-            gruppierterWarenkorb[schluessel] = {
-                name: item.name,
-                price: Math.round(item.price * 100),
-                quantity: 0,
-                farbe: gewaehlteFarbe
-            };
-        }
-        const mengeDazu = item.quantity || 1;
-        gruppierterWarenkorb[schluessel].quantity += mengeDazu;
-    });
-    const formattedCart = Object.values(gruppierterWarenkorb);
     try {
         const response = await fetch('/api/checkout', {
             method: 'POST',
