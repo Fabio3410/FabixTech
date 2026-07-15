@@ -1,13 +1,5 @@
 import Stripe from 'stripe';
 
-const PRODUKT_DATENBANK = {
-  'gelenkschlange_gruen': { name: 'Gelenkschlange (Grün)', preisInRappen: 149 },
-  'gelenkschlange_gelb': { name: 'Gelenkschlange (Gelb)', preisInRappen: 149 },
-  'gelenkschlange_schwarz': { name: 'Gelenkschlange (Schwarz)', preisInRappen: 149 },
-  'spiral_cone_fidget_schwarz_rot': { name: 'Spiral Cone Fidget (Schwarz/Rot)', preisInRappen: 195 },
-  'gandalf_the_white_staff': { name: 'Gandalf The White Staff', preisInRappen: 3995 }
-};
-
 export async function onRequestPost(context) {
     try {
         const stripe = new Stripe(context.env.STRIPE_SECRET_KEY);
