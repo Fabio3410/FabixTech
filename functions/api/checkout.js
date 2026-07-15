@@ -42,13 +42,7 @@ export async function onRequestPost(context) {
             },
             shipping_options: [
               {
-                shipping_rate: 'shr_1TtPmNHRWCYHtDl0SdOITsig',
-                },
-                            {
-                shipping_rate: 'shr_1TtPm1HRWCYHtDl0M3nwIaNN',
-                },
-              {
-                shipping_rate: 'shr_1TtPhGHRWCYHtDl0rJ3CsJso',
+                shipping_rate: 'shr_1TtOw8HRWCYHtDl04j8UrqdP',
                 },
             ],
             success_url: 'https://fabio3d.pages.dev/success?session_id={CHECKOUT_SESSION_ID}',
