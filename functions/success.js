@@ -59,7 +59,6 @@ export async function onRequestGet(context) {
                 align-items: center;
                 width: 56px;
                 height: 56px;
-                background-color: #e3faf2;
                 color: #00d48a;
                 font-size: 24px;
                 border-radius: 50%;
