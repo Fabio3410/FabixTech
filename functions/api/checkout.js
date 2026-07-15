@@ -33,8 +33,8 @@ export async function onRequestPost(context) {
             line_items: lineItems,
             mode: 'payment',
             allow_promotion_codes: true,
-            success_url: `${new URL(context.request.url).origin}/?success=true`,
-            cancel_url: `${new URL(context.request.url).origin}/?canceled=true`,
+            success_url: 'https://fabio3d.pages.dev/success?session_id={CHECKOUT_SESSION_ID}',
+            cancel_url: 'https://fabio3d.pages.dev/failure',
         });
 
         return new Response(JSON.stringify({ url: session.url }), {
