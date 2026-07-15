@@ -21,21 +21,26 @@ export async function onRequestGet(context) {
     const artikelListeHtml = session.line_items.data.map(item => {
       const variante = item.price.product.description || '';
       const einzelPreis = (item.amount_total / 100 / item.quantity).toFixed(2);
+      const gesamtZeilenPreis = (item.amount_total / 100).toFixed(2);
 
-        return `
-        <div class="item" style="display: flex; justify-content: space-between; margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 10px;">
-            <div class="item-details">
-                <strong style="color: #4f566b; display: block;">${item.description}</strong>
-                <small style="color: #8792a2;">${variante}</small>
-            </div>
-            <div class="item-price" style="text-align: right;">
-                <span style="color: #8792a2; font-size: 12px;">${item.quantity}x ${einzelPreis} ${waehrung}</span>
-                <br>
-                <strong>${(item.amount_total / 100).toFixed(2)} ${waehrung}</strong>
-            </div>
+    return `
+    <div class="item" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 10px;">
+        <div class="item-details" style="display: flex; flex-direction: column; text-align: left;">
+            <strong style="color: #4f566b; font-size: 15px;">${item.description}</strong>
+            <small style="color: #8792a2; margin-top: 2px;">${variante}</small>
         </div>
-        `;
-    }).join('');
+        
+        <div class="item-price" style="display: flex; flex-direction: column; align-items: flex-end; text-align: right;">
+            <span style="color: #8792a2; font-size: 13px; white-space: nowrap; margin-bottom: 2px;">
+                ${item.quantity}x ${einzelPreis} CHF
+            </span>
+            <strong style="color: #000000; font-size: 16px; white-space: nowrap;">
+                ${gesamtZeilenPreis} CHF
+            </strong>
+        </div>
+    </div>
+    `;
+}).join('');
 
     const html = `
     <!DOCTYPE html>
