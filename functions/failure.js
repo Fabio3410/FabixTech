@@ -1,19 +1,6 @@
 import Stripe from 'stripe';
 
 export async function onRequestGet(context) {
-  const url = new URL(context.request.url);
-  const sessionId = url.searchParams.get('session_id');
-
-  if (!sessionId) {
-    return new Response("Keine Session-ID übergeben.", { status: 400 });
-  }
-
-  try {
-    const stripe = new Stripe(context.env.STRIPE_SECRET_KEY);
-    const session = await stripe.checkout.sessions.retrieve(sessionId, {
-      expand: ['line_items', 'line_items.data.price.product'],
-    });
-
     const kundeName = session.customer_details?.name;
     const begruessungText = kundeName ? `Es gab ein Problem, ${kundeName}!` : "Es ist ein Fehler aufgetreten!";
     const html = `
