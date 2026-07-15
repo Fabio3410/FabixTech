@@ -25,7 +25,7 @@ export async function onRequestGet(context) {
         <div class="item" style="display: flex; justify-content: space-between; margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 10px;">
             <div class="item-details">
                 <strong style="color: #4f566b; display: block;">${item.description}</strong>
-                <small style="color: #8792a2;">${farbe}</small>
+                <small style="color: #8792a2;">${variante}</small>
             </div>
             <div class="item-price" style="text-align: right;">
                 <span style="color: #8792a2; font-size: 12px;">${item.quantity}x ${einzelPreis} ${waehrung}</span>
