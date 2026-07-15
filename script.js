@@ -24,14 +24,12 @@ function switchPage(pageId) {
 window.jumpToSlide = function(index) {
     console.log("jumpToSlide abgefangen für Index:", index);
 };
-
 document.querySelectorAll('.variant-btn').forEach(btn => {
     btn.addEventListener('click', (event) => {
         const gewaehlteId = event.target.getAttribute('data-id');
         const produktKarte = event.target.closest('.product-card');
         
         if (!produktKarte) return;
-
         const hauptButton = produktKarte.querySelector('.btn-buy');
         if (hauptButton) {
             hauptButton.setAttribute('data-id', gewaehlteId);
@@ -39,9 +37,8 @@ document.querySelectorAll('.variant-btn').forEach(btn => {
 
         produktKarte.querySelectorAll('.variant-btn').forEach(b => b.classList.remove('active'));
         event.target.classList.add('active');
-
         updatePrice(event.target);
-
+        
         const imgElement = produktKarte.querySelector('.product-img');
         const variantImages = event.target.getAttribute('data-variant-images');
 
@@ -55,6 +52,7 @@ document.querySelectorAll('.variant-btn').forEach(btn => {
                 imgElement.classList.remove('fade-out');
             }, 150);
         }
+        updateMainButtonStock(produktKarte);
     });
 });
 
@@ -78,48 +76,51 @@ function updatePrice(button) {
     }
 }
 
-async function checkCardStock(produktKarte) {
+async function fetchAllStocks() {
+    const variantButtons = document.querySelectorAll('.variant-btn');
+    
+    for (let btn of variantButtons) {
+        const productId = btn.getAttribute('data-id');
+        if (!productId) continue;
+        
+        try {
+            const response = await fetch(`/api/get-stock?id=${productId}&t=${Date.now()}`);
+            const data = await response.json();
+            btn.setAttribute('data-stock', data.stock);
+            if (data.stock <= 0) {
+                btn.style.opacity = '0.4';
+                btn.style.textDecoration = 'line-through';
+            } else {
+                btn.style.opacity = '1';
+                btn.style.textDecoration = 'none';
+            }
+        } catch (err) {
+            console.error("Fehler beim Bestandsabruf für", productId, err);
+        }
+    }
+    document.querySelectorAll('.product-card').forEach(card => {
+        updateMainButtonStock(card);
+    });
+}
+
+function updateMainButtonStock(produktKarte) {
     const activeVariantBtn = produktKarte.querySelector('.variant-btn.active');
     const cartButton = produktKarte.querySelector('.btn-buy');
     
     if (!activeVariantBtn || !cartButton) return;
-    const productId = activeVariantBtn.getAttribute('data-id');
-    if (!productId) return;
+    const aktuellerBestand = parseInt(activeVariantBtn.getAttribute('data-stock') || "0");
     
-    try {
-        const response = await fetch(`/api/get-stock?id=${productId}`);
-        const data = await response.json();
-        
-        if (data.stock <= 0) {
-            cartButton.disabled = true;
-            cartButton.innerText = "Ausverkauft";
-            cartButton.removeAttribute('data-max-stock');
-        } else {
-            cartButton.disabled = false;
-            cartButton.innerText = "In den Warenkorb";
-            cartButton.setAttribute('data-max-stock', data.stock);
-        }
-    } catch (err) {
-        console.error("Fehler beim Abrufen des Bestands:", err);
+    if (aktuellerBestand <= 0) {
+        cartButton.disabled = true;
+        cartButton.innerText = "Ausverkauft";
+        cartButton.removeAttribute('data-max-stock');
+    } else {
+        cartButton.disabled = false;
+        cartButton.innerText = "In den Warenkorb";
+        cartButton.setAttribute('data-max-stock', aktuellerBestand);
     }
 }
 
-async function checkAllProductsStock() {
-    const allCards = document.querySelectorAll('.product-card');
-    for (let card of allCards) {
-        await checkCardStock(card);
-    }
-}
-
-document.addEventListener('DOMContentLoaded', () => {
-    checkAllProductsStock();
-    const variantButtons = document.querySelectorAll('.variant-btn');
-    variantButtons.forEach(btn => {
-        btn.addEventListener('click', (event) => {
-            const produktKarte = event.target.closest('.product-card');
-            if (produktKarte) {
-                setTimeout(() => checkCardStock(produktKarte), 10);
-            }
-        });
-    });
+window.addEventListener('pageshow', () => {
+    fetchAllStocks();
 });
