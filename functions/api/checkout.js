@@ -31,8 +31,8 @@ export async function onRequestPost(context) {
                         name: item.name,
                         description: produktBeschreibung,
                         metadata: {
-                            id: item.id
-                        }
+                            warenkorb_daten: JSON.stringify(cart.map(item => ({ id: item.id, quantity: item.quantity })))
+                        },
                     },
                     unit_amount: item.price,
                 },
