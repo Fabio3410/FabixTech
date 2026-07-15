@@ -26,12 +26,12 @@ export async function onRequestGet(context) {
     return `
     <div class="item" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 10px;">
         <div class="item-details" style="display: flex; flex-direction: column; text-align: left;">
-            <strong style="color: #4f566b; font-size: 15px;">${item.description}</strong>
+            <strong style="color: #00000; font-size: 15px;">${item.description}</strong>
             <small style="color: #8792a2; margin-top: 2px;">${variante}</small>
         </div>
         
         <div class="item-price" style="display: flex; flex-direction: column; align-items: flex-end; text-align: right;">
-            <strong style="color: #4f566b; font-size: 16px; white-space: nowrap;">
+            <strong style="color: #00000; font-size: 16px; white-space: nowrap;">
                 ${gesamtZeilenPreis} CHF
             </strong>
             <span style="color: #8792a2; font-size: 13px; white-space: nowrap; margin-bottom: 2px;">
@@ -59,7 +59,7 @@ export async function onRequestGet(context) {
     <body>
         <div class="card">
             <h1>${begruessungText}</h1>
-            <p style="text-align: center; color: #697386;">Deine Zahlung war erfolgreich.</p>
+            <p style="text-align: center; color:  #8792a2;">Deine Zahlung war erfolgreich.</p>
             
             <div style="margin-top: 20px;">
                 ${artikelListeHtml}
