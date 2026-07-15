@@ -14,7 +14,8 @@ export async function onRequestGet(context) {
       expand: ['line_items', 'line_items.data.price.product'],
     });
 
-    const kundeName = session.customer_details?.name || "Kunde";
+    const kundeName = session.customer_details?.name;
+    const begruessungText = kundeName ? `Danke, ${kundeName}!` : "Danke für deine Bestellung!";
     const gesamtBetrag = (session.amount_total / 100).toFixed(2);
     const waehrung = session.currency.toUpperCase();
     const artikelListeHtml = session.line_items.data.map(item => {
@@ -52,7 +53,7 @@ export async function onRequestGet(context) {
     </head>
     <body>
         <div class="card">
-            <h1>Danke, ${kundeName}!</h1>
+            <h1>${begruessungText}</h1>
             <p style="text-align: center; color: #697386;">Deine Zahlung war erfolgreich.</p>
             
             <div style="margin-top: 20px;">
