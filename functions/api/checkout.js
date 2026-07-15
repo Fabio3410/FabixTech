@@ -14,7 +14,7 @@ export async function onRequestPost(context) {
         const { cart } = await context.request.json();
 
         const lineItems = cart.map(item => {
-            const produktBeschreibung = item.farbe ? `Farbe: ${item.farbe}` : '';
+          const produktBeschreibung = item.farbe ? `Variante: ${item.farbe}` : '';
 
             return {
                 price_data: {
