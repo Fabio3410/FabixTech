@@ -206,6 +206,28 @@ function addProductFromCard(buttonElement) {
     }
 }
 
+document.addEventListener('DOMContentLoaded', async () => {
+    const buttons = document.querySelectorAll('.add-to-cart-btn');
+    
+    for (let button of buttons) {
+        const productId = button.getAttribute('data-product-id');
+        
+        try {
+            const response = await fetch(`/api/get-stock?id=${productId}`);
+            const data = await response.json();
+            
+            if (data.stock <= 0) {
+                button.disabled = true;
+                button.innerText = "Ausverkauft";
+            } else {
+                button.setAttribute('data-max-stock', data.stock);
+            }
+        } catch (err) {
+            console.error("Fehler beim Abrufen des Bestands:", err);
+        }
+    }
+});
+
 window.addProductFromCard = addProductFromCard;
 window.removeFromCart = removeFromCart;
 window.toggleCart = toggleCart;
