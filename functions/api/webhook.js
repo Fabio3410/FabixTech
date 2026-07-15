@@ -10,29 +10,26 @@ export async function onRequestPost(context) {
         event = stripe.webhooks.constructEvent(body, signature, context.env.STRIPE_WEBHOOK_SECRET);
     } catch (err) {
         console.error("Webhook Signatur-Fehler:", err.message);
-        return new Response('Webhook Error', { status: 400 });
+        return new Response(`Webhook Error: ${err.message}`, { status: 400 });
     }
 
     if (event.type === 'checkout.session.completed') {
         const session = event.data.object;
-        const lineItems = await stripe.checkout.sessions.listLineItems(session.id, {
-            expand: ['data.price.product']
-        });
+        const metadata = session.metadata || {};
 
-        for (const item of lineItems.data) {
-            const productId = item.price.product.metadata.id;
-            const gekaufteMenge = item.quantity;
+        console.log("Webhook erfolgreich aufgerufen! Metadaten erhalten:", JSON.stringify(metadata));
+        for (const key in metadata) {
+            if (key.startsWith('prod_')) {
+                const productId = key.replace('prod_', '');
+                const gekaufteMenge = parseInt(metadata[key] || "0");
 
-            console.log(`Webhook verarbeitet Produkt-ID: ${productId}, Menge: ${gekaufteMenge}`);
-
-            if (productId) {
-                const aktuellerBestandRaw = await context.env.INVENTORY.get(productId);
-                const aktuellerBestand = parseInt(aktuellerBestandRaw || "0");
-                const neuerBestand = Math.max(0, aktuellerBestand - gekaufteMenge);
-                await context.env.INVENTORY.put(productId, neuerBestand.toString());
-                console.log(`Bestand für ${productId} erfolgreich aktualisiert von ${aktuellerBestand} auf ${neuerBestand}.`);
-            } else {
-                console.warn("Warnung: Keine Produkt-ID in den Stripe-Metadaten gefunden!");
+                if (productId && gekaufteMenge > 0) {
+                    const aktuellerBestandRaw = await context.env.INVENTORY.get(productId);
+                    const aktuellerBestand = parseInt(aktuellerBestandRaw || "0");
+                    const neuerBestand = Math.max(0, aktuellerBestand - gekaufteMenge);
+                    await context.env.INVENTORY.put(productId, neuerBestand.toString());
+                    console.log(`Erfolg! Bestand für ${productId} von ${aktuellerBestand} auf ${neuerBestand} reduziert.`);
+                }
             }
         }
     }
