@@ -18,8 +18,8 @@ export async function onRequestGet(context) {
     const gesamtBetrag = (session.amount_total / 100).toFixed(2);
     const waehrung = session.currency.toUpperCase();
     const artikelListeHtml = session.line_items.data.map(item => {
-        const farbe = item.price.product.description || '';
-        const einzelPreis = (item.amount_total / 100 / item.quantity).toFixed(2);
+      const variante = item.price.product.description || '';
+      const einzelPreis = (item.amount_total / 100 / item.quantity).toFixed(2);
 
         return `
         <div class="item" style="display: flex; justify-content: space-between; margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 10px;">
