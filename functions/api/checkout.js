@@ -7,28 +7,33 @@ const PRODUKT_DATENBANK = {
   'spiral_cone_fidget_schwarz_rot': { name: 'Spiral Cone Fidget (Schwarz/Rot)', preisInRappen: 195 },
   'gandalf_the_white_staff': { name: 'Gandalf The White Staff', preisInRappen: 3995 }
 };
+
 export async function onRequestPost(context) {
     try {
-      const stripe = new Stripe(context.env.STRIPE_SECRET_KEY);
+        const stripe = new Stripe(context.env.STRIPE_SECRET_KEY);
         const { cart } = await context.request.json();
 
         const lineItems = cart.map(item => {
+            // --- NEU: Wir prüfen, ob eine Farbe mitgeschickt wurde ---
+            const produktBeschreibung = item.farbe ? `Farbe: ${item.farbe}` : '';
+
             return {
                 price_data: {
                     currency: 'chf',
                     product_data: {
                         name: item.name,
+                        description: produktBeschreibung, // <-- HIER übergeben wir die Farbe an Stripe!
                     },
                     unit_amount: item.price,
                 },
-                quantity: item.quantity,
+                quantity: item.quantity, // Hier wird jetzt die echte Menge (z.B. 3) übergeben
             };
         });
 
         const session = await stripe.checkout.sessions.create({
             payment_method_types: [
-            'card',
-            'twint'
+                'card',
+                'twint'
             ],
             line_items: lineItems,
             mode: 'payment',
