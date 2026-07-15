@@ -89,6 +89,7 @@
                 <p>Hier siehst du meine aktuelle Angebote.</p>
             </div> 
                 <div class="product-grid">
+                    <!--Erinnerung an mich selbst: Zum deaktivieren vom btn-buy gelingt mit dem disabled im Button-Tag und mit der Änderung des Texts von "in den Warenkorb" zu "Ausverkauft" und umgekehrt-->
                     <div class="product-card">
                         <div class="slider-container" hide>
                             <div class="slides">
@@ -122,7 +123,7 @@
                             </div>
                             <div class="product-footer">
                                 <span class="currency">CHF </span><span class="price">39,95</span>
-                                <button class="btn-buy" data-id="gandalf_staff_mit_beleuchtung" onclick="addProductFromCard(this)">In den Warenkorb</button>
+                                <button class="btn-buy" data-id="gandalf_staff_mit_beleuchtung" onclick="addProductFromCard(this)" disabled>Ausverkauft</button>
                             </div>
                         </div>
                     </div>
