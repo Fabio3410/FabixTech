@@ -103,14 +103,22 @@ async function checkout() {
 
     const aktiverKnopf = document.querySelector('.variant-btn.active');
     const gewaehlteFarbe = aktiverKnopf ? aktiverKnopf.innerText.trim() : 'Standard';
+    const gruppierterWarenkorb = {};
 
-    const formattedCart = cart.map(item => ({
-        name: item.name,
-        price: Math.round(item.price * 100),
-        quantity: item.quantity || 1,
-        farbe: gewaehlteFarbe
-    }));
-
+    cart.forEach(item => {
+        const schluessel = `${item.name}_${gewaehlteFarbe}`;
+        if (!gruppierterWarenkorb[schluessel]) {
+            gruppierterWarenkorb[schluessel] = {
+                name: item.name,
+                price: Math.round(item.price * 100),
+                quantity: 0,
+                farbe: gewaehlteFarbe
+            };
+        }
+        const mengeDazu = item.quantity || 1;
+        gruppierterWarenkorb[schluessel].quantity += mengeDazu;
+    });
+    const formattedCart = Object.values(gruppierterWarenkorb);
     try {
         const response = await fetch('/api/checkout', {
             method: 'POST',
