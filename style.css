@@ -627,6 +627,14 @@
             color: #ffffff;
         }
 
+       .btn-buy:disabled {
+              background-color: #cccccc !important;
+              color: #666666 !important;
+              cursor: not-allowed !important;
+              transform: none !important;
+              box-shadow: none !important;
+       }
+
         .about-container, .legal-content, .contact-container {
             background: var(--bg-card);
             padding: 3rem;
