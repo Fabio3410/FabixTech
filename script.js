@@ -100,3 +100,36 @@ if (checkoutBtn) {
         }
     });
 }
+
+async function checkCurrentVariantStock() {
+    const activeVariantBtn = document.querySelector('.variant-btn.active');
+    const cartButton = document.querySelector('.btn-buy');
+    
+    if (!activeVariantBtn || !cartButton) return;
+    const productId = activeVariantBtn.getAttribute('data-id');
+    if (!productId) return;
+    try {
+        const response = await fetch(`/api/get-stock?id=${productId}`);
+        const data = await response.json();
+        if (data.stock <= 0) {
+            cartButton.disabled = true;
+            cartButton.innerText = "Ausverkauft";
+        } else {
+            cartButton.disabled = false;
+            cartButton.innerText = "In den Warenkorb";
+            cartButton.setAttribute('data-max-stock', data.stock);
+        }
+    } catch (err) {
+        console.error("Fehler beim Abrufen des Bestands:", err);
+    }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    checkCurrentVariantStock();
+    const variantButtons = document.querySelectorAll('.variant-btn');
+    variantButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+            setTimeout(checkCurrentVariantStock, 10);
+        });
+    });
+});
