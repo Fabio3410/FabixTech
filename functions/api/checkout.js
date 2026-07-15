@@ -9,7 +9,7 @@ const PRODUKT_DATENBANK = {
 };
 export async function onRequestPost(context) {
     try {
-        const stripe = new Stripe(context.env.STRIPE_SECRET_KEY);
+      const stripe = Stripe('pk_test_51Tt9xjHRWCYHtDl0BltylAKQKcSZtBqXnkdvoRPHxrWK89UNPaM8dAvbDps7eE7kYkaj2T8yCJEHVpVjoNk6PO9w00CgUpqhlO');
         const { cart } = await context.request.json();
 
         const lineItems = cart.map(item => {
