@@ -11,30 +11,30 @@ export async function onRequestGet(context) {
         <style>
         
         body {
-        font-family: sans-serif;
-        background: #f4f6f8; display: flex; 
-        justify-content: center; 
-        align-items: center; 
-        min-height: 100vh; 
-        margin: 0; 
+            font-family: sans-serif;
+            background: #f4f6f8; display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            min-height: 100vh; 
+            margin: 0; 
         }
         
         .card { 
-        background: #fff; 
-        padding: 30px; 
-        border-radius: 16px; 
-        box-shadow: 0 10px 30px rgba(0,0,0,0.1); 
-        max-width: 400px; width: 90%; 
+            background: #fff; 
+            padding: 30px; 
+            border-radius: 16px; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1); 
+            max-width: 400px; width: 90%; 
         }
         
         h1 { 
-        text-align: center; 
-        font-size: 22px; 
+            text-align: center; 
+            font-size: 22px; 
         }
 
         p {
-        text-align: center; 
-        color:  #8792a2;
+            text-align: center; 
+            color:  #8792a2;
         }
             
         .btn { 
@@ -47,31 +47,33 @@ export async function onRequestGet(context) {
             text-decoration: none; 
             margin-top: 20px; 
             font-weight: bold; 
-            }
+        }
 
-            .icon {
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                width: 56px;
-                height: 56px;
-                background-color: #FEE2E2;
-                color: #FEE2E2;
-                font-size: 24px;
-                font-weight: bold;
-                border-radius: 50%;
-                margin: 0 auto 24px auto;
-            }
+        .icon {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 56px;
+            height: 56px;
+            background-color: #FEE2E2;
+            color: #FEE2E2;
+            font-size: 24px;
+            font-weight: bold;
+            border-radius: 50%;
+            margin: 0 auto 24px auto;
+        }
 
-            .icon img {
-                width: 56px;
-                height: 56px;
-            }
+        .icon img {
+            width: 56px;
+            height: 56px;
+        }
         </style>
     </head>
     <body>
         <div class="card">
-            <div class="icon" src="../images/failure.png"></div>
+            <div class="icon">
+                <img src="../images/failure.png">
+            </div>
             <h1>${begruessungText}</h1>
             <p style="text-align: center; color: #8792a2; font-weight: 500; margin-bottom: 20px;">
                 Deine Zahlung konnte nicht verarbeitet werden.
