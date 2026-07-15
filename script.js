@@ -27,14 +27,14 @@ window.jumpToSlide = function(index) {
 
 document.querySelectorAll('.variant-btn').forEach(btn => {
     btn.addEventListener('click', (event) => {
-        const gewaehlteId = event.target.dataset.id;
+        const gewaehlteId = event.target.getAttribute('data-id');
         const produktKarte = event.target.closest('.product-card');
         
         if (!produktKarte) return;
 
         const hauptButton = produktKarte.querySelector('.btn-buy');
         if (hauptButton) {
-            hauptButton.dataset.id = gewaehlteId;
+            hauptButton.setAttribute('data-id', gewaehlteId);
         }
 
         produktKarte.querySelectorAll('.variant-btn').forEach(b => b.classList.remove('active'));
@@ -78,29 +78,6 @@ function updatePrice(button) {
     }
 }
 
-const checkoutBtn = document.getElementById('checkout-button');
-if (checkoutBtn) {
-    checkoutBtn.addEventListener('click', async () => {
-        if (typeof meinWarenkorbIds === 'undefined') {
-            console.error("Fehler: 'meinWarenkorbIds' ist nicht definiert.");
-            return;
-        }
-
-        const response = await fetch('/api/checkout', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ cartIds: meinWarenkorbIds }) 
-        });
-        
-        const data = await response.json();
-        if (data.url) {
-            window.location.href = data.url;
-        } else {
-            alert('Fehler: ' + data.error);
-        }
-    });
-}
-
 async function checkCurrentVariantStock() {
     const activeVariantBtn = document.querySelector('.variant-btn.active');
     const cartButton = document.querySelector('.btn-buy');
@@ -108,12 +85,15 @@ async function checkCurrentVariantStock() {
     if (!activeVariantBtn || !cartButton) return;
     const productId = activeVariantBtn.getAttribute('data-id');
     if (!productId) return;
+    
     try {
         const response = await fetch(`/api/get-stock?id=${productId}`);
         const data = await response.json();
+        
         if (data.stock <= 0) {
             cartButton.disabled = true;
             cartButton.innerText = "Ausverkauft";
+            cartButton.removeAttribute('data-max-stock');
         } else {
             cartButton.disabled = false;
             cartButton.innerText = "In den Warenkorb";
