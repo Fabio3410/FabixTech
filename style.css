@@ -633,6 +633,7 @@
               cursor: not-allowed !important;
               transform: none !important;
               box-shadow: none !important;
+              border: none !important;
        }
 
         .about-container, .legal-content, .contact-container {
