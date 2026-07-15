@@ -31,7 +31,7 @@ export async function onRequestGet(context) {
         </div>
         
         <div class="item-price" style="display: flex; flex-direction: column; align-items: flex-end; text-align: right;">
-            <strong style="color: #000000; font-size: 16px; white-space: nowrap;">
+            <strong style="color: #4f566b; font-size: 16px; white-space: nowrap;">
                 ${gesamtZeilenPreis} CHF
             </strong>
             <span style="color: #8792a2; font-size: 13px; white-space: nowrap; margin-bottom: 2px;">
