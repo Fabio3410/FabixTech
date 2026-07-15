@@ -37,6 +37,9 @@ export async function onRequestPost(context) {
             line_items: lineItems,
             mode: 'payment',
             allow_promotion_codes: true,
+            shipping_address_collection: {
+              allowed_countries: ['CH'],
+            },
             success_url: 'https://fabio3d.pages.dev/success?session_id={CHECKOUT_SESSION_ID}',
             cancel_url: 'https://fabio3d.pages.dev/failure',
         });
