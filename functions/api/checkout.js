@@ -40,6 +40,17 @@ export async function onRequestPost(context) {
             shipping_address_collection: {
               allowed_countries: ['CH'],
             },
+            shipping_options: [
+              {
+                shipping_rate: 'shr_1TtPmNHRWCYHtDl0SdOITsig',
+                },
+                            {
+                shipping_rate: 'shr_1TtPm1HRWCYHtDl0M3nwIaNN',
+                },
+              {
+                shipping_rate: 'shr_1TtPhGHRWCYHtDl0rJ3CsJso',
+                },
+            ],
             success_url: 'https://fabio3d.pages.dev/success?session_id={CHECKOUT_SESSION_ID}',
             cancel_url: 'https://fabio3d.pages.dev/failure',
         });
