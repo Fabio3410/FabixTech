@@ -101,10 +101,14 @@ async function checkout() {
         checkoutBtn.disabled = true;
     }
 
+    const aktiverKnopf = document.querySelector('.variant-btn.active');
+    const gewaehlteFarbe = aktiverKnopf ? aktiverKnopf.innerText.trim() : 'Standard';
+
     const formattedCart = cart.map(item => ({
         name: item.name,
         price: Math.round(item.price * 100),
-        quantity: 1 
+        quantity: item.quantity || 1,
+        farbe: gewaehlteFarbe
     }));
 
     try {
@@ -123,16 +127,16 @@ async function checkout() {
             window.location.href = data.url;
         } else {
             alert("Fehler beim Checkout: " + data.error);
-            if (checkoutButton) {
-                checkoutButton.innerText = "Zur Kasse";
-                checkoutButton.disabled = false;
+            if (checkoutBtn) {
+                checkoutBtn.innerText = "Zur Kasse";
+                checkoutBtn.disabled = false;
             }
         }
     } catch (error) {
         alert("Netzwerkfehler beim Verbinden mit Stripe.");
-        if (checkoutButton) {
-            checkoutButton.innerText = "Zur Kasse";
-            checkoutButton.disabled = false;
+        if (checkoutBtn) {
+            checkoutBtn.innerText = "Zur Kasse";
+            checkoutBtn.disabled = false;
         }
     }
 }
