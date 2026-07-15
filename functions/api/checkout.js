@@ -21,6 +21,7 @@ export async function onRequestPost(context) {
                 });
             }
         }
+
         const lineItems = cart.map(item => {
             const produktBeschreibung = item.farbe ? `Variante: ${item.farbe}` : '';
 
@@ -31,7 +32,7 @@ export async function onRequestPost(context) {
                         name: item.name,
                         description: produktBeschreibung,
                         metadata: {
-                            warenkorb_daten: JSON.stringify(cart.map(item => ({ id: item.id, quantity: item.quantity })))
+                            id: item.id 
                         },
                     },
                     unit_amount: item.price,
@@ -39,6 +40,7 @@ export async function onRequestPost(context) {
                 quantity: item.quantity,
             };
         });
+
         const session = await stripe.checkout.sessions.create({
             payment_method_types: [
                 'card',
