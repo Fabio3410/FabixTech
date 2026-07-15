@@ -14,31 +14,32 @@ export async function onRequestPost(context) {
             const aktuellerBestand = parseInt(aktuellerBestandRaw || "0");
             if (aktuellerBestand < kundenMenge) {
                 return new Response(JSON.stringify({ 
-                    error: `Entschuldigung, das Produkt "${item.name}" ist leider nicht mehr in der gewünschten Menge verfügbar.` 
+                    error: `Das Produkt "${item.name}" ist leider nicht mehr in der gewünschten Menge verfügbar.` 
                 }), { 
                     status: 400,
                     headers: { 'Content-Type': 'application/json' }
                 });
             }
         }
-
         const lineItems = cart.map(item => {
             const produktBeschreibung = item.farbe ? `Variante: ${item.farbe}` : '';
-
             return {
                 price_data: {
                     currency: 'chf',
                     product_data: {
                         name: item.name,
                         description: produktBeschreibung,
-                        metadata: {
-                            id: item.id 
-                        },
                     },
                     unit_amount: item.price,
                 },
                 quantity: item.quantity,
             };
+        });
+        const sessionMetadata = {};
+        cart.forEach(item => {
+            if (item.id) {
+                sessionMetadata[`prod_${item.id}`] = item.quantity.toString();
+            }
         });
 
         const session = await stripe.checkout.sessions.create({
@@ -49,6 +50,7 @@ export async function onRequestPost(context) {
             line_items: lineItems,
             mode: 'payment',
             allow_promotion_codes: true,
+            metadata: sessionMetadata,
             shipping_address_collection: {
               allowed_countries: ['CH'],
             },
