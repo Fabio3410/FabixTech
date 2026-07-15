@@ -76,7 +76,7 @@ export async function onRequestGet(context) {
     <body>
         <div class="card">
             <div class="icon">
-            <img src="check_circle.png" alt="Erfolgreich!">
+            <img src="../images/check_circle.png" alt="Erfolgreich!">
             </div>
             <h1>Danke, ${kundeName}!</h1>
             <p>Deine Zahlung war erfolgreich.</p>
