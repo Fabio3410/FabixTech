@@ -10,15 +10,22 @@ function toggleCart() {
         sidebar.classList.toggle('open');
     }
 }
-
-function addToCart(name, price, variant) {
+function addToCart(id, name, price, variant, maxStock) {
     const selectedVariant = variant || 'Standard';
-    const bestehenderArtikel = cart.find(item => item.name === name && item.variant === selectedVariant);
+    const bestehenderArtikel = cart.find(item => item.id === id);
 
     if (bestehenderArtikel) {
+        if (bestehenderArtikel.quantity >= maxStock) {
+            alert(`Entschuldigung, es sind nur noch ${maxStock} Stück von dieser Variante auf Lager.`);
+            return;
+        }
         bestehenderArtikel.quantity = (bestehenderArtikel.quantity || 1) + 1;
     } else {
-        cart.push({ name, price, variant: selectedVariant, quantity: 1 });
+        if (maxStock <= 0) {
+            alert("Dieses Produkt ist aktuell ausverkauft.");
+            return;
+        }
+        cart.push({ id, name, price, variant: selectedVariant, quantity: 1 });
     }
 
     saveCartToStorage();
@@ -41,6 +48,7 @@ function updateCartUI() {
     let total = 0;
     let anzahlGesamt = 0;
     const versandKosten = 5.70;
+    
     cart.forEach(item => {
         anzahlGesamt += (item.quantity || 1);
     });
@@ -115,8 +123,8 @@ async function checkout() {
         checkoutBtn.innerText = "Wird geladen...";
         checkoutBtn.disabled = true;
     }
-    
     const formattedCart = cart.map(item => ({
+        id: item.id, 
         name: item.name,
         price: Math.round(item.price * 100),
         quantity: item.quantity || 1,
@@ -153,23 +161,8 @@ async function checkout() {
     }
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-    updateCartUI();
-});
-
-document.addEventListener('change', (event) => {
-    if (event.target && event.target.id === 'legal-checkbox') {
-        const checkoutButton = document.getElementById('checkout-button');
-        if (checkoutButton) {
-            checkoutButton.disabled = !(event.target.checked && cart.length > 0);
-        }
-    }
-});
-
-
 function removeFromCart(index) {
     cart.splice(index, 1); 
-    
     saveCartToStorage();
     updateCartUI();
 }
@@ -193,12 +186,14 @@ function addProductFromCard(buttonElement) {
 
         const activeVariantBtn = box.querySelector('.variant-btn.active');
         const variante = activeVariantBtn ? activeVariantBtn.innerText.trim() : 'Standard';    
+        const id = activeVariantBtn ? activeVariantBtn.getAttribute('data-id') : buttonElement.getAttribute('data-id');
+        const maxStock = parseInt(buttonElement.getAttribute('data-max-stock') || "0");
 
         if (isNaN(preis)) {
             throw new Error("Der ausgelesene Preis ist keine gültige Zahl!");
         }
 
-        addToCart(titel, preis, variante);
+        addToCart(id, titel, preis, variante, maxStock);
         
     } catch (error) {
         console.error("Fehler beim Hinzufügen:", error);
@@ -206,24 +201,15 @@ function addProductFromCard(buttonElement) {
     }
 }
 
-document.addEventListener('DOMContentLoaded', async () => {
-    const buttons = document.querySelectorAll('.add-to-cart-btn');
-    
-    for (let button of buttons) {
-        const productId = button.getAttribute('data-product-id');
-        
-        try {
-            const response = await fetch(`/api/get-stock?id=${productId}`);
-            const data = await response.json();
-            
-            if (data.stock <= 0) {
-                button.disabled = true;
-                button.innerText = "Ausverkauft";
-            } else {
-                button.setAttribute('data-max-stock', data.stock);
-            }
-        } catch (err) {
-            console.error("Fehler beim Abrufen des Bestands:", err);
+document.addEventListener('DOMContentLoaded', () => {
+    updateCartUI();
+});
+
+document.addEventListener('change', (event) => {
+    if (event.target && event.target.id === 'legal-checkbox') {
+        const checkoutButton = document.getElementById('checkout-button');
+        if (checkoutButton) {
+            checkoutButton.disabled = !(event.target.checked && cart.length > 0);
         }
     }
 });
