@@ -71,7 +71,7 @@ export async function onRequestGet(context) {
     </head>
     <body>
         <div class="card">
-            <div class="icon" src="failure.png"></div>
+            <div class="icon" src="../images/failure.png"></div>
             <h1>${begruessungText}</h1>
             <p style="text-align: center; color: #8792a2; font-weight: 500; margin-bottom: 20px;">
                 Deine Zahlung konnte nicht verarbeitet werden.
