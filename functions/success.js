@@ -43,6 +43,7 @@ export async function onRequestGet(context) {
                 min-height: 100vh;
                 margin: 0;
             }
+            
             .card {
                 background: #ffffff;
                 padding: 30px;
@@ -51,6 +52,7 @@ export async function onRequestGet(context) {
                 max-width: 400px;
                 width: 90%;
             }
+            
             .icon {
                 display: flex;
                 justify-content: center;
@@ -63,6 +65,12 @@ export async function onRequestGet(context) {
                 border-radius: 50%;
                 margin: 0 auto 20px auto;
             }
+
+            .icon img {
+              width: 56px;
+              height: 56px;
+            }
+            
             h1 { font-size: 22px; text-align: center; margin: 0 0 10px 0; }
             p { color: #697386; font-size: 14px; text-align: center; margin: 0 0 20px 0; }
             .summary { border-top: 1px solid #e3e8ee; border-bottom: 1px solid #e3e8ee; padding: 15px 0; }
