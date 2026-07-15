@@ -78,9 +78,9 @@ function updatePrice(button) {
     }
 }
 
-async function checkCurrentVariantStock() {
-    const activeVariantBtn = document.querySelector('.variant-btn.active');
-    const cartButton = document.querySelector('.btn-buy');
+async function checkCardStock(produktKarte) {
+    const activeVariantBtn = produktKarte.querySelector('.variant-btn.active');
+    const cartButton = produktKarte.querySelector('.btn-buy');
     
     if (!activeVariantBtn || !cartButton) return;
     const productId = activeVariantBtn.getAttribute('data-id');
@@ -104,12 +104,22 @@ async function checkCurrentVariantStock() {
     }
 }
 
+async function checkAllProductsStock() {
+    const allCards = document.querySelectorAll('.product-card');
+    for (let card of allCards) {
+        await checkCardStock(card);
+    }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
-    checkCurrentVariantStock();
+    checkAllProductsStock();
     const variantButtons = document.querySelectorAll('.variant-btn');
     variantButtons.forEach(btn => {
-        btn.addEventListener('click', () => {
-            setTimeout(checkCurrentVariantStock, 10);
+        btn.addEventListener('click', (event) => {
+            const produktKarte = event.target.closest('.product-card');
+            if (produktKarte) {
+                setTimeout(() => checkCardStock(produktKarte), 10);
+            }
         });
     });
 });
