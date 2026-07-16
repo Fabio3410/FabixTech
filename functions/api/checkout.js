@@ -9,12 +9,15 @@ export async function onRequestPost(context) {
             const kundenMenge = item.quantity;
 
             if (!productId) continue;
+            const result = await context.env.DB.prepare(
+                "SELECT stock FROM inventory WHERE id = ?"
+            ).bind(productId).first();
+            
+            const aktuellerBestand = result ? parseInt(result.stock) : 0;
 
-            const aktuellerBestandRaw = await context.env.INVENTORY.get(productId);
-            const aktuellerBestand = parseInt(aktuellerBestandRaw || "0");
             if (aktuellerBestand < kundenMenge) {
                 return new Response(JSON.stringify({ 
-                    error: `Das Produkt "${item.name}" ist leider nicht mehr in der gewünschten Menge verfügbar.` 
+                    error: `Entschuldigung, das Produkt "${item.name}" ist leider nicht mehr verfügbar.` 
                 }), { 
                     status: 400,
                     headers: { 'Content-Type': 'application/json' }
@@ -35,6 +38,7 @@ export async function onRequestPost(context) {
                 quantity: item.quantity,
             };
         });
+
         const sessionMetadata = {};
         cart.forEach(item => {
             if (item.id) {
@@ -43,22 +47,13 @@ export async function onRequestPost(context) {
         });
 
         const session = await stripe.checkout.sessions.create({
-            payment_method_types: [
-                'card',
-                'twint'
-            ],
+            payment_method_types: ['card', 'twint'],
             line_items: lineItems,
             mode: 'payment',
             allow_promotion_codes: true,
             metadata: sessionMetadata,
-            shipping_address_collection: {
-              allowed_countries: ['CH'],
-            },
-            shipping_options: [
-              {
-                shipping_rate: 'shr_1TtOw8HRWCYHtDl04j8UrqdP',
-              },
-            ],
+            shipping_address_collection: { allowed_countries: ['CH'] },
+            shipping_options: [{ shipping_rate: 'shr_1TtOw8HRWCYHtDl04j8UrqdP' }],
             success_url: 'https://fabio3d.pages.dev/success?session_id={CHECKOUT_SESSION_ID}',
             cancel_url: 'https://fabio3d.pages.dev/failure',
         });
