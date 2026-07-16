@@ -29,7 +29,7 @@ window.jumpToSlide = function(index) {
 document.querySelectorAll('.variant-btn').forEach(btn => {
     btn.addEventListener('click', (event) => {
         const gewaehlteId = event.target.getAttribute('data-id');
-        const produktKarte = event.target.closest('.product-card');
+        const produktKarte = event.target.closest('.product-card, .product-details');
         
         if (!produktKarte) return;
         const hauptButton = produktKarte.querySelector('.btn-buy');
@@ -100,8 +100,8 @@ async function fetchAllStocks() {
         }
         await sleep(100);
     }
-    document.querySelectorAll('.product-card').forEach(card => {
-        updateMainButtonStock(card);
+    document.querySelectorAll('.product-card, .product-detail').forEach(container => {
+        updateMainButtonStock(container);
     });
 }
 
