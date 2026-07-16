@@ -1,15 +1,25 @@
 export async function onRequestGet(context) {
     const { searchParams } = new URL(context.request.url);
-    const id = searchParams.get('id'); // Holt die Produkt-ID aus der URL (z.B. ?id=fidget_normal)
+    const productId = searchParams.get('id');
     
-    if (!id) {
-        return new Response(JSON.stringify({ error: "Missing product id" }), { status: 400 });
+    if (!productId) {
+        return new Response(JSON.stringify({ error: "Missing ID" }), { status: 400 });
     }
-    const stock = await context.env.INVENTORY.get(id) || "0";
-    return new Response(JSON.stringify({ id: id, stock: parseInt(stock) }), {
-        headers: { 
-            'Content-Type': 'application/json; charset=utf-8',
-            'Cache-Control': 'no-cache'
-        }
-    });
+
+    try {
+        const result = await context.env.DB.prepare(
+            "SELECT stock FROM inventory WHERE id = ?"
+        ).bind(productId).first();
+
+        const stock = result ? parseInt(result.stock) : 0;
+
+        return new Response(JSON.stringify({ stock }), {
+            headers: { 
+                'Content-Type': 'application/json',
+                'Cache-Control': 'no-store, max-age=0'
+            }
+        });
+    } catch (error) {
+        return new Response(JSON.stringify({ error: error.message }), { status: 500 });
+    }
 }
