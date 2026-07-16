@@ -1,3 +1,5 @@
+const sleep = ms => new Promise(res => setTimeout(res, ms));
+
 document.addEventListener('DOMContentLoaded', () => {
     const variantButtons = document.querySelectorAll('.variant-btn');
 
@@ -5,31 +7,118 @@ document.addEventListener('DOMContentLoaded', () => {
         button.addEventListener('click', (event) => {
             event.preventDefault();
 
-            variantButtons.forEach(btn => btn.classList.remove('active'));
+            const card = button.closest('.product-card, .product-card-detail-view');
+            if (!card) return;
+
+            card.querySelectorAll('.variant-btn').forEach(btn => btn.classList.remove('active'));
             button.classList.add('active');
 
             const selectedVariant = button.innerText.trim();
-
-            const variantDisplay = document.querySelector('.selected-variant-display');
-            if (variantDisplay) {
-                variantDisplay.innerText = selectedVariant;
-            }
-
-            const variantPrice = button.getAttribute('data-price');
-            const priceElement = document.querySelector('.price');
-            
-            if (priceElement && variantPrice) {
-                priceElement.innerText = `${parseFloat(variantPrice).toFixed(2)}`;
-            }
-
             if (typeof currentProduct !== 'undefined') {
                 currentProduct.variant = selectedVariant;
             }
 
-            console.log("Variante gewechselt zu:", selectedVariant);
+            const variantDisplay = card.querySelector('.selected-variant-display');
+            if (variantDisplay) {
+                variantDisplay.innerText = selectedVariant;
+            }
+
+            updatePrice(button);
+            const gewaehlteId = button.getAttribute('data-id') || button.dataset.id;
+            const buyButton = card.querySelector('.btn-buy');
+            if (buyButton) {
+                buyButton.setAttribute('data-id', gewaehlteId);
+                buyButton.dataset.id = gewaehlteId;
+            }
+            const imgElement = card.querySelector('.product-img');
+            const variantImages = button.getAttribute('data-variant-images');
+
+            if (variantImages && imgElement) {
+                imgElement.setAttribute('data-images', variantImages);
+                imgElement.setAttribute('data-index', '0');
+                imgElement.classList.add('fade-out');
+                
+                setTimeout(() => {
+                    imgElement.src = variantImages.split(',')[0].trim();
+                    imgElement.classList.remove('fade-out');
+                }, 150);
+            }
+            updateMainButtonStock(card);
+            console.log("Variante gewechselt zu:", selectedVariant, "ID:", gewaehlteId);
         });
     });
+    fetchAllStocks();
 });
+
+async function fetchAllStocks() {
+    const variantButtons = document.querySelectorAll('.variant-btn');
+    
+    for (let btn of variantButtons) {
+        const productId = btn.getAttribute('data-id');
+        if (!productId) continue;
+        
+        try {
+            const response = await fetch(`/api/get-stock?id=${productId}&t=${Date.now()}`);
+            const data = await response.json();
+            btn.setAttribute('data-stock', data.stock);
+            if (data.stock <= 0) {
+                btn.style.opacity = '0.4';
+                btn.style.textDecoration = 'line-through';
+            } else {
+                btn.style.opacity = '1';
+                btn.style.textDecoration = 'none';
+            }
+        } catch (err) {
+            console.error("Fehler beim Bestandsabruf für", productId, err);
+        }
+        await sleep(100);
+    }
+    document.querySelectorAll('.product-card, .product-card-detail-view').forEach(card => {
+        updateMainButtonStock(card);
+    });
+}
+
+function updateMainButtonStock(container) {
+    const activeVariantBtn = container.querySelector('.variant-btn.active');
+    const cartButton = container.querySelector('.btn-buy');
+    
+    if (!activeVariantBtn || !cartButton) return;
+    
+    const aktuellerBestand = parseInt(activeVariantBtn.getAttribute('data-stock') || "0");
+    
+    if (aktuellerBestand <= 0) {
+        cartButton.disabled = true;
+        cartButton.innerText = "Ausverkauft";
+        cartButton.removeAttribute('data-max-stock');
+    } else {
+        cartButton.disabled = false;
+        cartButton.innerText = "In den Warenkorb";
+        cartButton.setAttribute('data-max-stock', aktuellerBestand);
+    }
+}
+
+function updatePrice(button) {
+    const card = button.closest('.product-card, .product-card-detail-view');
+    const newPrice = button.getAttribute('data-price');
+    
+    if (!card || !newPrice) return;
+    const priceElement = card.querySelector('.price');
+    if (priceElement) {
+        priceElement.textContent = newPrice.replace('.', ',');
+    }
+
+    const buyButton = card.querySelector('.btn-buy');
+    if (buyButton) {
+        const currentOnclick = buyButton.getAttribute('onclick');
+        if (currentOnclick && currentOnclick.includes('addToCart')) {
+            const updatedOnclick = currentOnclick.replace(/([\d\.]+)\s*\)/, newPrice + ')');
+            buyButton.setAttribute('onclick', updatedOnclick);
+        }
+    }
+}
+
+window.updatePrice = updatePrice;
+
 function switchPage(pageId) {
     document.querySelectorAll('.nav-links .nav-link').forEach(link => {
         link.classList.remove('active');
@@ -57,59 +146,6 @@ window.jumpToSlide = function(index) {
     console.log("jumpToSlide abgefangen für Index:", index);
 };
 
-document.querySelectorAll('.variant-btn').forEach(btn => {
-    btn.addEventListener('click', (event) => {
-        const gewaehlteId = event.target.dataset.id;
-        const produktKarte = event.target.closest('.product-card');
-        
-        if (!produktKarte) return;
-
-        const hauptButton = produktKarte.querySelector('.btn-buy');
-        if (hauptButton) {
-            hauptButton.dataset.id = gewaehlteId;
-        }
-
-        produktKarte.querySelectorAll('.variant-btn').forEach(b => b.classList.remove('active'));
-        event.target.classList.add('active');
-
-        updatePrice(event.target);
-
-        const imgElement = produktKarte.querySelector('.product-img');
-        const variantImages = event.target.getAttribute('data-variant-images');
-
-        if (variantImages && imgElement) {
-            imgElement.setAttribute('data-images', variantImages);
-            imgElement.setAttribute('data-index', '0');
-            imgElement.classList.add('fade-out');
-            
-            setTimeout(() => {
-                imgElement.src = variantImages.split(',')[0].trim();
-                imgElement.classList.remove('fade-out');
-            }, 150);
-        }
-    });
-});
-
-function updatePrice(button) {
-    const card = button.closest('.product-card');
-    const newPrice = button.getAttribute('data-price');
-    
-    if (!card || !newPrice) return;
-    const priceElement = card.querySelector('.price');
-    if (priceElement) {
-        priceElement.textContent = newPrice.replace('.', ',');
-    }
-
-    const buyButton = card.querySelector('.btn-buy');
-    if (buyButton) {
-        const currentOnclick = buyButton.getAttribute('onclick');
-        if (currentOnclick && currentOnclick.includes('addToCart')) {
-            const updatedOnclick = currentOnclick.replace(/([\d\.]+)\s*\)/, newPrice + ')');
-            buyButton.setAttribute('onclick', updatedOnclick);
-        }
-    }
-}
-
 const checkoutBtn = document.getElementById('checkout-button');
 if (checkoutBtn) {
     checkoutBtn.addEventListener('click', async () => {
@@ -132,3 +168,6 @@ if (checkoutBtn) {
         }
     });
 }
+window.addEventListener('pageshow', () => {
+    fetchAllStocks();
+});
