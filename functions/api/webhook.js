@@ -7,11 +7,7 @@ export async function onRequestPost(context) {
 
     let event;
     try {
-        event = await stripe.webhooks.constructEventAsync(
-            body, 
-            signature, 
-            context.env.STRIPE_WEBHOOK_SECRET
-        );
+        event = await stripe.webhooks.constructEventAsync(body, signature, context.env.STRIPE_WEBHOOK_SECRET);
     } catch (err) {
         console.error("Webhook Signatur-Fehler:", err.message);
         return new Response(`Webhook Error: ${err.message}`, { status: 400 });
@@ -21,19 +17,23 @@ export async function onRequestPost(context) {
         const session = event.data.object;
         const metadata = session.metadata || {};
 
-        console.log("Webhook erfolgreich aufgerufen! Metadaten erhalten:", JSON.stringify(metadata));
-
         for (const key in metadata) {
             if (key.startsWith('prod_')) {
                 const productId = key.replace('prod_', '');
                 const gekaufteMenge = parseInt(metadata[key] || "0");
 
                 if (productId && gekaufteMenge > 0) {
-                    const aktuellerBestandRaw = await context.env.INVENTORY.get(productId);
-                    const aktuellerBestand = parseInt(aktuellerBestandRaw || "0");
+                    const result = await context.env.DB.prepare(
+                        "SELECT stock FROM inventory WHERE id = ?"
+                    ).bind(productId).first();
+                    
+                    const aktuellerBestand = result ? parseInt(result.stock) : 0;
                     const neuerBestand = Math.max(0, aktuellerBestand - gekaufteMenge);
-                    await context.env.INVENTORY.put(productId, neuerBestand.toString());
-                    console.log(`Erfolg! Bestand für ${productId} von ${aktuellerBestand} auf ${neuerBestand} reduziert.`);
+                    await context.env.DB.prepare(
+                        "UPDATE inventory SET stock = ? WHERE id = ?"
+                    ).bind(neuerBestand, productId).run();
+
+                    console.log(`D1 Erfolg: ${productId} von ${aktuellerBestand} auf ${neuerBestand} gesetzt.`);
                 }
             }
         }
