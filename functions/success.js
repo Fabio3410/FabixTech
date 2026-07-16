@@ -79,11 +79,11 @@ export async function onRequestGet(context) {
                 <img src="../images/success.png">
             </div>
             <h1>${begruessungText}</h1>
-            <p style="text-align: center; color:  #8792a2;">Deine Zahlung war erfolgreich.</p>
+            <p style="text-align: center; color: #8792a2;">Deine Zahlung war erfolgreich.</p>
             
             <div style="margin-top: 20px;">
                 ${artikelListeHtml}
-                <div style="display: flex; justify-content: space-between; color: #8792a2; font-size: 13px; white-space: nowrap; margin-bottom: 2px;">
+                <div style="display: flex; justify-content: space-between; color: #8792a2; font-weight: bold; font-size: 13px; white-space: nowrap; margin-bottom: 2px;">
                   <span>Versand</span>
                   <span>5.70 ${waehrung}</span>
                 </div>
