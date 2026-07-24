@@ -16,7 +16,7 @@ function addToCart(id, name, price, variant, maxStock) {
 
     if (bestehenderArtikel) {
         if (bestehenderArtikel.quantity >= maxStock) {
-            alert(`Entschuldigung, es sind nur noch ${maxStock} Stück von dieser Variante auf Lager.`);
+            alert(`Es sind nur noch ${maxStock} Stück von dieser Variante auf Lager.`);
             return;
         }
         bestehenderArtikel.quantity = (bestehenderArtikel.quantity || 1) + 1;
