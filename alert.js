@@ -12,12 +12,7 @@ window.showAlert = function(message, title = "Hinweis") {
             </div>
         `;
         document.body.appendChild(overlay);
-
         overlay.querySelector('#custom-alert-btn').addEventListener('click', window.closeCustomAlert);
-
-        overlay.addEventListener('click', (e) => {
-            if (e.target === overlay) window.closeCustomAlert();
-        });
     }
 
     document.getElementById('custom-alert-title').innerText = title;
