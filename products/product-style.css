@@ -449,6 +449,72 @@ html {
     border: none !important;
 }
 
+.custom-alert-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(5px);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 99999;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.custom-alert-overlay.active {
+    opacity: 1;
+}
+
+.custom-alert-box {
+    background: #ffffff;
+    padding: 28px 24px 20px 24px;
+    border-radius: 20px;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.15);
+    max-width: 380px;
+    width: 88%;
+    text-align: center;
+    transform: scale(0.9);
+    transition: transform 0.2s ease;
+}
+
+.custom-alert-overlay.active .custom-alert-box {
+    transform: scale(1);
+}
+
+.custom-alert-box h3 {
+    margin: 0 0 10px 0;
+    font-size: 19px;
+    font-weight: 700;
+    color: #0f172a;
+}
+
+.custom-alert-box p {
+    margin: 0 0 22px 0;
+    font-size: 14.5px;
+    color: #475569;
+    line-height: 1.5;
+}
+
+.custom-alert-box button {
+    background-color: #2563eb;
+    color: #ffffff;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 12px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    width: 100%;
+}
+
+.custom-alert-box button:hover {
+    background-color: #1d4ed8;
+}
+
 footer {
     text-align: center;
     padding: 3rem 2rem;
