@@ -96,10 +96,7 @@ export async function onRequestGet(context) {
             <a href="/" class="btn">Zurück zur Startseite</a>
         </div>
         <script>
-            localStorage.removeItem('cart');
-            localStorage.removeItem('meinWarenkorb');
-            if (typeof cart !== 'undefined') cart = [];
-            if (typeof meinWarenkorbIds !== 'undefined') meinWarenkorbIds = [];
+            localStorage.removeItem('fabio3d_cart');
         </script>
     </body>
     </html>`;
