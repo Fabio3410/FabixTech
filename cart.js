@@ -141,9 +141,6 @@ async function checkout() {
         const data = await response.json();
 
         if (data.url) {
-            cart = [];
-            saveCartToStorage();
-            updateCartUI();
             window.location.href = data.url;
         } else {
             alert("Fehler beim Checkout: " + data.error);
