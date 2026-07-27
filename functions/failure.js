@@ -40,7 +40,7 @@ export async function onRequestGet(context) {
         .btn { 
             display: block; 
             text-align: center; 
-            background: #635bff; 
+            background: #2563eb; 
             color: white; 
             padding: 12px; 
             border-radius: 8px; 
@@ -85,7 +85,7 @@ export async function onRequestGet(context) {
             <p>
                 Bitte entschuldige die Unannehmlichkeiten. Du kannst es gerne jederzeit noch einmal probieren!
             </p>
-            <a href="/" class="btn">Zurück zum Shop</a>
+            <a href="../index#shop" class="btn">Zurück zum Shop</a>
         </div>
     </body>
     </html>`;
