@@ -1,18 +1,5 @@
 import Stripe from 'stripe';
 
-document.addEventListener('DOMContentLoaded', () => {
-    cart = [];
-    
-    if (typeof saveCartToStorage === 'function') {
-        saveCartToStorage();
-    } else {
-        localStorage.removeItem('cart');
-    }
-    if (typeof updateCartUI === 'function') {
-        updateCartUI();
-    }
-});
-
 export async function onRequestGet(context) {
   const url = new URL(context.request.url);
   const sessionId = url.searchParams.get('session_id');
