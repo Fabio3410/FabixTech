@@ -1,5 +1,16 @@
 const sleep = ms => new Promise(res => setTimeout(res, ms));
 
+document.addEventListener('DOMContentLoaded', () => {
+    const hash = window.location.hash;
+    
+    if (hash) {
+        const pageId = hash.replace('#', '');
+        if (typeof switchPage === 'function') {
+            switchPage(pageId);
+        }
+    }
+});
+
 function switchPage(pageId) {
     document.querySelectorAll('.nav-links .nav-link').forEach(link => {
         link.classList.remove('active');
