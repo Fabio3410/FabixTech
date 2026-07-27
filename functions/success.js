@@ -53,7 +53,7 @@ export async function onRequestGet(context) {
             body { font-family: sans-serif; background: #f4f6f8; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
             .card { background: #fff; padding: 30px; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); max-width: 400px; width: 90%; }
             h1 { text-align: center; font-size: 22px; }
-            .btn { display: block; text-align: center; background: #635bff; color: white; padding: 12px; border-radius: 8px; text-decoration: none; margin-top: 20px; font-weight: bold; }
+            .btn { display: block; text-align: center; background: #2563eb; color: white; padding: 12px; border-radius: 8px; text-decoration: none; margin-top: 20px; font-weight: bold; }
             .icon {
               display: flex;
               justify-content: center;
