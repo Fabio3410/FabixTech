@@ -7,8 +7,6 @@ function getPageIdFromPath() {
 
 function switchPage(pageId, updateHistory = true) {
     if (!pageId) pageId = 'home';
-
-    console.log("Wechsle zu Seite:", pageId);
     document.querySelectorAll('.page-section').forEach(section => section.classList.remove('active'));
     const activePage = document.getElementById(`${pageId}-page`);
     if (activePage) {
@@ -16,7 +14,6 @@ function switchPage(pageId, updateHistory = true) {
     }
     document.querySelectorAll('.nav-link, .nav-links a').forEach(link => {
         link.classList.remove('active');
-
         const href = (link.getAttribute('href') || '').trim();
         const dataPage = link.getAttribute('data-page');
         const cleanHref = href.replace(/^[\/#]/, '').trim();
@@ -28,7 +25,6 @@ function switchPage(pageId, updateHistory = true) {
 
         if (isHomeMatch || isPageMatch) {
             link.classList.add('active');
-            console.log("Aktiver Link markiert:", link);
         }
     });
     if (updateHistory) {
