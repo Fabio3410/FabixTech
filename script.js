@@ -31,7 +31,11 @@ function switchPage(pageId, updateHash = true) {
         activeLink.classList.add('active');
     }
     if (updateHash) {
-        window.location.hash = pageId;
+        if (pageId === 'home') {
+            history.pushState("", document.title, window.location.pathname + window.location.search);
+        } else {
+            window.location.hash = pageId;
+        }
     }
 
     window.scrollTo(0, 0);
@@ -147,7 +151,14 @@ function updateMainButtonStock(produktKarte) {
 }
 
 document.addEventListener('DOMContentLoaded', loadPageFromHash);
-window.addEventListener('hashchange', loadPageFromHash);
+window.addEventListener('hashchange', () => {
+    const hash = window.location.hash.replace('#', '');
+    if (!hash) {
+        switchPage('home', false);
+    } else {
+        switchPage(hash, false);
+    }
+});
 window.addEventListener('pageshow', () => {
     fetchAllStocks();
 });
