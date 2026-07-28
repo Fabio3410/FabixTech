@@ -18,7 +18,7 @@ function switchPage(pageId, updateHistory = true) {
 
     let selector = `a[href="/${pageId}"], a[href="${pageId}"], a[data-page="${pageId}"]`;
     if (pageId === 'home') {
-        selector += `, a[href="/"], a[href=""], a[href="./"]`;
+        selector += `, a[href="/"], a[href=""], a[href="./"], a[href="/home"]`;
     }
 
     const activeLink = document.querySelector(selector);
@@ -57,6 +57,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     switchPage(getPageIdFromPath(), false);
 });
+
 
 window.addEventListener('popstate', () => {
     switchPage(getPageIdFromPath(), false);
