@@ -2,28 +2,37 @@ const sleep = ms => new Promise(res => setTimeout(res, ms));
 
 function getPageIdFromPath() {
     const path = window.location.pathname.replace(/^\//, '').trim();
-    return path === '' ? 'home' : path;
+    return (path === '' || path === 'home' || path === 'index.html') ? 'home' : path;
 }
 
 function switchPage(pageId, updateHistory = true) {
+    if (!pageId) pageId = 'home';
+
     document.querySelectorAll('.nav-link, .nav-links a').forEach(link => link.classList.remove('active'));
     document.querySelectorAll('.page-section').forEach(section => section.classList.remove('active'));
+
     const activePage = document.getElementById(`${pageId}-page`);
     if (activePage) {
         activePage.classList.add('active');
     }
-    const activeLink = document.querySelector(
-        `a[href="/${pageId}"], a[href="${pageId}"], a[data-page="${pageId}"]`
-    );
+
+    let selector = `a[href="/${pageId}"], a[href="${pageId}"], a[data-page="${pageId}"]`;
+    if (pageId === 'home') {
+        selector += `, a[href="/"], a[href=""], a[href="./"]`;
+    }
+
+    const activeLink = document.querySelector(selector);
     if (activeLink) {
         activeLink.classList.add('active');
     }
+
     if (updateHistory) {
         const newUrl = pageId === 'home' ? '/' : `/${pageId}`;
         if (window.location.pathname !== newUrl) {
             history.pushState({ pageId: pageId }, '', newUrl);
         }
     }
+
     window.scrollTo(0, 0);
 }
 
@@ -35,15 +44,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
             let targetPage = dataPage;
             if (!targetPage && href && !href.startsWith('http')) {
-                targetPage = href.replace(/^\//, '');
+                const cleanHref = href.replace(/^\//, '').trim();
+                targetPage = (cleanHref === '' || cleanHref === 'home' || cleanHref === 'index.html') ? 'home' : cleanHref;
             }
 
-            if (targetPage !== null && targetPage !== undefined) {
+            if (targetPage) {
                 e.preventDefault();
-                switchPage(targetPage || 'home');
+                switchPage(targetPage);
             }
         });
     });
+
     switchPage(getPageIdFromPath(), false);
 });
 
