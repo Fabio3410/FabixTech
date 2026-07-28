@@ -1,43 +1,55 @@
 const sleep = ms => new Promise(res => setTimeout(res, ms));
 
-document.addEventListener('DOMContentLoaded', () => {
-    const hash = window.location.hash;
-    
-    if (hash) {
-        const pageId = hash.replace('#', '');
-        if (typeof switchPage === 'function') {
-            switchPage(pageId);
-        }
-    }
-});
+function getPageIdFromPath() {
+    const path = window.location.pathname.replace(/^\//, '').trim();
+    return path === '' ? 'home' : path;
+}
 
 function switchPage(pageId, updateHistory = true) {
-    document.querySelectorAll('.nav-links .nav-link').forEach(link => link.classList.remove('active'));
+    document.querySelectorAll('.nav-link, .nav-links a').forEach(link => link.classList.remove('active'));
     document.querySelectorAll('.page-section').forEach(section => section.classList.remove('active'));
     const activePage = document.getElementById(`${pageId}-page`);
     if (activePage) {
         activePage.classList.add('active');
     }
-    const activeLink = document.querySelector(`.nav-links a[data-page="${pageId}"]`);
+    const activeLink = document.querySelector(
+        `a[href="/${pageId}"], a[href="${pageId}"], a[data-page="${pageId}"]`
+    );
     if (activeLink) {
         activeLink.classList.add('active');
     }
     if (updateHistory) {
-        const newUrl = (pageId === 'home') ? '/' : `/${pageId}`;
-        history.pushState({ pageId: pageId }, '', newUrl);
+        const newUrl = pageId === 'home' ? '/' : `/${pageId}`;
+        if (window.location.pathname !== newUrl) {
+            history.pushState({ pageId: pageId }, '', newUrl);
+        }
     }
-
     window.scrollTo(0, 0);
 }
 
-function loadPageFromHash() {
-    const hash = window.location.hash.replace('#', '');
-    if (hash) {
-        switchPage(hash, false);
-    } else {
-        switchPage('home', false);
-    }
-}
+document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.nav-link').forEach(link => {
+        link.addEventListener('click', (e) => {
+            const href = link.getAttribute('href');
+            const dataPage = link.getAttribute('data-page');
+
+            let targetPage = dataPage;
+            if (!targetPage && href && !href.startsWith('http')) {
+                targetPage = href.replace(/^\//, '');
+            }
+
+            if (targetPage !== null && targetPage !== undefined) {
+                e.preventDefault();
+                switchPage(targetPage || 'home');
+            }
+        });
+    });
+    switchPage(getPageIdFromPath(), false);
+});
+
+window.addEventListener('popstate', () => {
+    switchPage(getPageIdFromPath(), false);
+});
 
 window.jumpToSlide = function(index) {
 };
@@ -93,6 +105,7 @@ function updatePrice(button) {
         }
     }
 }
+
 async function fetchAllStocks() {
     const variantButtons = document.querySelectorAll('.variant-btn');
     
@@ -139,24 +152,6 @@ function updateMainButtonStock(produktKarte) {
     }
 }
 
-window.addEventListener('popstate', (event) => {
-    let path = window.location.pathname.replace('/', '');
-    if (!path || path === 'home') path = 'home';
-    switchPage(path, false);
-});
-document.addEventListener('DOMContentLoaded', () => {
-    let path = window.location.pathname.replace('/', '');
-    if (!path) path = 'home';
-    switchPage(path, false);
-});
-window.addEventListener('hashchange', () => {
-    const hash = window.location.hash.replace('#', '');
-    if (!hash) {
-        switchPage('home', false);
-    } else {
-        switchPage(hash, false);
-    }
-});
 window.addEventListener('pageshow', () => {
     fetchAllStocks();
 });
