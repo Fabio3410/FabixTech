@@ -11,31 +11,20 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-function switchPage(pageId, updateHash = true) {
-    document.querySelectorAll('.nav-links .nav-link').forEach(link => {
-        link.classList.remove('active');
-    });
-    document.querySelectorAll('.page-section').forEach(section => {
-        section.classList.remove('active');
-    });
+function switchPage(pageId, updateHistory = true) {
+    document.querySelectorAll('.nav-links .nav-link').forEach(link => link.classList.remove('active'));
+    document.querySelectorAll('.page-section').forEach(section => section.classList.remove('active'));
     const activePage = document.getElementById(`${pageId}-page`);
     if (activePage) {
         activePage.classList.add('active');
     }
-    const activeLink = Array.from(document.querySelectorAll('.nav-links .nav-link')).find(link => {
-        const hrefAttr = link.getAttribute('href');
-        const onclickAttr = link.getAttribute('onclick');
-        return (hrefAttr && hrefAttr.includes(`#${pageId}`)) || (onclickAttr && onclickAttr.includes(`'${pageId}'`));
-    });
+    const activeLink = document.querySelector(`.nav-links a[data-page="${pageId}"]`);
     if (activeLink) {
         activeLink.classList.add('active');
     }
-    if (updateHash) {
-        if (pageId === 'home') {
-            history.pushState("", document.title, window.location.pathname + window.location.search);
-        } else {
-            window.location.hash = pageId;
-        }
+    if (updateHistory) {
+        const newUrl = (pageId === 'home') ? '/' : `/${pageId}`;
+        history.pushState({ pageId: pageId }, '', newUrl);
     }
 
     window.scrollTo(0, 0);
@@ -150,7 +139,16 @@ function updateMainButtonStock(produktKarte) {
     }
 }
 
-document.addEventListener('DOMContentLoaded', loadPageFromHash);
+window.addEventListener('popstate', (event) => {
+    let path = window.location.pathname.replace('/', '');
+    if (!path || path === 'home') path = 'home';
+    switchPage(path, false);
+});
+document.addEventListener('DOMContentLoaded', () => {
+    let path = window.location.pathname.replace('/', '');
+    if (!path) path = 'home';
+    switchPage(path, false);
+});
 window.addEventListener('hashchange', () => {
     const hash = window.location.hash.replace('#', '');
     if (!hash) {
