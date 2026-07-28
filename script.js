@@ -8,24 +8,29 @@ function getPageIdFromPath() {
 function switchPage(pageId, updateHistory = true) {
     if (!pageId) pageId = 'home';
 
-    document.querySelectorAll('.nav-link, .nav-links a').forEach(link => link.classList.remove('active'));
+    console.log("Wechsle zu Seite:", pageId);
     document.querySelectorAll('.page-section').forEach(section => section.classList.remove('active'));
-
     const activePage = document.getElementById(`${pageId}-page`);
     if (activePage) {
         activePage.classList.add('active');
     }
+    document.querySelectorAll('.nav-link, .nav-links a').forEach(link => {
+        link.classList.remove('active');
 
-    let selector = `a[href="/${pageId}"], a[href="${pageId}"], a[data-page="${pageId}"]`;
-    if (pageId === 'home') {
-        selector += `, a[href="/"], a[href=""], a[href="./"], a[href="/home"]`;
-    }
+        const href = (link.getAttribute('href') || '').trim();
+        const dataPage = link.getAttribute('data-page');
+        const cleanHref = href.replace(/^[\/#]/, '').trim();
+        const isHomeMatch = (pageId === 'home') && (
+            href === '/' || href === '' || href === '#' || href === './' || 
+            cleanHref === 'home' || cleanHref === 'index.html'
+        );
+        const isPageMatch = (dataPage === pageId) || (cleanHref === pageId);
 
-    const activeLink = document.querySelector(selector);
-    if (activeLink) {
-        activeLink.classList.add('active');
-    }
-
+        if (isHomeMatch || isPageMatch) {
+            link.classList.add('active');
+            console.log("Aktiver Link markiert:", link);
+        }
+    });
     if (updateHistory) {
         const newUrl = pageId === 'home' ? '/' : `/${pageId}`;
         if (window.location.pathname !== newUrl) {
@@ -37,27 +42,22 @@ function switchPage(pageId, updateHistory = true) {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    document.querySelectorAll('.nav-link').forEach(link => {
+    document.querySelectorAll('.nav-link, .nav-links a').forEach(link => {
         link.addEventListener('click', (e) => {
-            const href = link.getAttribute('href');
+            const href = link.getAttribute('href') || '';
             const dataPage = link.getAttribute('data-page');
-
+            if (href.startsWith('http') || href.startsWith('https')) return;
+            e.preventDefault();
             let targetPage = dataPage;
-            if (!targetPage && href && !href.startsWith('http')) {
-                const cleanHref = href.replace(/^\//, '').trim();
+            if (!targetPage) {
+                const cleanHref = href.replace(/^[\/#]/, '').trim();
                 targetPage = (cleanHref === '' || cleanHref === 'home' || cleanHref === 'index.html') ? 'home' : cleanHref;
             }
-
-            if (targetPage) {
-                e.preventDefault();
-                switchPage(targetPage);
-            }
+            switchPage(targetPage);
         });
     });
-
     switchPage(getPageIdFromPath(), false);
 });
-
 
 window.addEventListener('popstate', () => {
     switchPage(getPageIdFromPath(), false);
