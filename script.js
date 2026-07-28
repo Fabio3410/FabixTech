@@ -11,32 +11,44 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-function switchPage(pageId) {
+function switchPage(pageId, updateHash = true) {
     document.querySelectorAll('.nav-links .nav-link').forEach(link => {
         link.classList.remove('active');
     });
     document.querySelectorAll('.page-section').forEach(section => {
         section.classList.remove('active');
     });
-        
     const activePage = document.getElementById(`${pageId}-page`);
     if (activePage) {
         activePage.classList.add('active');
     }
-
     const activeLink = Array.from(document.querySelectorAll('.nav-links .nav-link')).find(link => {
+        const hrefAttr = link.getAttribute('href');
         const onclickAttr = link.getAttribute('onclick');
-        return onclickAttr && onclickAttr.includes(`'${pageId}'`);
+        return (hrefAttr && hrefAttr.includes(`#${pageId}`)) || (onclickAttr && onclickAttr.includes(`'${pageId}'`));
     });
     if (activeLink) {
         activeLink.classList.add('active');
     }
+    if (updateHash) {
+        window.location.hash = pageId;
+    }
+
     window.scrollTo(0, 0);
 }
 
+function loadPageFromHash() {
+    const hash = window.location.hash.replace('#', '');
+    if (hash) {
+        switchPage(hash, false);
+    } else {
+        switchPage('home', false);
+    }
+}
+
 window.jumpToSlide = function(index) {
-    console.log("jumpToSlide abgefangen für Index:", index);
 };
+
 document.querySelectorAll('.variant-btn').forEach(btn => {
     btn.addEventListener('click', (event) => {
         const gewaehlteId = event.target.getAttribute('data-id');
@@ -134,6 +146,8 @@ function updateMainButtonStock(produktKarte) {
     }
 }
 
+document.addEventListener('DOMContentLoaded', loadPageFromHash);
+window.addEventListener('hashchange', loadPageFromHash);
 window.addEventListener('pageshow', () => {
     fetchAllStocks();
 });
