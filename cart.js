@@ -106,7 +106,7 @@ function updateCartUI() {
     }
 }
 
-async function checkout() {
+function checkout() {
     if (cart.length === 0) {
         alert("Dein Warenkorb ist leer!");
         return;
@@ -117,12 +117,18 @@ async function checkout() {
         alert("Bitte akzeptiere erst die AGB und Datenschutzerklärung.");
         return;
     }
-    
-    const checkoutBtn = document.getElementById('checkout-button');
-    if (checkoutBtn) {
-        checkoutBtn.innerText = "Wird geladen...";
-        checkoutBtn.disabled = true;
+    window.location.href = '/checkout';
+}
+
+async function initCheckoutPage() {
+    const container = document.getElementById('checkout-container');
+    if (!container) return;
+
+    if (cart.length === 0) {
+        container.innerHTML = '<p>Dein Warenkorb ist leer. <a href="/">Zurück zum Shop</a></p>';
+        return;
     }
+
     const formattedCart = cart.map(item => ({
         id: item.id, 
         name: item.name,
@@ -140,21 +146,23 @@ async function checkout() {
 
         const data = await response.json();
 
-        if (data.url) {
-            window.location.href = data.url;
-        } else {
-            alert("Fehler beim Checkout: " + data.error);
-            if (checkoutBtn) {
-                checkoutBtn.innerText = "Zur Kasse";
-                checkoutBtn.disabled = false;
-            }
+        if (data.error) {
+            container.innerHTML = `<p style="color:red;">Fehler: ${data.error}</p>`;
+            return;
         }
+
+        const stripe = Stripe('pk_test_51Tt9xjHRWCYHtDl0BltylAKQKcSZtBqXnkdvoRPHxrWK89UNPaM8dAvbDps7eE7kYkaj2T8yCJEHVpVjoNk6PO9w00CgUpqhlO');
+
+        const checkoutSession = await stripe.initEmbeddedCheckout({
+            clientSecret: data.clientSecret,
+        });
+
+        container.innerHTML = '';
+        checkoutSession.mount('#checkout-container');
+
     } catch (error) {
-        alert("Netzwerkfehler beim Verbinden mit Stripe.");
-        if (checkoutBtn) {
-            checkoutBtn.innerText = "Zur Kasse";
-            checkoutBtn.disabled = false;
-        }
+        console.error("Fehler beim Laden der Kasse:", error);
+        container.innerHTML = '<p style="color:red;">Netzwerkfehler beim Laden der Zahlung.</p>';
     }
 }
 
@@ -211,6 +219,7 @@ document.addEventListener('change', (event) => {
     }
 });
 
+window.initCheckoutPage = initCheckoutPage;
 window.addProductFromCard = addProductFromCard;
 window.removeFromCart = removeFromCart;
 window.toggleCart = toggleCart;
