@@ -4,6 +4,7 @@ export async function onRequestPost(context) {
     try {
         const stripe = new Stripe(context.env.STRIPE_SECRET_KEY);
         const { cart } = await context.request.json();
+        
         for (const item of cart) {
             const productId = item.id;
             const kundenMenge = item.quantity;
@@ -24,6 +25,7 @@ export async function onRequestPost(context) {
                 });
             }
         }
+        
         const lineItems = cart.map(item => {
             const produktBeschreibung = item.farbe ? `Variante: ${item.farbe}` : '';
             return {
@@ -47,6 +49,7 @@ export async function onRequestPost(context) {
         });
 
         const session = await stripe.checkout.sessions.create({
+            ui_mode: 'embedded',
             payment_method_types: ['card', 'twint'],
             line_items: lineItems,
             mode: 'payment',
@@ -54,11 +57,10 @@ export async function onRequestPost(context) {
             metadata: sessionMetadata,
             shipping_address_collection: { allowed_countries: ['CH'] },
             shipping_options: [{ shipping_rate: 'shr_1TtOw8HRWCYHtDl04j8UrqdP' }],
-            success_url: 'https://fabio3d.pages.dev/success?session_id={CHECKOUT_SESSION_ID}',
-            cancel_url: 'https://fabio3d.pages.dev/failure',
+            return_url: 'https://fabio3d.pages.dev/success?session_id={CHECKOUT_SESSION_ID}',
         });
 
-        return new Response(JSON.stringify({ url: session.url }), {
+        return new Response(JSON.stringify({ clientSecret: session.client_secret }), {
             status: 200,
             headers: { 'Content-Type': 'application/json' }
         });
