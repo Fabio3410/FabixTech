@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout - Fabio3D</title>
+    
+    <script src="https://js.stripe.com/v3/"></script>
+    
+    <style>
+        .checkout-container {
+            max-width: 900px;
+            margin: 40px auto;
+            padding: 20px;
+            background: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="checkout-container">
+        <h2>Bestellung abschließen</h2>
+        
+        <div id="checkout-container">
+            <p>Kasse wird geladen...</p>
+        </div>
+    </div>
+
+    <script src="/cart.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            initCheckoutPage();
+        });
+    </script>
+</body>
+</html>
