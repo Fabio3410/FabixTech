@@ -5,10 +5,17 @@ window.showAlert = function(message, title = "Hinweis") {
         overlay.id = 'custom-alert-overlay';
         overlay.className = 'custom-alert-overlay';
         overlay.innerHTML = `
+            <style>
+            .no-select {
+            -webkit-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            }
+            </style
             <div class="custom-alert-box">
                 <h3 id="custom-alert-title"></h3>
                 <p id="custom-alert-message"></p>
-                <button type="button" id="custom-alert-btn">Verstanden</button>
+                <button class="no-select" type="button" id="custom-alert-btn">Verstanden</button>
             </div>
         `;
         document.body.appendChild(overlay);
