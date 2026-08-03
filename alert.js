@@ -1,3 +1,13 @@
+window.closeCustomAlert = function() {
+    const overlay = document.getElementById('custom-alert-overlay');
+    if (overlay) {
+        overlay.classList.remove('active');
+        setTimeout(() => {
+            overlay.style.display = 'none';
+        }, 200);
+    }
+};
+
 window.showAlert = function(message, title = "Hinweis") {
     let overlay = document.getElementById('custom-alert-overlay');
     if (!overlay) {
@@ -7,14 +17,14 @@ window.showAlert = function(message, title = "Hinweis") {
         overlay.innerHTML = `
             <style>
             .no-select {
-            -webkit-user-select: none;
-            -ms-user-select: none;
-            user-select: none;
+                -webkit-user-select: none;
+                -ms-user-select: none;
+                user-select: none;
             }
-            </style
+            </style>
             <div class="custom-alert-box">
-                <h3 id="custom-alert-title"></h3>
-                <p id="custom-alert-message"></p>
+                <h3 class="no-select" id="custom-alert-title"></h3>
+                <p class="no-select" id="custom-alert-message"></p>
                 <button class="no-select" type="button" id="custom-alert-btn">Verstanden</button>
             </div>
         `;
@@ -29,16 +39,6 @@ window.showAlert = function(message, title = "Hinweis") {
     setTimeout(() => {
         overlay.classList.add('active');
     }, 10);
-};
-
-window.closeCustomAlert = function() {
-    const overlay = document.getElementById('custom-alert-overlay');
-    if (overlay) {
-        overlay.classList.remove('active');
-        setTimeout(() => {
-            overlay.style.display = 'none';
-        }, 200);
-    }
 };
 
 window.alert = function(message) {
