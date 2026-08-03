@@ -40,12 +40,13 @@ function addToCart(id, name, price, variant, maxStock) {
 function updateCartUI() {
     const countElement = document.getElementById('cart-count');
     const container = document.getElementById('cart-items-container');
+    const subtotalElement = document.getElementById('cart-subtotal');
+    const shippingElement = document.getElementById('cart-shipping');
     const totalElement = document.getElementById('cart-total');
     const checkoutButton = document.getElementById('checkout-button');
     const legalCheckbox = document.getElementById('legal-checkbox');
-    const shippingElement = document.getElementById('cart-shipping');
     
-    let total = 0;
+    let subtotal = 0;
     let anzahlGesamt = 0;
     const versandKosten = 5.70;
     
@@ -59,8 +60,9 @@ function updateCartUI() {
 
     if (cart.length === 0) {
         if (container) container.innerHTML = '<p class="empty-msg">Dein Warenkorb ist noch leer.</p>';
-        if (totalElement) totalElement.innerText = 'CHF 0.00';
+        if (subtotalElement) subtotalElement.innerText = 'CHF 0.00';
         if (shippingElement) shippingElement.innerText = 'CHF 0.00';
+        if (totalElement) totalElement.innerText = 'CHF 0.00';
         if (checkoutButton) checkoutButton.disabled = true;
         return;
     }
@@ -72,7 +74,7 @@ function updateCartUI() {
             const sichererPreis = Number(item.price) || 0;
             const menge = Number(item.quantity) || 1;
             const zeilenTotal = sichererPreis * menge;
-            total += zeilenTotal;
+            subtotal += zeilenTotal; // Summe aller Artikel
 
             const itemRow = document.createElement('div');
             itemRow.classList.add('cart-item');
@@ -92,12 +94,17 @@ function updateCartUI() {
         });
     }
 
+    if (subtotalElement) {
+        subtotalElement.innerText = `CHF ${subtotal.toFixed(2)}`;
+    }
+
     if (shippingElement) {
         shippingElement.innerText = `CHF ${versandKosten.toFixed(2)}`;
     }
 
+    const gesamtsumme = subtotal + versandKosten;
     if (totalElement) {
-        totalElement.innerText = `CHF ${total.toFixed(2)}`;
+        totalElement.innerText = `CHF ${gesamtsumme.toFixed(2)}`;
     }
 
     if (checkoutButton) {
