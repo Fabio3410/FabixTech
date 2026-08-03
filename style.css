@@ -803,12 +803,38 @@
             padding-top: 1.2rem;
         }
 
-        .total-price {
-            font-size: 1.44rem;
-            font-weight: 700;
-            margin-bottom: 1.2rem;
+        .cart-summary-box {
+            margin-top: 20px;
+            padding-top: 10px;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .summary-row {
             display: flex;
             justify-content: space-between;
+            align-items: center;
+            margin-bottom: 6px;
+        }
+
+        .subtotal-row {
+            font-size: 14px;
+            color: #475569;
+        }
+
+        .shipping-row {
+            font-size: 14px;
+            color: #64748b;
+        }
+
+         .summary-divider {
+            border: none;
+            border-top: 1px solid #cbd5e1;
+            margin: 10px 0;
+         }
+
+        .total-row {
+            font-size: 18px;
+            color: #0f172a;
         }
 
         .checkout-button {
