@@ -65,7 +65,8 @@
         .nav-link {
             color: var(--text-muted);
             text-decoration: none;
-            font-weight: 600;
+            font-weight: 700;
+            font-size: 21px;
             transition: color 0.3s;
             cursor: pointer;
         }
@@ -228,6 +229,7 @@
 
         .hero-content {
             max-width: 100%;
+            font-size: 24px;
         }
 
         .badge {
