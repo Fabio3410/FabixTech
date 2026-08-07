@@ -1,29 +1,41 @@
-document.addEventListener('DOMContentLoaded', () => {
+console.log("🚀 product-loader.js wurde erfolgreich geladen.");
+
+function initProductLoader() {
+    console.log("⚙️ Produkt-Ladevorgang gestartet...");
+    
     const container = document.getElementById('product-container');
     const pageTitle = document.getElementById('page-title');
 
+    if (!container) {
+        console.error("❌ Fehler: Element mit id='product-container' wurde im HTML nicht gefunden!");
+        return;
+    }
+
+    if (typeof products === 'undefined') {
+        console.error("❌ Fehler: 'products' ist nicht definiert. Wurde 'products-data.js' vor 'product-loader.js' geladen?");
+        container.innerHTML = "<p style='text-align:center; padding: 40px; color: red;'>Produktdaten konnten nicht geladen werden.</p>";
+        return;
+    }
+
     const urlParams = new URLSearchParams(window.location.search);
     const productId = urlParams.get('id');
+    console.log("🔍 Gesuchte Produkt-ID:", productId);
+
+    if (!productId) {
+        container.innerHTML = "<p style='text-align:center; padding: 40px;'>Keine Produkt-ID angegeben.</p>";
+        return;
+    }
 
     const product = products.find(p => p.id === productId);
 
     if (!product) {
-        container.innerHTML = `
-            <div style="text-align: center; padding: 50px;">
-                <h2>Produkt nicht gefunden!</h2>
-                <p>Das angeforderte Produkt existiert leider nicht.</p>
-                <a href="../shop" style="color: #2563eb; text-decoration: none; font-weight: bold;">&larr; Zurück zum Shop</a>
-            </div>
-        `;
+        container.innerHTML = `<p style='text-align:center; padding: 40px;'>Produkt "${productId}" nicht gefunden.</p>`;
         return;
     }
 
     if (pageTitle) {
         pageTitle.innerText = `${product.title} - Details`;
     }
-
-    const allImages = product.images.join(', ');
-    const defaultVariant = product.variants && product.variants.length > 0 ? product.variants[0] : null;
 
     let variantsHTML = '';
     if (product.variants && product.variants.length > 0) {
@@ -48,6 +60,7 @@ document.addEventListener('DOMContentLoaded', () => {
         `;
     }
 
+    const defaultVariant = product.variants && product.variants.length > 0 ? product.variants[0] : null;
     const firstVariantId = defaultVariant ? defaultVariant.id : product.id;
     const firstMaxStock = defaultVariant ? (defaultVariant.maxStock || 0) : 10;
     const initialPrice = defaultVariant && defaultVariant.price ? defaultVariant.price : product.price;
@@ -61,8 +74,8 @@ document.addEventListener('DOMContentLoaded', () => {
                         <a href="#">
                             <img class="product-img" 
                                  src="${product.images[0]}" 
-                                 data-images="${allImages}"
-                                 data-index="0"
+                                 data-images="${product.images.join(', ')}" 
+                                 data-index="0" 
                                  alt="${product.title}">
                         </a>
                     </div>
@@ -96,7 +109,14 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>
         </div>
     `;
-});
+    console.log("✅ Produkt erfolgreich gerendert!");
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initProductLoader);
+} else {
+    initProductLoader();
+}
 
 function updatePriceFromVariant(buttonElement) {
     const card = buttonElement.closest('.product-card-detail-view');
@@ -109,10 +129,7 @@ function updatePriceFromVariant(buttonElement) {
     const newId = buttonElement.getAttribute('data-id');
     const newStock = buttonElement.getAttribute('data-max-stock');
 
-    if (priceElement && newPrice) {
-        priceElement.innerText = newPrice;
-    }
-
+    if (priceElement && newPrice) priceElement.innerText = newPrice;
     if (buyButton) {
         if (newId) buyButton.setAttribute('data-id', newId);
         if (newStock) buyButton.setAttribute('data-max-stock', newStock);
