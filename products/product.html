@@ -26,26 +26,19 @@
             </div>
         </div>
     </nav>
-    
-    <div class="docs">
-        <a href="../index" style="display: inline-block; margin: 20px;">&larr; Zurück zum Shop</a>
-    </div>
 
-    <div class="product-details" id="product-container">
-        <p style="text-align: center; padding: 40px;">Produkt wird geladen...</p>
-    </div>
+    <main id="product-container" class="product-details"></main>
 
-    <div id="cart-sidebar" class="sidebar">
-        <div class="sidebar-header">
+    <div id="cart-sidebar" class="cart-sidebar">
+        <div class="cart-header">
             <h3>Dein Warenkorb</h3>
-            <span class="close-btn" onclick="toggleCart()">&times;</span>
+            <button class="close-cart" onclick="toggleCart()">&times;</button>
         </div>
-        <div id="cart-items-container">
-            <p class="empty-msg">Dein Warenkorb ist noch leer.</p>
-        </div>
-        <div class="sidebar-footer">
-            <div class="cart-summary-box">
-                <div class="summary-row subtotal-row">
+        <div id="cart-items-container" class="cart-items-container">
+            </div>
+        <div class="cart-footer">
+            <div class="summary-details">
+                <div class="summary-row">
                     <span>Zwischensumme:</span>
                     <span id="cart-subtotal">CHF 0.00</span>
                 </div>
@@ -68,6 +61,7 @@
             <button class="checkout-button" id="checkout-button" disabled onclick="checkout()">Zur Kasse</button>
         </div>
     </div>
+
     <footer>
         <p>&copy; 2026 Fabio3D. Alle Rechte vorbehalten.</p>
     </footer>
