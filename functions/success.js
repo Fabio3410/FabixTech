@@ -49,6 +49,7 @@ export async function onRequestGet(context) {
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Danke für deinen Einkauf!</title>
+        <link rel="icon" type="image/png" href="images/favicon.png">
         <style>
             body { font-family: sans-serif; background: #f4f6f8; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
             .card { background: #fff; padding: 30px; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); max-width: 400px; width: 90%; }
