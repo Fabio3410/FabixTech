@@ -1,4 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
+    preloadAllProductImages();
     const productCards = document.querySelectorAll('.product-card');
     productCards.forEach(card => {
         const activeVariantBtn = card.querySelector('.variant-btn.active');
@@ -11,7 +12,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const imgElement = card.querySelector('.product-img');
         const prevBtn = card.querySelector('.arrow.prev');
         const nextBtn = card.querySelector('.arrow.next');
-
         if (imgElement && prevBtn && nextBtn) {
             
             nextBtn.addEventListener('click', (event) => {
@@ -55,6 +55,29 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
+function preloadAllProductImages() {
+    const imageUrls = new Set();
+
+    document.querySelectorAll('[data-variant-images], [data-images]').forEach(element => {
+        const variantImages = element.getAttribute('data-variant-images');
+        const dataImages = element.getAttribute('data-images');
+
+        if (variantImages) {
+            variantImages.split(',').forEach(url => imageUrls.add(url.trim()));
+        }
+        if (dataImages) {
+            dataImages.split(',').forEach(url => imageUrls.add(url.trim()));
+        }
+    });
+
+    imageUrls.forEach(url => {
+        if (url) {
+            const img = new Image();
+            img.src = url;
+        }
+    });
+}
+
 window.jumpToSlide = function(buttonElement, indexFallback) {
     const track = buttonElement.closest('.color-slider-track');
     if (track) {
@@ -72,6 +95,7 @@ function syncImagesWithVariant(variantBtn) {
 
     if (imgElement && variantImagesData) {
         imgElement.setAttribute('data-images', variantImagesData);
+        
         const images = variantImagesData.split(',');
         imgElement.src = images[0].trim();
         imgElement.setAttribute('data-index', '0');
