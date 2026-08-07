@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gandalf The White Staff - Details</title>
+    <link rel="icon" type="image/png" href="images/favicon.png">
     <link rel="stylesheet" href="product-style.css">
     <script src="../alert.js" defer></script>
     <script src="../cart.js" defer></script>
@@ -51,13 +52,18 @@
                     <p></p>
                 </div>
                 <h4><strong>Varianten</strong></h4>
-                <div class="color-slider-container">
-                    <button type="button" class="nav-arrow left" onclick="scrollSlider(this, -1)">&#10094;</button>
-                    <button type="button" class="nav-arrow right" onclick="scrollSlider(this, 1)">&#10095;</button>
-                    <div class="color-slider-track">
-                        <button class="variant-btn active" data-price="39.95" data-id="gandalf_staff_mit_beleuchtung" onclick="jumpToSlide(this, 0); updatePrice(this)">Mit Beleuchtung (3 LEDs)</button>
-                        <button class="variant-btn" data-price="24.95" data-id="gandalf_staff_ohne_beleuchtung" onclick="jumpToSlide(this, 1); updatePrice(this)">Ohne Beleuchtung</button>
+                <div class="slider-container">
+                    <div class="slides">
+                        <a href="products/spiral-cone-fidget">
+                            <img class="product-img" 
+                                src="images/spiral_fidget_schwarz_rot_1.png" 
+                                data-images="images/spiral_fidget_schwarz_rot_1.png, images/spiral_fidget_schwarz_rot_2.png, images/spiral_fidget_schwarz_gelb_1.png, images/spiral_fidget_schwarz_gelb_2.png, images/spiral_fidget_schwarz_weiss_1.png, images/spiral_fidget_schwarz_weiss_2.png, images/spiral_fidget_rot_weiss_1.png, images/spiral_fidget_rot_weiss_2.png"
+                                data-index="0"
+                                alt="Spiral-Cone Fidget">
+                        </a>
                     </div>
+                    <button class="arrow prev" id="slides-arrow">&#10094;</button>
+                    <button class="arrow next" id="slides-arrow">&#10095;</button>
                 </div>
             </div>
             <div class="product-footer">
@@ -79,20 +85,30 @@
             <p class="empty-msg">Dein Warenkorb ist noch leer.</p>
         </div>
         <div class="sidebar-footer">
-            <div class="total-price"><span>Gesamtsumme:</span> <span id="cart-total">CHF 0,00</span></div>
-            <div class="cart-shipping-row" style="display: flex; justify-content: space-between; margin-top: 5px; font-size: 14px; color: #555;">
-                <span>Versand (wird bei Stripe berechnet):</span>
-                <span id="cart-shipping">CHF 0.00</span>
-            </div>
-                <div style="margin-top: 15px; font-size: 14px; line-height: 1.5; color: #333333;">
-                    <input type="checkbox" id="legal-checkbox" style="vertical-align: middle; margin-right: 6px; cursor: pointer;">
-                    <label for="legal-checkbox" style="vertical-align: middle; cursor: pointer;">
-                    Ich habe die <a href="agb/agb" target="_blank" style="color: #2563eb; text-decoration: none; font-weight: bold;">AGB</a> und die <a href="privacy_policy/privacy_policy" target="_blank" style="color: #2563eb; text-decoration: none; font-weight: bold;">Datenschutzerklärung</a> gelesen und bin mit ihnen einverstanden.<br>
-                    </label>
+            <div class="cart-summary-box">
+                <div class="summary-row subtotal-row">
+                    <span>Zwischensumme:</span>
+                    <span id="cart-subtotal">CHF 0.00</span>
                 </div>
-                <button class="checkout-button" id="checkout-button" disabled onclick="checkout()">Zur Kasse</button>
+                <div class="summary-row shipping-row">
+                    <span>Versand:</span>
+                    <span id="cart-shipping">CHF 5.70</span>
+                </div>
+                <hr class="summary-divider">
+                <div class="summary-row total-row">
+                    <strong>Gesamtsumme:</strong>
+                    <strong id="cart-total">CHF 0.00</strong>
+                </div>
             </div>
+            <div style="margin-top: 15px; font-size: 14px; line-height: 1.5; color: #333333;">
+                <input type="checkbox" id="legal-checkbox" style="vertical-align: middle; margin-right: 6px; cursor: pointer;">
+                <label for="legal-checkbox" style="vertical-align: middle; cursor: pointer;">
+                    Ich habe die <a href="agb/agb" target="_blank" style="color: #2563eb; text-decoration: none; font-weight: bold;">AGB</a> und die <a href="privacy_policy/privacy_policy" target="_blank" style="color: #2563eb; text-decoration: none; font-weight: bold;">Datenschutzerklärung</a> gelesen und bin mit ihnen einverstanden.<br>
+                </label>
+            </div>
+            <button class="checkout-button" id="checkout-button" disabled onclick="checkout()">Zur Kasse</button>
         </div>
+    </div>
     <footer>
     <p>&copy; 2026 Fabio3D. Alle Rechte vorbehalten.</p>
     </footer>
