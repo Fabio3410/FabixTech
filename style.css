@@ -999,4 +999,10 @@
             .nav-links { display: none; }
             .sidebar { width: 100%; right: -100%; }
             .stats-bar { grid-template-columns: 1fr; gap: 1.2rem; }
+            body {
+                        transform: scale(0.8);
+                        transform-origin: top center;
+                        width: 111.11%;
+                        overflow-x: hidden;
+            }
         }
