@@ -39,14 +39,15 @@ function initProductLoader() {
                     <button type="button" class="nav-arrow right" onclick="scrollSlider(this, 1)">&#10095;</button>
                     <div class="color-slider-track">
                         ${product.variants.map((v, index) => `
-                            <button class="variant-btn ${index === 0 ? 'active' : ''}" 
-                                    data-variant-images="${v.images.join(', ')}" 
-                                    data-id="${v.id}"
-                                    data-price="${v.price || product.price}"
-                                    data-max-stock="${v.maxStock || 0}"
-                                    onclick="jumpToSlide(this, ${index}); updatePriceFromVariant(this); if(typeof updateMainButtonStock === 'function') updateMainButtonStock(this.closest('.product-info'));">
-                                ${v.name}
-                            </button>
+                        <button class="variant-btn ${index === 0 ? 'active' : ''}" 
+                            data-variant-images="${v.images.join(', ')}" 
+                            data-id="${v.id}"
+                            data-price="${v.price || product.price}"
+                            data-stock="${v.maxStock || 0}"
+                            data-max-stock="${v.maxStock || 0}"
+                            onclick="jumpToSlide(this, ${index}); selectVariant(this);">
+                            ${v.name}
+                        </button>
                         `).join('')}
                     </div>
                 </div>
@@ -117,20 +118,24 @@ if (document.readyState === 'loading') {
     initProductLoader();
 }
 
-function updatePriceFromVariant(buttonElement) {
-    const card = buttonElement.closest('.product-info');
-    if (!card) return;
+function selectVariant(buttonElement) {
+    if (!buttonElement) return;
+    const container = buttonElement.closest('.color-slider-track') || buttonElement.parentElement;
+    if (container) {
+        container.querySelectorAll('.variant-btn').forEach(btn => btn.classList.remove('active'));
+    }
+    buttonElement.classList.add('active');
+    const card = buttonElement.closest('.product-info') || buttonElement.closest('.product-card-detail-view');
+    if (card) {
+        const priceElement = card.querySelector('.price');
+        const buyButton = card.querySelector('.btn-buy');
+        const newPrice = buttonElement.getAttribute('data-price');
+        const newId = buttonElement.getAttribute('data-id');
+        if (priceElement && newPrice) priceElement.innerText = newPrice;
+        if (buyButton && newId) buyButton.setAttribute('data-id', newId);
+    }
 
-    const priceElement = card.querySelector('.price');
-    const buyButton = card.querySelector('.btn-buy');
-
-    const newPrice = buttonElement.getAttribute('data-price');
-    const newId = buttonElement.getAttribute('data-id');
-    const newStock = buttonElement.getAttribute('data-max-stock');
-
-    if (priceElement && newPrice) priceElement.innerText = newPrice;
-    if (buyButton) {
-        if (newId) buyButton.setAttribute('data-id', newId);
-        if (newStock) buyButton.setAttribute('data-max-stock', newStock);
+    if (card && typeof updateMainButtonStock === 'function') {
+        updateMainButtonStock(card);
     }
 }
