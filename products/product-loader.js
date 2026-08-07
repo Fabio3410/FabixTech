@@ -1,26 +1,20 @@
-console.log("🚀 product-loader.js wurde erfolgreich geladen.");
+const sleep = ms => new Promise(res => setTimeout(res, ms));
 
 function initProductLoader() {
-    console.log("⚙️ Produkt-Ladevorgang gestartet...");
-    
     const container = document.getElementById('product-container');
     const pageTitle = document.getElementById('page-title');
 
     if (!container) {
-        console.error("❌ Fehler: Element mit id='product-container' wurde im HTML nicht gefunden!");
         return;
     }
 
     if (typeof products === 'undefined') {
-        console.error("❌ Fehler: 'products' ist nicht definiert. Wurde 'products-data.js' vor 'product-loader.js' geladen?");
         container.innerHTML = "<p style='text-align:center; padding: 40px; color: red;'>Produktdaten konnten nicht geladen werden.</p>";
         return;
     }
 
     const urlParams = new URLSearchParams(window.location.search);
     const productId = urlParams.get('id');
-    console.log("🔍 Gesuchte Produkt-ID:", productId);
-
     if (!productId) {
         container.innerHTML = "<p style='text-align:center; padding: 40px;'>Keine Produkt-ID angegeben.</p>";
         return;
@@ -51,7 +45,7 @@ function initProductLoader() {
                                 data-id="${v.id}"
                                 data-price="${v.price || product.price}"
                                 data-max-stock="${v.maxStock || 0}"
-                                onclick="jumpToSlide(this, ${index}); updatePriceFromVariant(this);">
+                                onclick="jumpToSlide(this, ${index}); updatePriceFromVariant(this); updateMainButtonStock(this.closest('.product-card-detail-view'));">
                             ${v.name}
                         </button>
                     `).join('')}
@@ -109,7 +103,6 @@ function initProductLoader() {
             </div>
         </div>
     `;
-    console.log("✅ Produkt erfolgreich gerendert!");
 }
 
 if (document.readyState === 'loading') {
@@ -134,4 +127,8 @@ function updatePriceFromVariant(buttonElement) {
         if (newId) buyButton.setAttribute('data-id', newId);
         if (newStock) buyButton.setAttribute('data-max-stock', newStock);
     }
+}
+
+if (typeof fetchAllStocks === 'function') {
+    fetchAllStocks();
 }
