@@ -74,7 +74,7 @@ function updateCartUI() {
             const sichererPreis = Number(item.price) || 0;
             const menge = Number(item.quantity) || 1;
             const zeilenTotal = sichererPreis * menge;
-            subtotal += zeilenTotal; // Summe aller Artikel
+            subtotal += zeilenTotal;
 
             const itemRow = document.createElement('div');
             itemRow.classList.add('cart-item');
