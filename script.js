@@ -1,3 +1,5 @@
+const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
 function getPageIdFromPath() {
     const path = window.location.pathname.replace(/^\//, '').trim();
     return (path === '' || path === 'home' || path === 'index.html') ? 'home' : path;
