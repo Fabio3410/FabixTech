@@ -32,21 +32,23 @@ function initProductLoader() {
     let variantsHTML = '';
     if (product.variants && product.variants.length > 0) {
         variantsHTML = `
-            <h4><strong>Varianten</strong></h4>
-            <div class="color-slider-container">
-                <button type="button" class="nav-arrow left" onclick="scrollSlider(this, -1)">&#10094;</button>
-                <button type="button" class="nav-arrow right" onclick="scrollSlider(this, 1)">&#10095;</button>
-                <div class="color-slider-track">
-                    ${product.variants.map((v, index) => `
-                        <button class="variant-btn ${index === 0 ? 'active' : ''}" 
-                                data-variant-images="${v.images.join(', ')}" 
-                                data-id="${v.id}"
-                                data-price="${v.price || product.price}"
-                                data-max-stock="${v.maxStock || 0}"
-                                onclick="jumpToSlide(this, ${index}); updatePriceFromVariant(this); updateMainButtonStock(this.closest('.product-card-detail-view'));">
-                            ${v.name}
-                        </button>
-                    `).join('')}
+            <div class="variants-section" style="margin-top: 25px;">
+                <h4 style="margin-bottom: 10px;"><strong>Varianten</strong></h4>
+                <div class="color-slider-container">
+                    <button type="button" class="nav-arrow left" onclick="scrollSlider(this, -1)">&#10094;</button>
+                    <button type="button" class="nav-arrow right" onclick="scrollSlider(this, 1)">&#10095;</button>
+                    <div class="color-slider-track">
+                        ${product.variants.map((v, index) => `
+                            <button class="variant-btn ${index === 0 ? 'active' : ''}" 
+                                    data-variant-images="${v.images.join(', ')}" 
+                                    data-id="${v.id}"
+                                    data-price="${v.price || product.price}"
+                                    data-max-stock="${v.maxStock || 0}"
+                                    onclick="jumpToSlide(this, ${index}); updatePriceFromVariant(this); if(typeof updateMainButtonStock === 'function') updateMainButtonStock(this.closest('.product-info'));">
+                                ${v.name}
+                            </button>
+                        `).join('')}
+                    </div>
                 </div>
             </div>
         `;
@@ -58,36 +60,38 @@ function initProductLoader() {
     const initialPrice = defaultVariant && defaultVariant.price ? defaultVariant.price : product.price;
 
     container.innerHTML = `
-        <div class="product-card-detail-view">
-            <h1>${product.title}</h1>
-            <div class="detail-left-side">
-                <div class="slider-container">
-                    <div class="slides">
-                        <a href="#">
-                            <img class="product-img" 
-                                 src="${product.images[0]}" 
-                                 data-images="${product.images.join(', ')}" 
-                                 data-index="0" 
-                                 alt="${product.title}">
-                        </a>
-                    </div>
-                    <button class="arrow prev" id="slides-arrow">&#10094;</button>
-                    <button class="arrow next" id="slides-arrow">&#10095;</button>
+        <div class="product-gallery">
+            <div class="slider-container">
+                <div class="slides">
+                    <a href="#">
+                        <img class="product-img" 
+                             src="${product.images[0]}" 
+                             data-images="${product.images.join(', ')}" 
+                             data-index="0" 
+                             alt="${product.title}">
+                    </a>
                 </div>
-                <div class="tech-specs">
-                    <span class="spec"><b>Material:</b> ${product.specs.material || 'PLA'}</span>
-                    <span class="spec"><b>Qualität:</b> ${product.specs.quality || '0.20mm'}</span>
-                    <span class="spec"><b>Infill:</b> ${product.specs.infill || '20% Gyroid'}</span>
-                </div>
+                <button class="arrow prev" id="slides-arrow">&#10094;</button>
+                <button class="arrow next" id="slides-arrow">&#10095;</button>
             </div>
-            <div class="product-info">
-                <span class="prod-category">${product.category}</span>
-                <div class="long-description">
-                    <p>${product.description}</p>
-                </div>
-                ${variantsHTML}
+            <div class="tech-specs">
+                <span class="spec"><b>Material:</b> ${product.specs ? product.specs.material : 'PLA'}</span>
+                <span class="spec"><b>Qualität:</b> ${product.specs ? product.specs.quality : '0.20mm'}</span>
+                <span class="spec"><b>Infill:</b> ${product.specs ? product.specs.infill : '20% Gyroid'}</span>
             </div>
-            <div class="product-footer">
+        </div>
+
+        <div class="product-info">
+            <span class="product-category">${product.category}</span>
+            <h1 class="product-title">${product.title}</h1>
+            
+            <div class="product-description">
+                <p>${product.description}</p>
+            </div>
+
+            ${variantsHTML}
+
+            <div class="price-section" style="margin-top: 30px;">
                 <div class="price-block">
                     <span class="currency">CHF</span>
                     <span class="price">${initialPrice}</span>
@@ -101,6 +105,10 @@ function initProductLoader() {
             </div>
         </div>
     `;
+
+    if (typeof fetchAllStocks === 'function') {
+        fetchAllStocks();
+    }
 }
 
 if (document.readyState === 'loading') {
@@ -110,7 +118,7 @@ if (document.readyState === 'loading') {
 }
 
 function updatePriceFromVariant(buttonElement) {
-    const card = buttonElement.closest('.product-card-detail-view');
+    const card = buttonElement.closest('.product-info');
     if (!card) return;
 
     const priceElement = card.querySelector('.price');
@@ -125,8 +133,4 @@ function updatePriceFromVariant(buttonElement) {
         if (newId) buyButton.setAttribute('data-id', newId);
         if (newStock) buyButton.setAttribute('data-max-stock', newStock);
     }
-}
-
-if (typeof fetchAllStocks === 'function') {
-    fetchAllStocks();
 }
