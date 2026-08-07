@@ -516,14 +516,10 @@
               height: 288px;
               object-fit: cover;
               display: block;
-              color: #0072e3;
+              color: #000000;
               text-decoration: none;
               font-weight: 500;
               transition: color 0.2s ease;
-       }
-
-       .product-img-link:hover {
-              text-decoration: underline;
        }
 
         .product-info {
