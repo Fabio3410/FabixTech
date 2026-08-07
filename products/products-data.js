@@ -20,14 +20,12 @@ const products = [
                 name: "Mit Beleuchtung (3 LEDs)",
                 images: ["images/gandalf_1.png"],
                 price: "39.95",
-                maxStock: 5
             },
             {
                 id: "gandalf_staff_ohne_beleuchtung",
                 name: "Ohne Beleuchtung",
                 images: ["images/gandalf_2.png"],
                 price: "29.95",
-                maxStock: 10
             }
         ]
     },
@@ -43,10 +41,14 @@ const products = [
         },
         description: "Faszinierendes optisches Fidget-Spielzeug mit stufenlosem Spiral-Effekt.",
         images: [
-            "images/spiral_fidget_schwarz_rot_1.png",
-            "images/spiral_fidget_schwarz_rot_2.png",
-            "images/spiral_fidget_schwarz_gelb_1.png",
-            "images/spiral_fidget_schwarz_gelb_2.png"
+        ../images/spiral_fidget_schwarz_rot_1.png
+        ../images/spiral_fidget_schwarz_rot_2.png
+        ../images/spiral_fidget_schwarz_gelb_1.png
+        ../images/spiral_fidget_schwarz_gelb_2.png
+        ../images/spiral_fidget_schwarz_weiss_1.png
+        ../images/spiral_fidget_schwarz_weiss_2.png
+        ../images/spiral_fidget_rot_weiss_1.png
+        ../images/spiral_fidget_rot_weiss_2.png"
         ],
         variants: [
             {
@@ -54,14 +56,12 @@ const products = [
                 name: "Schwarz/Rot",
                 images: ["images/spiral_fidget_schwarz_rot_1.png", "images/spiral_fidget_schwarz_rot_2.png"],
                 price: "1.95",
-                maxStock: 15
             },
             {
                 id: "spiral_cone_schwarz_gelb",
                 name: "Schwarz/Gelb",
                 images: ["images/spiral_fidget_schwarz_gelb_1.png", "images/spiral_fidget_schwarz_gelb_2.png"],
                 price: "1.95",
-                maxStock: 8
             }
         ]
     }
