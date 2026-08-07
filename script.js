@@ -147,7 +147,8 @@ function updateMainButtonStock(produktKarte) {
     const cartButton = produktKarte.querySelector('.btn-buy');
     
     if (!activeVariantBtn || !cartButton) return;
-    const aktuellerBestand = parseInt(activeVariantBtn.getAttribute('data-stock') || "0");
+    const stockAttr = activeVariantBtn.getAttribute('data-stock') || activeVariantBtn.getAttribute('data-max-stock') || "0";
+    const aktuellerBestand = parseInt(stockAttr);
     
     if (aktuellerBestand <= 0) {
         cartButton.disabled = true;
