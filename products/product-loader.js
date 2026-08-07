@@ -1,5 +1,3 @@
-const sleep = ms => new Promise(res => setTimeout(res, ms));
-
 function initProductLoader() {
     const container = document.getElementById('product-container');
     const pageTitle = document.getElementById('page-title');
