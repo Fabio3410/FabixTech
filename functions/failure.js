@@ -8,6 +8,7 @@ export async function onRequestGet(context) {
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Ein Fehler ist aufgetreten!</title>
+        <link rel="icon" type="image/png" href="images/favicon.png">
         <style>
         
         body {
