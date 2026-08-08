@@ -42,7 +42,7 @@ html {
     border-bottom: 1px solid var(--border-color);
     z-index: 1000;
     box-shadow: var(--shadow-sm);
-    height: 75.2px;
+    height: 85px;
 }
 
 .nav-container {
