@@ -222,6 +222,7 @@ html {
     display: flex;
     align-items: center;
     margin-bottom: 30px;
+    padding: 0 35px;
 }
 
 .color-slider-track {
@@ -297,11 +298,11 @@ html {
 }
 
 .nav-arrow.left {
-    left: 5px; 
+    left: 0; 
 }
 
 .nav-arrow.right { 
-    right: 5px; 
+    right: 0; 
 }
 
 .product-card:hover .nav-arrow {
