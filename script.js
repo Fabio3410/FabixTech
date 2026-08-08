@@ -137,7 +137,7 @@ async function fetchAllStocks() {
         }
         await sleep(100);
     }
-    document.querySelectorAll('.product-card, .product-detail').forEach(container => {
+    document.querySelectorAll('.product-card, .product-details').forEach(container => {
         updateMainButtonStock(container);
     });
 }
