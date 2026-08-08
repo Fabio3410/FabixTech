@@ -387,6 +387,37 @@ html {
     justify-content: space-between;
 }
 
+.cart-summary {
+    margin-top: 15px;
+    margin-bottom: 15px;
+}
+
+.summary-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+    font-size: 14px;
+    color: var(--text-muted);
+}
+
+.summary-divider {
+    border: none;
+    border-top: 1px solid var(--border-color);
+    margin: 12px 0;
+}
+
+.total-row {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text-main);
+}
+
+#cart-total {
+    color: var(--accent-blue);
+    font-weight: 700;
+}
+
 .checkout-button {
     width: 100%;
 }
