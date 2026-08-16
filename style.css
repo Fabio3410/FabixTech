@@ -423,15 +423,6 @@
             transition: all 0.3s;
         }
 
-        .material-card:hover {
-            border-color: var(--accent-cyan);
-            transform: translateY(-2.4px);
-        }
-
-        .material-dot {
-            width: 14px; height: 14px; border-radius: 50%; display: inline-block; margin-right: 0.6rem;
-        }
-
         .material-card h4 {
             font-size: 1.44rem;
             margin-bottom: 0.96rem;
