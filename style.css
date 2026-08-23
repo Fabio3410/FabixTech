@@ -278,7 +278,7 @@ main {
 }
 
 .gradient-text {
-    background: linear-gradient(45deg, var(--accent-blue), var(--accent-cyan));
+    background: var(--accent-blue);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
 }
