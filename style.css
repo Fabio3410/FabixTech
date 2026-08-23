@@ -454,8 +454,7 @@ main {
 }
 
 .btn-primary:hover {
-    box-shadow: 0 7.2px 24px rgba(212, 2, 2, 0.3);
-    transform: scale(1.1);
+    transform: scale(1.03);
     transition: transform 0.3s ease; 
 }
 
@@ -467,7 +466,7 @@ main {
 
 .btn-secondary:hover {
     background: #f1f5f9;
-    transform: scale(1.1);
+    transform: scale(1.03);
     transition: transform 0.3s ease;
 }
 
