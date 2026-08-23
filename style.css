@@ -218,7 +218,7 @@ main {
 }
 
 .variant-btn {
-    background-color: var(--light-color);
+    background-color: #eef2f5;
     border: 1.2px solid #dcdcdc;
     padding: 7px 14px;
     border-radius: 7px;
@@ -451,7 +451,7 @@ main {
     background: var(--light-color);
     color: #ffffff;
     border: none;
-    box-shadow: 0 4.8px 16.8px rgba(212, 2, 2, 0.2);
+    box-shadow: 0 4.8px 16.8px var(--light-color);
 }
 
 .btn-primary:hover {
