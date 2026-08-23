@@ -10,8 +10,8 @@ body {
 :root {
     --bg-dark: #f8fafc;       
     --bg-card: #ffffff;       
-    --accent-cyan: #0ea5e9;   
-    --accent-blue: #2563eb;   
+    --accent-cyan: #960505;   
+    --accent-blue: #d40202;   
     --text-main: #0f172a;
     --text-muted: #64748b;    
     --border-color: #e2e8f0;  
@@ -71,7 +71,7 @@ html {
 }
 
 .docs a {
-    color: #0066cc;
+    color: #d40202;
     text-decoration: none;
     font-weight: 600;
     font-size: 20px;
@@ -80,7 +80,6 @@ html {
 .docs a:hover {
     text-decoration: underline;
 }
-
 
 .product-card-detail-view {
     background-color: #ffffff;
@@ -126,7 +125,7 @@ html {
 
 .tech-specs {
     background-color: #f8f9fa;
-    border-left: 4px solid #00baee;
+    border-left: 4px solid #960505;
     padding: 15px;
     border-radius: 0 6px 6px 0;
     display: flex;
@@ -148,7 +147,7 @@ html {
 .prod-category {
     font-size: 12px;
     text-transform: uppercase;
-    color: #0066cc;
+    color: #d40202;
     font-weight: 700;
     margin-bottom: 15px;
 }
@@ -240,7 +239,6 @@ html {
     border-radius: 6px;
     padding: 8px 14px;
     font-size: 13px;
-    font-weight: bold;
     font-weight: 500;
     cursor: pointer;
     white-space: nowrap;
@@ -249,13 +247,13 @@ html {
 
 .variant-btn:hover {
     background-color: #eef2f5;
-    border-color: #0066cc;
+    border-color: #d40202;
 }
 
 .variant-btn.active {
     background-color: #ffffff;
-    border: 1px solid #0066cc;
-    color: #0066cc;
+    border: 1px solid #d40202;
+    color: #d40202;
 }
 
 .product-footer {
@@ -425,11 +423,7 @@ html {
 
 .checkout-button {
     width: 100%;
-}
-
-.checkout-button {
     color: white;
-    border: 1px solid var(--accent-blue);
     background-color: var(--accent-blue);
     border: none;
     padding: 12px 24px;
@@ -437,7 +431,6 @@ html {
     font-weight: bold;
     border-radius: 8px;
     cursor: pointer;
-    width: 100%;
     transition: background-color 0.3s ease, transform 0.2s ease;
 }
 
@@ -462,8 +455,8 @@ html {
 
 .btn-buy {
     background-color: #ffffff;
-    border: 1px solid #0066cc;
-    color: #0066cc;
+    border: 1px solid #d40202;
+    color: #d40202;
     padding: 10px 20px;
     font-size: 14px;
     font-weight: 600;
@@ -537,7 +530,7 @@ html {
 }
 
 .custom-alert-box button {
-    background-color: #2563eb;
+    background-color: #d40202;
     color: #ffffff;
     border: none;
     padding: 12px 24px;
@@ -549,7 +542,7 @@ html {
 }
 
 .custom-alert-box button:hover {
-    background-color: #1d4ed8;
+    background-color: #960505;
 }
 
 footer {
@@ -562,7 +555,6 @@ footer {
     margin-top: 6rem;
     background-color: #ffffff;
 }
-
 
 .footer-links {
     margin-bottom: 1rem;
