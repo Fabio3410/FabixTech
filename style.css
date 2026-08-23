@@ -23,6 +23,7 @@ html {
     color: var(--text-main);
     overflow-x: hidden !important;
     max-width: 100%;
+    user-select: none;
 }
 
 main {
@@ -772,6 +773,7 @@ main {
     padding: 2.4rem;
     display: flex;
     flex-direction: column;
+    user-select: none;
 }
 
 .sidebar.open {
@@ -980,6 +982,7 @@ footer {
     border-top: 1.2px solid var(--border-color);
     margin-top: 7.2rem;
     background-color: #ffffff;
+    user-select: none;
 }
 
 .docs a {
