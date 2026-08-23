@@ -451,12 +451,12 @@ main {
     background: var(--light-color);
     color: #ffffff;
     border: none;
-    box-shadow: 0 4.8px 16.8px var(--light-color);
 }
 
 .btn-primary:hover {
     box-shadow: 0 7.2px 24px rgba(212, 2, 2, 0.3);
-    transform: translateY(-2.4px);
+    transform: scale(1.1);
+    transition: transform 0.3s ease; 
 }
 
 .btn-secondary {
@@ -467,6 +467,8 @@ main {
 
 .btn-secondary:hover {
     background: #f1f5f9;
+    transform: scale(1.1);
+    transition: transform 0.3s ease;
 }
 
 .product-grid {
