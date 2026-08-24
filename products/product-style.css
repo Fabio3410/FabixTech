@@ -105,7 +105,7 @@ html {
     display: flex;
     flex-direction: column;
     gap: 20px;
-    width: 100%;
+    width: 410%;
 }
 
 .slides, .product-img-link {
@@ -131,7 +131,8 @@ html {
     display: flex;
     flex-direction: column;
     gap: 8px;
-    max-width: 410px;
+    max-width: 100%;
+    width: 100%;
 }
 
 .spec {
@@ -182,8 +183,8 @@ html {
 
 .slider-container {
     position: relative;
+    max-width: 100%;
     width: 100%;
-    max-width: 410px;
     height: auto;
     background-color: #f4f5f7;
     border-radius: 8px;
