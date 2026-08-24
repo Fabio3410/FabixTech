@@ -123,6 +123,9 @@ async function fetchAllStocks() {
         
         try {
             const response = await fetch(`/api/get-stock?id=${productId}&t=${Date.now()}`);
+            if (!response.ok) {
+                throw new Error(`Server antwortete mit Status ${response.status}`);
+            }
             const data = await response.json();
             btn.setAttribute('data-stock', data.stock);
             if (data.stock <= 0) {
