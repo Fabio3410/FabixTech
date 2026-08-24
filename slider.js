@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
     preloadAllProductImages();
-    const productCards = document.querySelectorAll('.product-card');
+    const productCards = document.querySelectorAll('.product-card, .product-card-detail-view');
     productCards.forEach(card => {
         const activeVariantBtn = card.querySelector('.variant-btn.active');
         if (activeVariantBtn) {
