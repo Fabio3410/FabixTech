@@ -1,4 +1,11 @@
 document.addEventListener('DOMContentLoaded', () => {
+  const preloader = document.getElementById('preloader');
+  if (preloader) {
+    preloader.style.height = `${window.innerHeight}px`;
+  }
+});
+
+document.addEventListener('DOMContentLoaded', () => {
   const DISPLAY_TIME = 2500;
   setTimeout(() => {
     const preloader = document.getElementById('preloader');
