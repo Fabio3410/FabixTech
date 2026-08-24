@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
-  const DISPLAY_TIME = 2000;
+  const DISPLAY_TIME = 2500;
   setTimeout(() => {
     const preloader = document.getElementById('preloader');
     if (preloader) {
