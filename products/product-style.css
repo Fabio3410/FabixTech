@@ -627,7 +627,7 @@ footer {
     }
 
     .nav-arrow {
-        opacity: 1 !important;
+        opacity: 0 !important;
         pointer-events: auto !important;
     }
 }
