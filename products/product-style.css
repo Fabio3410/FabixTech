@@ -597,16 +597,37 @@ footer {
         gap: 20px;
         padding: 20px;
         width: 100%;
+        max-width: 100vw;
         box-sizing: border-box;
-        overflow: hidden;
+    }
+    
+    .detail-left-side, 
+    .product-info {
+        width: 100%;
+        min-width: 0;
     }
     
     .slider-container {
+        width: 100%;
         max-width: 100%;
+        height: auto;
+        padding: 0;
+        aspect-ratio: 1 / 1;
+    }
+
+    .color-slider-container {
+        width: 100%;
+        position: relative;
+    }
+
+    .color-slider-track {
+        width: 100%;
+        box-sizing: border-box;
+        padding: 0 35px;
     }
 
     .nav-arrow {
-        opacity: 1;
-        pointer-events: auto;
+        opacity: 1 !important;
+        pointer-events: auto !important;
     }
 }
