@@ -132,8 +132,8 @@ html {
     display: flex;
     flex-direction: column;
     gap: 8px;
-    max-width: 410px;
-    width: 410px;
+    max-width: 376px;
+    width: 376px;
 }
 
 .spec {
