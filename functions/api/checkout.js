@@ -18,7 +18,7 @@ export async function onRequestPost(context) {
 
             if (aktuellerBestand < kundenMenge) {
                 return new Response(JSON.stringify({ 
-                    error: `Das Produkt "${item.name}" ist leider nicht mehr verfügbar.` 
+                    error: `Das Produkt "${item.name}" ist leider nicht mehr in deiner ausgwählten Anzahl verfügbar.` 
                 }), { 
                     status: 400,
                     headers: { 'Content-Type': 'application/json' }
