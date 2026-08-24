@@ -161,6 +161,7 @@ main {
 .product-img {
     transition: opacity 0.15s ease-in-out;
     opacity: 1;
+    aspect-ratio: 1/1;
 }
 
 .product-img.fade-out {
