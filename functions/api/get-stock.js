@@ -21,5 +21,7 @@ export async function onRequestGet(context) {
         });
     } catch (error) {
         return new Response(JSON.stringify({ error: error.message }), { status: 500 });
-    }
+    } finally {
+    window.dispatchEvent(new Event('stockLoaded'));
+  }
 }
