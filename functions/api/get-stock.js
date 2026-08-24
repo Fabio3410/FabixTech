@@ -1,3 +1,11 @@
+function hidePreloader() {
+  const preloader = document.getElementById('preloader');
+  if (preloader) {
+    preloader.classList.add('fade-out');
+    setTimeout(() => preloader.remove(), 400);
+  }
+}
+
 export async function onRequestGet(context) {
     const { searchParams } = new URL(context.request.url);
     const productId = searchParams.get('id');
@@ -21,5 +29,10 @@ export async function onRequestGet(context) {
         });
     } catch (error) {
         return new Response(JSON.stringify({ error: error.message }), { status: 500 });
-    }
+    } finally {
+    hidePreloader();
+  }
 }
+
+
+fetchStockData();
