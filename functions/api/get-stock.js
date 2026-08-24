@@ -34,5 +34,4 @@ export async function onRequestGet(context) {
   }
 }
 
-
-fetchStockData();
+onRequestGet();
