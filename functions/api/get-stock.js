@@ -20,8 +20,10 @@ export async function onRequestGet(context) {
             }
         });
     } catch (error) {
-        return new Response(JSON.stringify({ error: error.message }), { status: 500 });
+        console.error('Fehler beim Abrufen der Bestände:', error);
     } finally {
     window.dispatchEvent(new Event('stockLoaded'));
   }
 }
+
+onRequestGet();
