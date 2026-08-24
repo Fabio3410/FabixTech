@@ -105,7 +105,8 @@ html {
     display: flex;
     flex-direction: column;
     gap: 20px;
-    width: 410%;
+    width: 410px;
+    max-width: 410px;
 }
 
 .slides, .product-img-link {
