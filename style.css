@@ -874,6 +874,10 @@ main {
     cursor: pointer;
 }
 
+#legal-checkbox {
+  accent-color: #d40202;
+}
+
 .legal-container a {
     color: #d40202;
     text-decoration: none;
