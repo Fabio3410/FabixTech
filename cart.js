@@ -84,7 +84,7 @@ function updateCartUI() {
                     <span style="font-weight: 500; color: #333333; font-size: 15px;">${item.name || 'Unbekanntes Produkt'}</span>
                     <span style="font-size: 12px; color: #777777; margin-top: 2px;">
                         Variante: ${item.variant || 'Standard'} 
-                        <span style="color: #2563eb; font-weight: bold; margin-left: 6px;">(x${menge})</span>
+                        <span style="color: #d40202; font-weight: bold; margin-left: 6px;">(x${menge})</span>
                     </span>
                 </div>
                 <strong style="margin-right: 12px; white-space: nowrap; align-self: center;">CHF ${zeilenTotal.toFixed(2)}</strong>
