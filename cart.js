@@ -87,7 +87,11 @@ function updateCartUI() {
                         <span style="color: #d40202; font-weight: bold; margin-left: 6px;">(x${menge})</span>
                     </span>
                 </div>
-                <strong style="margin-right: 12px; white-space: nowrap; align-self: center;">CHF ${zeilenTotal.toFixed(2)}</strong>
+                <div>
+                    <strong style="margin-right: 12px; white-space: nowrap; align-self: center;">CHF ${zeilenTotal.toFixed(2)}</strong>
+                    <button style="background: none; color: #000000;">-</button>
+                    <button style="background: none; color: #000000;">+</button>
+                </div>
                 <button class="remove-btn" onclick="removeFromCart(${index})" style="align-self: center;">&times;</button>
             `;
             container.appendChild(itemRow);
