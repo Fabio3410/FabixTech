@@ -88,10 +88,10 @@ function updateCartUI() {
                     </span>
                 </div>
                 <div>
-                    <strong style="margin-right: 12px; white-space: nowrap; align-self: center;">CHF ${zeilenTotal.toFixed(2)}</strong>
-                    <span style="background: none; border: none; color: #A9A9A9; font-size: 25px;">
-                        <button>-</button>
-                        <button>+</button>
+                    <strong style="margin-right: 12px; white-space: nowrap; align-self: center;">CHF ${zeilenTotal.toFixed(2)}</strong><br>
+                    <span>
+                        <button style="background: none; border: none; color: #A9A9A9; font-size: 25px; cursor: pointer;">-</button>
+                        <button style="background: none; border: none; color: #A9A9A9; font-size: 25px; cursor: pointer;">+</button>
                     </span>
                 </div>
                 <button class="remove-btn" onclick="removeFromCart(${index})" style="align-self: center;">&times;</button>
