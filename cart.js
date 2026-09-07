@@ -100,21 +100,6 @@ function updateCartUI() {
         });
     }
 
-function decreaseQuantity(productId) {
-const itemIndex = cart.findIndex(item => item.id === productId);
-
-if (itemIndex !== -1) {
-    if (cart[itemIndex].quantity > 1) {
-        cart[itemIndex].quantity -= 1;
-    } else {
-        cart.splice(itemIndex, 1);
-    }
-
-    saveCartToStorage();
-    updateCartUI()();
-    }
-}
-
     if (subtotalElement) {
         subtotalElement.innerText = `CHF ${subtotal.toFixed(2)}`;
     }
@@ -246,6 +231,22 @@ document.addEventListener('change', (event) => {
         }
     }
 });
+
+window.decreaseQuantity = function(productId) {
+    const itemIndex = cart.findIndex(item => item.id === productId);
+
+    if (itemIndex !== -1) {
+        if (cart[itemIndex].quantity > 1) {
+            cart[itemIndex].quantity -= 1;
+        } else {
+            cart.splice(itemIndex, 1);
+        }
+
+        saveCart();
+        renderCart();
+        updateCartCount();
+    }
+};
 
 window.initCheckoutPage = initCheckoutPage;
 window.addProductFromCard = addProductFromCard;
