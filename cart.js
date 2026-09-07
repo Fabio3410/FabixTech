@@ -90,8 +90,8 @@ function updateCartUI() {
                 <div>
                     <strong style="margin-right: 12px; white-space: nowrap; align-self: center;">CHF ${zeilenTotal.toFixed(2)}</strong><br>
                     <span>
-                        <button style="background: none; border: none; color: #A9A9A9; font-size: 25px; cursor: pointer;">-</button>
-                        <button style="background: none; border: none; color: #A9A9A9; font-size: 25px; cursor: pointer;">+</button>
+                        <button class="btn-decrease" onclick="decreaseQuantity('productId')" style="background: none; border: none; color: #A9A9A9; font-size: 25px; cursor: pointer;">-</button>
+                        <button class="btn-decrease" onclick="decreaseQuantity('productId')" style="background: none; border: none; color: #A9A9A9; font-size: 25px; cursor: pointer;">+</button>
                     </span>
                 </div>
                 <button class="remove-btn" onclick="removeFromCart(${index})" style="align-self: center;">&times;</button>
@@ -99,6 +99,21 @@ function updateCartUI() {
             container.appendChild(itemRow);
         });
     }
+
+function decreaseQuantity(productId) {
+const itemIndex = cart.findIndex(item => item.id === productId);
+
+if (itemIndex !== -1) {
+    if (cart[itemIndex].quantity > 1) {
+        cart[itemIndex].quantity -= 1;
+    } else {
+        cart.splice(itemIndex, 1);
+    }
+
+    saveCartToStorage();
+    updateCartUI()();
+    }
+}
 
     if (subtotalElement) {
         subtotalElement.innerText = `CHF ${subtotal.toFixed(2)}`;
