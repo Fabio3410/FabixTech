@@ -10,6 +10,7 @@ function toggleCart() {
         sidebar.classList.toggle('open');
     }
 }
+
 function addToCart(id, name, price, variant, maxStock) {
     const selectedVariant = variant || 'Standard';
     const bestehenderArtikel = cart.find(item => item.id === id);
@@ -90,8 +91,8 @@ function updateCartUI() {
                 <div>
                     <strong style="margin-right: 12px; white-space: nowrap; align-self: center;">CHF ${zeilenTotal.toFixed(2)}</strong><br>
                     <span>
-                        <button class="btn-decrease" onclick="decreaseQuantity('productId')" style="background: none; border: none; color: #A9A9A9; font-size: 25px; cursor: pointer;">-</button>
-                        <button class="btn-decrease" onclick="decreaseQuantity('productId')" style="background: none; border: none; color: #A9A9A9; font-size: 25px; cursor: pointer;">+</button>
+                        <button class="btn-decrease" onclick="decreaseQuantity('${item.id}')" style="background: none; border: none; color: #A9A9A9; font-size: 25px; cursor: pointer;">-</button>
+                        <button class="btn-increase" onclick="increaseQuantity('${item.id}')" style="background: none; border: none; color: #A9A9A9; font-size: 25px; cursor: pointer;">+</button>
                     </span>
                 </div>
                 <button class="remove-btn" onclick="removeFromCart(${index})" style="align-self: center;">&times;</button>
@@ -187,7 +188,7 @@ function removeFromCart(index) {
 
 function addProductFromCard(buttonElement) {
     try {
-        const box = buttonElement.closest('.product-card') || buttonElement.closest('.product-detail') || document.body; 
+        const box = buttonElement.closest('.product-card') || buttonElement.closest('.product-card-detail-view') || document.body; 
 
         const titleElement = box.querySelector('h1') || box.querySelector('h3');
         if (!titleElement) throw new Error("Produkt-Titel wurde im HTML nicht gefunden!");
@@ -242,9 +243,18 @@ window.decreaseQuantity = function(productId) {
             cart.splice(itemIndex, 1);
         }
 
-        saveCart();
-        renderCart();
-        updateCartCount();
+        saveCartToStorage();
+        updateCartUI();
+    }
+};
+
+window.increaseQuantity = function(productId) {
+    const item = cart.find(item => item.id === productId);
+
+    if (item) {
+        item.quantity = (item.quantity || 1) + 1;
+        saveCartToStorage();
+        updateCartUI();
     }
 };
 
