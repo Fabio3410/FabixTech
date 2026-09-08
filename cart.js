@@ -59,7 +59,7 @@ function updateCartUI() {
     
     let subtotal = 0;
     let anzahlGesamt = 0;
-    const versandKosten = 5.70;
+    const versandKosten = 5.90;
     
     cart.forEach(item => {
         anzahlGesamt += (item.quantity || 1);
