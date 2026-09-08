@@ -41,7 +41,7 @@ export async function onRequestGet(context) {
         .btn { 
             display: block; 
             text-align: center; 
-            background: #2563eb; 
+            background: #d40202; 
             color: white; 
             padding: 12px; 
             border-radius: 8px; 
