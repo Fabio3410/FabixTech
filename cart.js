@@ -14,19 +14,29 @@ function toggleCart() {
 function addToCart(id, name, price, variant, maxStock) {
     const selectedVariant = variant || 'Standard';
     const bestehenderArtikel = cart.find(item => item.id === id);
+    const stockLimit = parseInt(maxStock) || 0;
 
     if (bestehenderArtikel) {
-        if (bestehenderArtikel.quantity >= maxStock) {
-            alert(`Es sind nur noch ${maxStock} Stück von dieser Variante auf Lager.`);
+        if (stockLimit > 0) bestehenderArtikel.maxStock = stockLimit;
+
+        if (bestehenderArtikel.maxStock && bestehenderArtikel.quantity >= bestehenderArtikel.maxStock) {
+            alert(`Es sind nur noch ${bestehenderArtikel.maxStock} Stück von dieser Variante auf Lager.`);
             return;
         }
         bestehenderArtikel.quantity = (bestehenderArtikel.quantity || 1) + 1;
     } else {
-        if (maxStock <= 0) {
+        if (stockLimit <= 0) {
             alert("Dieses Produkt ist aktuell ausverkauft.");
             return;
         }
-        cart.push({ id, name, price, variant: selectedVariant, quantity: 1 });
+        cart.push({ 
+            id, 
+            name, 
+            price, 
+            variant: selectedVariant, 
+            quantity: 1, 
+            maxStock: stockLimit 
+        });
     }
 
     saveCartToStorage();
@@ -252,6 +262,11 @@ window.increaseQuantity = function(productId) {
     const item = cart.find(item => item.id === productId);
 
     if (item) {
+        if (item.maxStock !== undefined && item.maxStock > 0 && item.quantity >= item.maxStock) {
+            alert(`Es sind nur noch ${item.maxStock} Stück von dieser Variante auf Lager.`);
+            return;
+        }
+
         item.quantity = (item.quantity || 1) + 1;
         saveCartToStorage();
         updateCartUI();
