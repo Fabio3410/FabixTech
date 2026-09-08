@@ -105,7 +105,15 @@ function updateCartUI() {
                         <button class="btn-increase" onclick="increaseQuantity('${item.id}')" style="background: none; border: none; color: #A9A9A9; font-size: 25px; cursor: pointer;">+</button>
                     </span>
                 </div>
-                <button class="remove-btn" onclick="removeFromCart(${index})" style="align-self: center;">&times;</button>
+                <button class="remove-btn" onclick="removeFromCart(${index})" style="align-self: center;">
+                    <span class="trash-icon">&#x1F5D1;</span>
+                </button>
+                <style>
+                    .trash-icon {
+                        font-family: "Segoe UI Symbol", "Apple Color Emoji", Arial, sans-serif;
+                        line-height: 1;
+                    }
+                </style>
             `;
             container.appendChild(itemRow);
         });

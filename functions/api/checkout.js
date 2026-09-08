@@ -56,7 +56,7 @@ export async function onRequestPost(context) {
             allow_promotion_codes: true,
             metadata: sessionMetadata,
             shipping_address_collection: { allowed_countries: ['CH'] },
-            shipping_options: [{ shipping_rate: 'shr_1TtOw8HRWCYHtDl04j8UrqdP' }],
+            shipping_options: [{ shipping_rate: 'shr_1UDTIdHRWCYHtDl0fMHuhs0U' }],
             return_url: 'https://fabio3d.pages.dev/success?session_id={CHECKOUT_SESSION_ID}',
         });
 
