@@ -113,6 +113,10 @@ function updateCartUI() {
                         font-family: "Segoe UI Symbol", "Apple Color Emoji", Arial, sans-serif;
                         line-height: 1;
                     }
+                    
+                    svg .delete-icon {
+                        fill: #d40202;
+                    }
                 </style>
             `;
             container.appendChild(itemRow);
