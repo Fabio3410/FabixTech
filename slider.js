@@ -100,3 +100,9 @@ function syncImagesWithVariant(variantBtn) {
         imgElement.setAttribute('data-index', '0');
     }
 }
+
+window.addEventListener('load', () => {
+    setTimeout(() => {
+        preloadAllProductImages();
+    }, 500);
+});

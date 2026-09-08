@@ -1,4 +1,9 @@
-const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+const stockPromise = fetch(`/api/get-all-stocks?t=${Date.now()}`)
+    .then(res => res.ok ? res.json() : [])
+    .catch(err => {
+        console.error("Fehler beim Abrufen der Bestände:", err);
+        return [];
+    });
 
 function getPageIdFromPath() {
     const path = window.location.pathname.replace(/^\//, '').trim();
@@ -53,49 +58,49 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
     switchPage(getPageIdFromPath(), false);
+    
+    fetchAllStocks();
 });
 
 window.addEventListener('popstate', () => {
     switchPage(getPageIdFromPath(), false);
 });
 
-window.jumpToSlide = function(index) {
-};
+document.addEventListener('click', (event) => {
+    const btn = event.target.closest('.variant-btn');
+    if (!btn) return;
 
-document.querySelectorAll('.variant-btn').forEach(btn => {
-    btn.addEventListener('click', (event) => {
-        const gewaehlteId = event.target.getAttribute('data-id');
-        const produktKarte = event.target.closest('.product-card, .product-details');
+    const gewaehlteId = btn.getAttribute('data-id');
+    const produktKarte = btn.closest('.product-card, .product-details, .product-card-detail-view');
+    
+    if (!produktKarte) return;
+    const hauptButton = produktKarte.querySelector('.btn-buy');
+    if (hauptButton) {
+        hauptButton.setAttribute('data-id', gewaehlteId);
+    }
+
+    produktKarte.querySelectorAll('.variant-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    updatePrice(btn);
+    
+    const imgElement = produktKarte.querySelector('.product-img');
+    const variantImages = btn.getAttribute('data-variant-images');
+
+    if (variantImages && imgElement) {
+        imgElement.setAttribute('data-images', variantImages);
+        imgElement.setAttribute('data-index', '0');
+        imgElement.classList.add('fade-out');
         
-        if (!produktKarte) return;
-        const hauptButton = produktKarte.querySelector('.btn-buy');
-        if (hauptButton) {
-            hauptButton.setAttribute('data-id', gewaehlteId);
-        }
-
-        produktKarte.querySelectorAll('.variant-btn').forEach(b => b.classList.remove('active'));
-        event.target.classList.add('active');
-        updatePrice(event.target);
-        
-        const imgElement = produktKarte.querySelector('.product-img');
-        const variantImages = event.target.getAttribute('data-variant-images');
-
-        if (variantImages && imgElement) {
-            imgElement.setAttribute('data-images', variantImages);
-            imgElement.setAttribute('data-index', '0');
-            imgElement.classList.add('fade-out');
-            
-            setTimeout(() => {
-                imgElement.src = variantImages.split(',')[0].trim();
-                imgElement.classList.remove('fade-out');
-            }, 150);
-        }
-        updateMainButtonStock(produktKarte);
-    });
+        setTimeout(() => {
+            imgElement.src = variantImages.split(',')[0].trim();
+            imgElement.classList.remove('fade-out');
+        }, 150);
+    }
+    updateMainButtonStock(produktKarte);
 });
 
 function updatePrice(button) {
-    const card = button.closest('.product-card');
+    const card = button.closest('.product-card, .product-card-detail-view');
     const newPrice = button.getAttribute('data-price');
     
     if (!card || !newPrice) return;
@@ -115,32 +120,33 @@ function updatePrice(button) {
 }
 
 async function fetchAllStocks() {
-    const variantButtons = document.querySelectorAll('.variant-btn');
+    const stocks = await stockPromise;
     
-    for (let btn of variantButtons) {
+    const stockMap = {};
+    if (Array.isArray(stocks)) {
+        stocks.forEach(item => {
+            const stockValue = item.maxStock !== undefined ? item.maxStock : item.stock;
+            stockMap[item.id] = parseInt(stockValue) || 0;
+        });
+    }
+
+    document.querySelectorAll('.variant-btn').forEach(btn => {
         const productId = btn.getAttribute('data-id');
-        if (!productId) continue;
-        
-        try {
-            const response = await fetch(`/api/get-stock?id=${productId}&t=${Date.now()}`);
-            if (!response.ok) {
-                throw new Error(`Server antwortete mit Status ${response.status}`);
-            }
-            const data = await response.json();
-            btn.setAttribute('data-stock', data.stock);
-            if (data.stock <= 0) {
+        if (productId in stockMap) {
+            const stock = stockMap[productId];
+            btn.setAttribute('data-stock', stock);
+            
+            if (stock <= 0) {
                 btn.style.opacity = '0.4';
                 btn.style.textDecoration = 'line-through';
             } else {
                 btn.style.opacity = '1';
                 btn.style.textDecoration = 'none';
             }
-        } catch (err) {
-            console.error("Fehler beim Bestandsabruf für", productId, err);
         }
-        await sleep(100);
-    }
-    document.querySelectorAll('.product-card, .product-details').forEach(container => {
+    });
+
+    document.querySelectorAll('.product-card, .product-details, .product-card-detail-view').forEach(container => {
         updateMainButtonStock(container);
     });
 }
