@@ -106,7 +106,7 @@ function updateCartUI() {
                     </span>
                 </div>
                 <button class="remove-btn" onclick="removeFromCart(${index})" style="align-self: center;">
-                    <span class="trash-icon">&#x1F5D1;</span>
+                    <span href="/images/delete-icon.svg" class="trash-icon"></span>
                 </button>
                 <style>
                     .trash-icon {
