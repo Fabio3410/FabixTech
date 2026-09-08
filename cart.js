@@ -101,8 +101,8 @@ function updateCartUI() {
                 <div>
                     <strong style="margin-right: 12px; white-space: nowrap; align-self: center;">CHF ${zeilenTotal.toFixed(2)}</strong><br>
                     <span>
-                        <button class="btn-decrease" onclick="decreaseQuantity('${item.id}')" style="background: none; border: none; color: #A9A9A9; font-size: 25px; cursor: pointer;"><img src="/images/remove-icon" alt="minus"></button>
-                        <button class="btn-increase" onclick="increaseQuantity('${item.id}')" style="background: none; border: none; color: #A9A9A9; font-size: 25px; cursor: pointer;"><img src="/images/add-icon" alt="plus"></button>
+                        <button class="btn-decrease" onclick="decreaseQuantity('${item.id}')" style="background: none; border: none; color: #A9A9A9; font-size: 25px; cursor: pointer;"><img src="/images/remove-icon.svg" alt="minus"></button>
+                        <button class="btn-increase" onclick="increaseQuantity('${item.id}')" style="background: none; border: none; color: #A9A9A9; font-size: 25px; cursor: pointer;"><img src="/images/add-icon.svg" alt="plus"></button>
                     </span>
                 </div>
                 <button class="remove-btn" onclick="removeFromCart(${index})" style="align-self: center;">
