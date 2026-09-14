@@ -10,18 +10,49 @@ export async function onRequestPost(context) {
     const data = await request.json();
     const { action, email, password, code, newPassword } = data;
 
-    if (action === 'register') {
-        const { results } = await env.DB.prepare("SELECT email FROM users WHERE email = ?").bind(email).all();
+    if (action === 'send_register_code') {
+        const { results } = await env.DB.prepare("SELECT * FROM users WHERE email = ? AND password_hash IS NOT NULL").bind(email).all();
+        
         if (results.length > 0) {
-            return new Response(JSON.stringify({ status: 'error', message: 'E-Mail wird bereits verwendet.' }));
+            return new Response(JSON.stringify({ status: 'error', message: 'Ein Konto mit dieser E-Mail existiert bereits.' }));
+        }
+
+        const generatedCode = Math.floor(100000 + Math.random() * 900000).toString();
+        
+        await env.DB.prepare("INSERT INTO users (email, reset_code) VALUES (?, ?) ON CONFLICT(email) DO UPDATE SET reset_code = ?")
+            .bind(email, generatedCode, generatedCode).run();
+
+        await fetch('https://api.resend.com/emails', {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${env.RESEND_API_KEY}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                from: 'onboarding@resend.dev',
+                to: email,
+                subject: 'Dein Registrierungscode',
+                html: `<p>Dein Verifizierungscode lautet: <strong>${generatedCode}</strong></p>`
+            })
+        });
+
+        return new Response(JSON.stringify({ status: 'success', message: 'Code gesendet.' }));
+    }
+
+    if (action === 'register') {
+        const { results } = await env.DB.prepare("SELECT * FROM users WHERE email = ? AND reset_code = ?")
+            .bind(email, code).all();
+
+        if (results.length === 0) {
+            return new Response(JSON.stringify({ status: 'error', message: 'Ungültiger oder abgelaufener Code.' }));
         }
 
         const hashedPassword = await hashPassword(password);
         
-        await env.DB.prepare("INSERT INTO users (email, password_hash) VALUES (?, ?)")
-            .bind(email, hashedPassword).run();
+        await env.DB.prepare("UPDATE users SET password_hash = ?, reset_code = NULL WHERE email = ?")
+            .bind(hashedPassword, email).run();
             
-        return new Response(JSON.stringify({ status: 'success', message: 'Konto erstellt.' }));
+        return new Response(JSON.stringify({ status: 'success', message: 'Konto erfolgreich erstellt.' }));
     }
 
     if (action === 'login') {
@@ -37,8 +68,8 @@ export async function onRequestPost(context) {
         }
     }
 
-    if (action === 'send_code') {
-        const { results } = await env.DB.prepare("SELECT email FROM users WHERE email = ?").bind(email).all();
+    if (action === 'send_reset_code') {
+        const { results } = await env.DB.prepare("SELECT * FROM users WHERE email = ? AND password_hash IS NOT NULL").bind(email).all();
         
         if (results.length === 0) {
             return new Response(JSON.stringify({ status: 'error', message: 'Es existiert kein Konto mit dieser E-Mail.' }));
@@ -59,7 +90,7 @@ export async function onRequestPost(context) {
                 from: 'onboarding@resend.dev',
                 to: email,
                 subject: 'Dein Passwort-Reset-Code',
-                html: `<p>Dein Code lautet: <strong>${generatedCode}</strong></p>`
+                html: `<p>Dein Reset-Code lautet: <strong>${generatedCode}</strong></p>`
             })
         });
 
@@ -72,7 +103,6 @@ export async function onRequestPost(context) {
 
         if (results.length > 0) {
             const hashedPassword = await hashPassword(newPassword);
-            
             await env.DB.prepare("UPDATE users SET password_hash = ?, reset_code = NULL WHERE email = ?")
                 .bind(hashedPassword, email).run();
                 

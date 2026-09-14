@@ -123,16 +123,16 @@
 async function sendVerification() {
     const email = document.getElementById('regEmail').value;
     
-    if(email) {
+    if (email) {
         const response = await fetch('/api/auth', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ action: 'send_code', email: email })
+            body: JSON.stringify({ action: 'send_register_code', email: email })
         });
         
         const result = await response.json();
         
-        if(result.status === 'success') {
+        if (result.status === 'success') {
             document.getElementById('dataSection').style.display = 'none';
             document.getElementById('codeSection').style.display = 'block';
             document.getElementById('formSubtitle').innerText = 'Wir haben einen Code an deine E-Mail gesendet.';
