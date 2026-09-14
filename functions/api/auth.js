@@ -18,7 +18,7 @@ export async function onRequestPost(context) {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                from: 'noreply@resend.dev',
+                from: 'onboarding@resend.dev',
                 to: email,
                 subject: 'Dein Fabio3D Sicherheitscode',
                 html: `<p>Dein Code lautet: <strong>${generatedCode}</strong></p>`
