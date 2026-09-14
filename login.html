@@ -65,6 +65,10 @@
             margin-top: 0.3rem;
         }
 
+        .forgot-password:hover {
+            color: var(--primary-hover);
+        }
+
         .btn-action {
             width: 100%;
             padding: 0.75rem;
@@ -79,35 +83,10 @@
             transition: background 0.2s;
         }
 
-        .btn-action:hover { background: var(--primary-hover); }
-
-        .divider {
-            display: flex;
-            align-items: center;
-            text-align: center;
-            margin: 1.5rem 0;
-            color: #94a3b8;
-            font-size: 0.8rem;
+        .btn-action:hover {
+            background: var(--primary-hover);
+            transform: scale(1.03);
         }
-        .divider::before, .divider::after { content: ''; flex: 1; border-bottom: 1px solid #e2e8f0; }
-        .divider:not(:empty)::before { margin-right: .5rem; }
-        .divider:not(:empty)::after { margin-left: .5rem; }
-
-        .btn-google {
-            width: 100%;
-            padding: 0.75rem;
-            background: white;
-            border: 1px solid #cbd5e1;
-            border-radius: 0.6rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            cursor: pointer;
-            font-weight: 500;
-            transition: background 0.2s;
-        }
-        .btn-google:hover { background: #f1f5f9; }
 
         .toggle-text {
             margin-top: 1.5rem;
@@ -116,21 +95,23 @@
             color: #64748b;
         }
 
-        .toggle-text a { color: var(--primary); text-decoration: none; font-weight: 600; cursor: pointer; }
+        .toggle-text a {
+            color: var(--primary); 
+            text-decoration: none; 
+            font-weight: 600; 
+            cursor: pointer; 
+        }
+
+        .toggle-text a:hover {
+            color: var(--primary-hover);
+        }
     </style>
 </head>
 <body>
 
 <div class="auth-card">
     <h2 id="formTitle">Willkommen zurück</h2>
-    <p class="subtitle" id="formSubtitle">Bitte loggen Sie sich in Ihr Konto ein.</p>
-    
-    <button class="btn-google">
-        <img src="https://www.gstatic.com" width="18" alt="Google">
-        Mit Google anmelden
-    </button>
-
-    <div class="divider">oder mit E-Mail</div>
+    <p class="subtitle" id="formSubtitle">Logge dich in dein Konto ein.</p>
 
     <form id="authForm">
         <div id="additionalFields"></div> 
