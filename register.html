@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/png" href="images/favicon.png">
     <title>Registrieren | Fabio3D</title>
+    <script src="alert.js"></script>
     <style>
         :root { 
             --primary: #d40202; 
@@ -37,30 +38,12 @@
             transition: all 0.3s ease; 
         }
 
-        h2 { 
-            margin: 0 0 0.5rem; 
-            font-size: 1.5rem; 
-            text-align: center; 
-            font-weight: 700; 
-        }
-        p.subtitle { 
-            color: #64748b; 
-            text-align: center; 
-            margin-bottom: 2rem; 
-            font-size: 0.9rem; 
-        }
+        h2 { margin: 0 0 0.5rem; font-size: 1.5rem; text-align: center; font-weight: 700; }
+        p.subtitle { color: #64748b; text-align: center; margin-bottom: 2rem; font-size: 0.9rem; }
 
-        .input-group {
-            margin-bottom: 1rem;
-        }
+        .input-group { margin-bottom: 1rem; }
 
-        label {
-            display: block;
-            font-size: 0.85rem;
-            font-weight: 600;
-            margin-bottom: 0.4rem;
-            color: #475569;
-        }
+        label { display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 0.4rem; color: #475569; }
 
         input {
             width: 100%;
@@ -71,10 +54,7 @@
             font-size: 1rem;
             transition: border-color 0.2s;
         }
-        input:focus { 
-            outline: none; 
-            border-color: var(--primary); 
-        }
+        input:focus { outline: none; border-color: var(--primary); }
 
         .btn-action { 
             width: 100%; 
@@ -94,27 +74,12 @@
             transform: scale(1.03); 
         }
 
-        .toggle-text {
-            margin-top: 1.5rem;
-            text-align: center;
-            font-size: 0.9rem;
-            color: #64748b;
-        }
+        .toggle-text { margin-top: 1.5rem; text-align: center; font-size: 0.9rem; color: #64748b; }
 
-        .toggle-text a {
-            color: var(--primary); 
-            text-decoration: none; 
-            font-weight: 600; 
-            cursor: pointer; 
-        }
-
-        .toggle-text a:hover {
-            color: var(--primary-hover);
-        }
+        .toggle-text a { color: var(--primary); text-decoration: none; font-weight: 600; cursor: pointer; }
+        .toggle-text a:hover { color: var(--primary-hover); }
         
-        #codeSection {
-            display: none;
-        }
+        #codeSection { display: none; }
     </style>
 </head>
 <body>
@@ -172,10 +137,40 @@ async function sendVerification() {
             document.getElementById('codeSection').style.display = 'block';
             document.getElementById('formSubtitle').innerText = 'Wir haben einen Code an deine E-Mail gesendet.';
         } else {
-            alert('Es gab einen Fehler beim Senden der E-Mail.');
+            showAlert(result.message || 'Es gab einen Fehler beim Senden der E-Mail.', 'Fehler');
         }
     }
 }
+
+document.getElementById('registerForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+
+    const email = document.getElementById('regEmail').value;
+    const password = document.getElementById('regPass').value;
+    const code = document.getElementById('regCode').value;
+
+    const response = await fetch('/api/auth', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+            action: 'register', 
+            email: email, 
+            password: password, 
+            code: code 
+        })
+    });
+
+    const result = await response.json();
+
+    if (result.status === 'success') {
+        showAlert('Konto erfolgreich erstellt! Du kannst dich jetzt anmelden.', 'Erfolg');
+        setTimeout(() => {
+            window.location.href = 'login';
+        }, 1500);
+    } else {
+        showAlert(result.message || 'Registrierung fehlgeschlagen.', 'Fehler');
+    }
+});
 </script>
 </body>
 </html>

@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/png" href="images/favicon.png">
     <title>Login | Fabio3D</title>
+    <script src="alert.js"></script>
     <style>
         :root {
             --primary: #d40202;
@@ -114,16 +115,14 @@
     <p class="subtitle" id="formSubtitle">Logge dich in dein Konto ein.</p>
 
     <form id="authForm">
-        <div id="additionalFields"></div> 
-        
         <div class="input-group">
             <label>E-Mail</label>
-            <input type="email" placeholder="name@beispiel.ch" required>
+            <input type="email" id="loginEmail" placeholder="name@beispiel.ch" required>
         </div>
         
         <div class="input-group">
             <label>Passwort</label>
-            <input type="password" placeholder="••••••••" required>
+            <input type="password" id="loginPass" placeholder="••••••••" required>
             <a href="reset-password" class="forgot-password" id="forgotLink">Passwort vergessen?</a>
         </div>
 
@@ -131,8 +130,34 @@
     </form>
     
     <p class="toggle-text" id="toggleText">
-        Noch kein Konto? <a href="register" onclick="toggleMode()">Registrieren</a>
+        Noch kein Konto? <a href="register">Registrieren</a>
     </p>
 </div>
+
+<script>
+document.getElementById('authForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const email = document.getElementById('loginEmail').value;
+    const password = document.getElementById('loginPass').value;
+
+    const response = await fetch('/api/auth', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'login', email: email, password: password })
+    });
+
+    const result = await response.json();
+
+    if (result.status === 'success') {
+        showAlert('Erfolgreich angemeldet!', 'Willkommen');
+        setTimeout(() => {
+            window.location.href = '/';
+        }, 1500);
+    } else {
+        showAlert(result.message || 'Falsche Anmeldedaten.', 'Fehler');
+    }
+});
+</script>
 </body>
 </html>
