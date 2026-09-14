@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="images/favicon.png">
+    <title>Registrieren | Fabio3D</title>
+    <style>
+        :root { 
+            --primary: #d40202; 
+            --primary-hover: #960505; 
+            --bg: #f8fafc; 
+            --text: #0f172a; 
+            --card-bg: #ffffff; 
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background-color: var(--bg);
+            background-image: radial-gradient(circle at 2px 2px, #e2e8f0 1px, transparent 0);
+            background-size: 40px 40px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            color: var(--text);
+        }
+
+        .auth-card {
+            background: var(--card-bg);
+            padding: 2.5rem;
+            border-radius: 1.5rem;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); 
+            width: 100%;
+            max-width: 400px;
+            transition: all 0.3s ease; 
+        }
+
+        h2 { 
+            margin: 0 0 0.5rem; 
+            font-size: 1.5rem; 
+            text-align: center; 
+            font-weight: 700; 
+        }
+        p.subtitle { 
+            color: #64748b; 
+            text-align: center; 
+            margin-bottom: 2rem; 
+            font-size: 0.9rem; 
+        }
+
+        .input-group {
+            margin-bottom: 1rem;
+        }
+
+        label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 0.4rem;
+            color: #475569;
+        }
+
+        input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #cbd5e1;
+            border-radius: 0.6rem;
+            box-sizing: border-box;
+            font-size: 1rem;
+            transition: border-color 0.2s;
+        }
+        input:focus { 
+            outline: none; 
+            border-color: var(--primary); 
+        }
+
+        .btn-action { 
+            width: 100%; 
+            padding: 0.75rem; 
+            background: var(--primary); 
+            color: white; border: none; 
+            border-radius: 0.6rem; 
+            font-size: 1rem; 
+            font-weight: 600; 
+            cursor: pointer; 
+            margin-top: 1.5rem; 
+            transition: background 0.2s; 
+        }
+
+        .btn-action:hover { 
+            background: var(--primary-hover); 
+            transform: scale(1.03); 
+        }
+
+        .toggle-text {
+            margin-top: 1.5rem;
+            text-align: center;
+            font-size: 0.9rem;
+            color: #64748b;
+        }
+
+        .toggle-text a {
+            color: var(--primary); 
+            text-decoration: none; 
+            font-weight: 600; 
+            cursor: pointer; 
+        }
+
+        .toggle-text a:hover {
+            color: var(--primary-hover);
+        }
+        
+        #codeSection {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+<div class="auth-card">
+    <h2 id="formTitle">Konto erstellen</h2>
+    <p class="subtitle" id="formSubtitle">Tritt Fabio3D bei.</p>
+
+    <form id="registerForm">
+        <div id="dataSection">
+            <div class="input-group">
+                <label>Benutzername</label>
+                <input type="text" id="regName" placeholder="Dein Name" required>
+            </div>
+            <div class="input-group">
+                <label>E-Mail</label>
+                <input type="email" id="regEmail" placeholder="name@beispiel.ch" required>
+            </div>
+            <div class="input-group">
+                <label>Passwort</label>
+                <input type="password" id="regPass" placeholder="••••••••" required>
+            </div>
+            <button type="button" class="btn-action" onclick="sendVerification()">Code anfordern</button>
+        </div>
+
+        <div id="codeSection">
+            <div class="input-group">
+                <label>6-stelliger Code (aus E-Mail)</label>
+                <input type="text" id="regCode" placeholder="123456" maxlength="6">
+            </div>
+            <button type="submit" class="btn-action">Registrierung abschließen</button>
+        </div>
+    </form>
+    
+    <p class="toggle-text">
+        Bereits ein Konto? <a href="login">Anmelden</a>
+    </p>
+</div>
+
+<script>
+async function sendVerification() {
+    const email = document.getElementById('regEmail').value;
+    
+    if(email) {
+        const response = await fetch('/api/auth', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action: 'send_code', email: email })
+        });
+        
+        const result = await response.json();
+        
+        if(result.status === 'success') {
+            document.getElementById('dataSection').style.display = 'none';
+            document.getElementById('codeSection').style.display = 'block';
+            document.getElementById('formSubtitle').innerText = 'Wir haben einen Code an deine E-Mail gesendet.';
+        } else {
+            alert('Es gab einen Fehler beim Senden der E-Mail.');
+        }
+    }
+}
+</script>
+</body>
+</html>
