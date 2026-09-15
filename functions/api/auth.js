@@ -9,18 +9,23 @@ export async function onRequestPost(context) {
     const { request, env } = context;
     const data = await request.json();
     const { action, email, password, code, newPassword, profile_picture } = data;
-
+    
     if (action === 'update_avatar') {
         if (!email || !profile_picture) {
-            return new Response(JSON.stringify({ status: 'error', message: 'Fehlende Daten.' }), { status: 400 });
+            return new Response(JSON.stringify({ status: 'error', message: 'Fehlende Daten.' }), { 
+                status: 400,
+                headers: { 'Content-Type': 'application/json' }
+            });
         }
-
+        
         try {
             await env.DB.prepare("UPDATE users SET profile_picture = ? WHERE email = ?")
-                .bind(profile_picture, email)
-                .run();
-
-            return new Response(JSON.stringify({ status: 'success', message: 'Profilbild gespeichert.' }));
+            .bind(profile_picture, email)
+            .run();
+            
+            return new Response(JSON.stringify({ status: 'success', message: 'Profilbild gespeichert.' }), {
+                headers: { 'Content-Type': 'application/json' }
+            });
         } catch (err) {
             return new Response(JSON.stringify({ 
                 status: 'error', 
