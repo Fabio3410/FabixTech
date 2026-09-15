@@ -320,7 +320,7 @@
             <a onclick="switchPage('contact')">Kontakt</a> | 
             <a onclick="switchPage('impressum')">Impressum</a>
         </div>
-        <p>&copy; 2026 Fabio3D. Alle Rechte vorbehalten.</p>
+        <p>&copy; <span id="copyright"><script>document.getElementById('copyright').appendChild(document.createTextNode(new Date().getFullYear()))</script></span> Fabio3D. Alle Rechte vorbehalten.</p>
     </footer>
     <script src="alert.js" defer></script>
     <script src="script.js" defer></script>
