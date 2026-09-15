@@ -6,6 +6,7 @@
     <link rel="icon" type="image/png" href="images/favicon.png">
     <title>Login | Fabio3D</title>
     <script src="alert.js"></script>
+    <script src="script.js" defer></script>
     <style>
         :root {
             --primary: #d40202;
@@ -151,15 +152,16 @@ document.getElementById('authForm').addEventListener('submit', async function(e)
     });
 
     const result = await response.json();
-
+    
     if (result.status === 'success') {
-        showAlert('Erfolgreich angemeldet!', 'Willkommen');
-        setTimeout(() => {
-            window.location.href = '/';
-        }, 1500);
-    } else {
-        showAlert(result.message || 'Falsche Anmeldedaten.', 'Fehler');
-    }
+    localStorage.setItem('user', JSON.stringify(result.user));
+    showAlert('Erfolgreich angemeldet!', 'Willkommen');
+    setTimeout(() => {
+        window.location.href = '/'; 
+    }, 1500);
+} else {
+    showAlert(result.message || 'Falsche Anmeldedaten.', 'Fehler');
+}
 });
 </script>
 </body>

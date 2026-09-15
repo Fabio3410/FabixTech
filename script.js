@@ -170,6 +170,66 @@ function updateMainButtonStock(produktKarte) {
     }
 }
 
+function stringToColor(str) {
+    let hash = 0;
+    for (let i = 0; i < str.length; i++) {
+        hash = str.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    let color = '#';
+    for (let i = 0; i < 3; i++) {
+        const value = (hash >> (i * 8)) & 0xFF;
+        const lightValue = Math.floor((value + 255) / 2); 
+        color += ('00' + lightValue.toString(16)).slice(-2);
+    }
+    return color;
+}
+
+function toggleProfileMenu() {
+    const dropdown = document.getElementById('profileDropdown');
+    dropdown.classList.toggle('active');
+}
+
+function logoutUser() {
+    localStorage.removeItem('user');
+    window.location.reload();
+}
+
+function renderUserMenu() {
+    const root = document.getElementById('user-menu-root');
+    const userStr = localStorage.getItem('user');
+
+    if (userStr) {
+        const user = JSON.parse(userStr);
+        const bgColor = stringToColor(user.email);
+        const isDefault = !user.profile_picture;
+        const imgSrc = isDefault ? 'Favicon_ohne_Hintergrund.jpg' : user.profile_picture;
+        const imgClass = isDefault ? 'default-logo' : '';
+
+        root.innerHTML = `
+            <div class="avatar" style="background-color: ${bgColor};" onclick="toggleProfileMenu()">
+                <img src="${imgSrc}" class="${imgClass}" alt="Profilbild">
+            </div>
+            <div class="profile-dropdown" id="profileDropdown">
+                <a href="/settings.html">Kontoeinstellungen</a>
+                <a href="#" onclick="logoutUser()">Abmelden</a>
+            </div>
+        `;
+    } else {
+        root.innerHTML = `
+            <a href="/login" class="btn btn-primary" style="padding: 0.6rem 1.5rem; font-size: 1rem;">Anmelden</a>
+        `;
+    }
+}
+
+document.addEventListener('click', function(event) {
+    const root = document.getElementById('user-menu-root');
+    const dropdown = document.getElementById('profileDropdown');
+    if (root && dropdown && !root.contains(event.target)) {
+        dropdown.classList.remove('active');
+    }
+});
+
+document.addEventListener('DOMContentLoaded', renderUserMenu);
 window.addEventListener('pageshow', () => {
     fetchAllStocks();
 });

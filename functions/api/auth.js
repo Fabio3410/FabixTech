@@ -54,15 +54,21 @@ export async function onRequestPost(context) {
             
         return new Response(JSON.stringify({ status: 'success', message: 'Konto erfolgreich erstellt.' }));
     }
-
+    
     if (action === 'login') {
         const hashedPassword = await hashPassword(password);
-        
         const { results } = await env.DB.prepare("SELECT * FROM users WHERE email = ? AND password_hash = ?")
-            .bind(email, hashedPassword).all();
-
+        .bind(email, hashedPassword).all();
+        
         if (results.length > 0) {
-            return new Response(JSON.stringify({ status: 'success', message: 'Erfolgreich angemeldet.' }));
+            return new Response(JSON.stringify({ 
+                status: 'success', 
+                message: 'Erfolgreich angemeldet.',
+                user: {
+                    email: results[0].email,
+                    profile_picture: results[0].profile_picture || null
+                }
+            }));
         } else {
             return new Response(JSON.stringify({ status: 'error', message: 'Falsche E-Mail oder Passwort.' }));
         }
