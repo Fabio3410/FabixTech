@@ -197,23 +197,24 @@ function logoutUser() {
 function renderUserMenu() {
     const root = document.getElementById('user-menu-root');
     const userStr = localStorage.getItem('user');
-
+    
     if (userStr) {
         const user = JSON.parse(userStr);
-        const bgColor = stringToColor(user.email);
-        const isDefault = !user.profile_picture;
-        const imgSrc = isDefault ? 'Favicon_ohne_Hintergrund.jpg' : user.profile_picture;
-        const imgClass = isDefault ? 'default-logo' : '';
-
+        const textColor = stringToColor(user.email);
+        const hasCustomImage = Boolean(user.profile_picture);
+        const avatarContent = hasCustomImage 
+        ? `<img src="${user.profile_picture}" alt="Profilbild">`
+        : `<img src="/images/logo.svg" alt="3D Logo">`;
+        
         root.innerHTML = `
-            <div class="avatar" style="background-color: ${bgColor};" onclick="toggleProfileMenu()">
-                <img src="${imgSrc}" class="${imgClass}" alt="Profilbild">
-            </div>
-            <div class="profile-dropdown" id="profileDropdown">
-                <a href="/settings.html">Kontoeinstellungen</a>
-                <a href="#" onclick="logoutUser()">Abmelden</a>
-            </div>
-        `;
+        <div class="avatar" style="color: ${textColor}; background-color: #ffffff;" onclick="toggleProfileMenu()">
+            ${avatarContent}
+        </div>
+        <div class="profile-dropdown" id="profileDropdown">
+            <a href="/settings.html">Kontoeinstellungen</a>
+            <a href="#" onclick="logoutUser()">Abmelden</a>
+        </div>
+    `;
     } else {
         root.innerHTML = `
             <a href="/login" class="btn btn-primary" style="padding: 0.6rem 1.5rem; font-size: 1rem;">Anmelden</a>
