@@ -9,10 +9,50 @@
     <div class="input-group">
         <label>Neues Profilbild hochladen</label>
         <input type="file" id="avatarInput" accept="image/png, image/jpeg">
+        <button type="button" onclick="deleteAvatar()" class="btn-danger">Bild löschen</button>
         <button type="button" onclick="uploadAvatar()" class="btn-action">Bild speichern</button>
     </div>
 
     <script>
+    async function deleteAvatar() {
+        const userStr = localStorage.getItem('user');
+        if (!userStr) {
+            alert('Bitte melde dich zuerst an.');
+            return;
+        }
+
+        const user = JSON.parse(userStr);
+    
+        if (!user.profile_picture) {
+            alert('Du hast aktuell kein eigenes Profilbild.');
+            return;
+        }
+
+        if (!confirm('Möchtest du dein Profilbild wirklich löschen? Es wird wieder das farbige 3D-Logo angezeigt.')) {
+            return;
+        }
+
+        const response = await fetch('/api/auth', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                action: 'delete_avatar',
+                email: user.email
+            })
+        });
+
+        const result = await response.json();
+
+        if (result.status === 'success') {
+            user.profile_picture = null;
+            localStorage.setItem('user', JSON.stringify(user));
+            alert('Profilbild erfolgreich gelöscht.');
+            window.location.href = '/';
+        } else {
+            alert('Fehler beim Löschen: ' + (result.message || 'Unbekannter Fehler'));
+        }
+    }
+
     async function uploadAvatar() {
         const fileInput = document.getElementById('avatarInput');
         const userStr = localStorage.getItem('user');

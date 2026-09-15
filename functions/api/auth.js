@@ -34,6 +34,30 @@ export async function onRequestPost(context) {
         }
     }
 
+    if (action === 'delete_avatar') {
+        if (!email) {
+            return new Response(JSON.stringify({ status: 'error', message: 'Fehlende E-Mail.' }), { 
+                status: 400, 
+                headers: { 'Content-Type': 'application/json' } 
+            });
+        }
+
+        try {
+            await env.DB.prepare("UPDATE users SET profile_picture = NULL WHERE email = ?")
+                .bind(email)
+                .run();
+
+            return new Response(JSON.stringify({ status: 'success', message: 'Profilbild gelöscht.' }), {
+                headers: { 'Content-Type': 'application/json' }
+            });
+        } catch (err) {
+            return new Response(JSON.stringify({ status: 'error', message: err.message }), { 
+                status: 500, 
+                headers: { 'Content-Type': 'application/json' } 
+            });
+        }
+    }
+
     if (action === 'send_register_code') {
         const { results } = await env.DB.prepare("SELECT * FROM users WHERE email = ? AND password_hash IS NOT NULL").bind(email).all();
         
