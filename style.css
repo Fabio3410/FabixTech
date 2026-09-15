@@ -183,6 +183,7 @@ main {
     opacity: 0;
     pointer-events: none;
     transition: opacity 0.25s ease-in-out;
+    
 }
 
 .arrow:hover {
@@ -240,8 +241,16 @@ main {
     color: var(--light-color);
 }
 
-.prev { left: 12px; }
-.next { right: 12px; }
+.prev {
+    left: 12px; 
+    color: var(--text-main: #0f172a);
+}
+
+.next {
+    right: 12px;
+    color: var(--text-main: #0f172a);
+
+}
 
 .hero-grid {
     display: grid;
