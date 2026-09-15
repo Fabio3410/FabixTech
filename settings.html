@@ -43,7 +43,6 @@
                 ctx.drawImage(img, 0, 0, 150, 150);
 
                 const base64Image = canvas.toDataURL('image/jpeg', 0.8);
-
                 const response = await fetch('/api/auth', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -53,7 +52,15 @@
                         profile_picture: base64Image
                     })
                 });
-
+                
+                const contentType = response.headers.get('content-type');
+                if (!contentType || !contentType.includes('application/json')) {
+                    const errorHTML = await response.text();
+                    console.error('Serverantwort (kein JSON):', errorHTML);
+                    alert('Serverfehler beim Speichern. Bitte D1-Datenbank prüfen.');
+                    return;
+                }
+                
                 const result = await response.json();
 
                 if (result.status === 'success') {

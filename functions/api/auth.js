@@ -120,17 +120,21 @@ export async function onRequestPost(context) {
 
     if (action === 'update_avatar') {
         if (!email || !profile_picture) {
-            return new Response(JSON.stringify({ status: 'error', message: 'Fehlende Daten.' }));
+            return new Response(JSON.stringify({ status: 'error', message: 'Fehlende Daten.' }), { status: 400 });
         }
-        
-        await env.DB.prepare("UPDATE users SET profile_picture = ? WHERE email = ?")
-        .bind(profile_picture, email)
-        .run();
-        
-        return new Response(JSON.stringify({ 
-            status: 'success', 
-            message: 'Profilbild erfolgreich aktualisiert.' 
-        }));
+
+        try {
+            await env.DB.prepare("UPDATE users SET profile_picture = ? WHERE email = ?")
+                .bind(profile_picture, email)
+                .run();
+
+            return new Response(JSON.stringify({ status: 'success', message: 'Profilbild gespeichert.' }));
+        } catch (err) {
+            return new Response(JSON.stringify({ 
+                status: 'error', 
+                message: 'Datenbank-Fehler: ' + err.message 
+            }), { status: 500, headers: { 'Content-Type': 'application/json' } });
+        }
     }
 
     return new Response(JSON.stringify({ status: 'error', message: 'Ungültige Aktion.' }), { status: 400 });
