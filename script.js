@@ -197,24 +197,30 @@ function logoutUser() {
 function renderUserMenu() {
     const root = document.getElementById('user-menu-root');
     const userStr = localStorage.getItem('user');
-    
     if (userStr) {
         const user = JSON.parse(userStr);
         const textColor = stringToColor(user.email);
         const hasCustomImage = Boolean(user.profile_picture);
+        const defaultSvg = `
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="100%" height="100%">
+                <rect width="200" height="200" fill="#ffffff" />
+                <text x="50%" y="55%" dominant-baseline="middle" text-anchor="middle" fill="${textColor}" font-family="'Inter', sans-serif" font-weight="900" font-size="95" letter-spacing="-2">3D</text>
+            </svg>
+        `;
+
         const avatarContent = hasCustomImage 
-        ? `<img src="${user.profile_picture}" alt="Profilbild">`
-        : `<img src="/images/logo.svg" alt="3D Logo">`;
-        
+            ? `<img src="${user.profile_picture}" alt="Profilbild">`
+            : defaultSvg;
+
         root.innerHTML = `
-        <div class="avatar" style="color: ${textColor}; background-color: #ffffff;" onclick="toggleProfileMenu()">
-            ${avatarContent}
-        </div>
-        <div class="profile-dropdown" id="profileDropdown">
-            <a href="/settings.html">Kontoeinstellungen</a>
-            <a href="#" onclick="logoutUser()">Abmelden</a>
-        </div>
-    `;
+            <div class="avatar" style="background-color: #ffffff;" onclick="toggleProfileMenu()">
+                ${avatarContent}
+            </div>
+            <div class="profile-dropdown" id="profileDropdown">
+                <a href="/settings">Kontoeinstellungen</a>
+                <a href="#" onclick="logoutUser()">Abmelden</a>
+            </div>
+        `;
     } else {
         root.innerHTML = `
             <a href="/login" class="btn btn-primary" style="padding: 0.6rem 1.5rem; font-size: 1rem;">Anmelden</a>
