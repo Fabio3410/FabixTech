@@ -626,7 +626,8 @@ footer {
     .detail-left-side .tech-specs {
         width: 376px;
         max-width: 376px;
-
+    }
+    
     .color-slider-container {
         width: 100%;
         position: relative;
