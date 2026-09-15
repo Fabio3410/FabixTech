@@ -8,7 +8,26 @@ async function hashPassword(password) {
 export async function onRequestPost(context) {
     const { request, env } = context;
     const data = await request.json();
-    const { action, email, password, code, newPassword } = data;
+    const { action, email, password, code, newPassword, profile_picture } = data;
+
+    if (action === 'update_avatar') {
+        if (!email || !profile_picture) {
+            return new Response(JSON.stringify({ status: 'error', message: 'Fehlende Daten.' }), { status: 400 });
+        }
+
+        try {
+            await env.DB.prepare("UPDATE users SET profile_picture = ? WHERE email = ?")
+                .bind(profile_picture, email)
+                .run();
+
+            return new Response(JSON.stringify({ status: 'success', message: 'Profilbild gespeichert.' }));
+        } catch (err) {
+            return new Response(JSON.stringify({ 
+                status: 'error', 
+                message: 'Datenbank-Fehler: ' + err.message 
+            }), { status: 500, headers: { 'Content-Type': 'application/json' } });
+        }
+    }
 
     if (action === 'send_register_code') {
         const { results } = await env.DB.prepare("SELECT * FROM users WHERE email = ? AND password_hash IS NOT NULL").bind(email).all();
@@ -117,25 +136,5 @@ export async function onRequestPost(context) {
             return new Response(JSON.stringify({ status: 'error', message: 'Der Code ist falsch oder abgelaufen.' }));
         }
     }
-
-    if (action === 'update_avatar') {
-        if (!email || !profile_picture) {
-            return new Response(JSON.stringify({ status: 'error', message: 'Fehlende Daten.' }), { status: 400 });
-        }
-
-        try {
-            await env.DB.prepare("UPDATE users SET profile_picture = ? WHERE email = ?")
-                .bind(profile_picture, email)
-                .run();
-
-            return new Response(JSON.stringify({ status: 'success', message: 'Profilbild gespeichert.' }));
-        } catch (err) {
-            return new Response(JSON.stringify({ 
-                status: 'error', 
-                message: 'Datenbank-Fehler: ' + err.message 
-            }), { status: 500, headers: { 'Content-Type': 'application/json' } });
-        }
-    }
-
     return new Response(JSON.stringify({ status: 'error', message: 'Ungültige Aktion.' }), { status: 400 });
 }
