@@ -437,6 +437,10 @@ html {
     color: #0f172a;
 }
 
+#legal-checkbox {
+  accent-color: #d40202;
+}
+
 .checkout-button {
     width: 100%;
     color: white;
