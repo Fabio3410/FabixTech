@@ -10,13 +10,16 @@
         const savedTheme = localStorage.getItem('theme') || 'light';
         document.documentElement.setAttribute('data-theme', savedTheme);
 
-        function toggleDarkMode() {
-            const currentTheme = document.documentElement.getAttribute('data-theme');
-            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-        
-            document.documentElement.setAttribute('data-theme', newTheme);
-            localStorage.setItem('theme', newTheme);
+    function toggleDarkMode() {
+        const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+        const newTheme = isDark ? 'light' : 'dark';
+    
+        document.documentElement.setAttribute('data-theme', newTheme);
+        if (document.body) {
+            document.body.setAttribute('data-theme', newTheme);
         }
+        localStorage.setItem('theme', newTheme);
+    }
     </script>
     <style>
         .checkout-container {
