@@ -202,7 +202,7 @@ main {
     position: relative;
     width: 100%;
     aspect-ratio: 1/1;
-    background-color: #f4f5f7;
+    background-color: var(--bg-dark);
     border-radius: 10px 10px 0 0;
     overflow: hidden;
 }
@@ -228,7 +228,7 @@ main {
 }
 
 .variant-btn {
-    background-color: #eef2f5;
+    background-color: var(--bg-dark);
     border: 1.2px solid #dcdcdc;
     padding: 7px 14px;
     border-radius: 7px;
@@ -245,7 +245,7 @@ main {
 }
 
 .variant-btn.active {
-    background-color: #eef2f5;
+    background-color: var(--bg-dark);
     border-color: var(--light-color);
     font-weight: bold;
     color: var(--light-color);
@@ -376,7 +376,7 @@ main {
     font-weight: 600;
     text-transform: uppercase;
     background-color: #f1f5f9;
-    border: 1.2px solid var(--border-color);
+    border: 1.2px solid #0f172a;
     padding: 0.36rem 0.84rem;
     border-radius: 5px;
     color: var(--text-main);
@@ -551,7 +551,7 @@ main {
 }
 
 .product-link {
-    color: black;
+    color: var(--text-main);
     text-decoration: none;
     cursor: pointer;
 }
