@@ -14,6 +14,7 @@
     --border-color: #e2e8f0;  
     --shadow-sm: 0 2.4px 4.8px rgba(0,0,0,0.02);
     --shadow-md: 0 12px 30px rgba(15, 23, 42, 0.08);
+    --btn-buy: #cccccc;
 }
 
 html[data-theme="dark"] {
@@ -21,7 +22,8 @@ html[data-theme="dark"] {
     --bg-card: #1e293b;        
     --text-main: #f8fafc;
     --text-muted: #94a3b8;    
-    --border-color: #334155;  
+    --border-color: #334155;
+    --btn-buy: #f8fafc;
 }
 
 html {
@@ -194,10 +196,6 @@ main {
     
 }
 
-.arrow:hover {
-    background-color: var(--bg-dark);
-}
-
 .slider-container {
     position: relative;
     width: 100%;
@@ -239,7 +237,6 @@ main {
 }
 
 .variant-btn:hover {
-    background-color: #eef2f5;
     border-color: var(--light-color);
     color: var(--light-color);
 }
@@ -671,7 +668,7 @@ main {
 }
 
 .btn-buy:disabled {
-    background-color: #cccccc !important;
+    background-color: var(--btn-buy) !important;
     color: #666666 !important;
     cursor: not-allowed !important;
     transform: none !important;
