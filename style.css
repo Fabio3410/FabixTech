@@ -44,7 +44,7 @@ main {
     top: 0;
     width: 100%;
     height: 85px;
-    background-color: white;
+    background-color: var(--bg-card);
     border-bottom: 1.2px solid var(--border-color);
     z-index: 1000;
     box-shadow: var(--shadow-sm);
@@ -908,7 +908,7 @@ main {
 }
 
 .checkout-button {
-    color: white;
+    color: var(--text-main);
     background-color: var(--light-color);
     border: none;
     padding: 14px 29px;

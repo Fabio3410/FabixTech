@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Einstellungen | Fabio3D</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="input-group">
@@ -15,14 +16,15 @@
     </div>
 
     <script>
-    
     function toggleDarkMode() {
-        const isDark = document.body.getAttribute('data-theme') === 'dark';
-        document.body.setAttribute('data-theme', isDark ? 'light' : 'dark');
-        localStorage.setItem('theme', isDark ? 'light' : 'dark');
+        const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+        const newTheme = isDark ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-theme', newTheme);
+        localStorage.setItem('theme', newTheme);
     }
-    if(localStorage.getItem('theme') === 'dark') {
-        document.body.setAttribute('data-theme', 'dark');
+    
+    if (localStorage.getItem('theme') === 'dark') {
+        document.documentElement.setAttribute('data-theme', 'dark');
     }
 
     async function deleteAvatar() {
