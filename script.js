@@ -1,3 +1,7 @@
+if (localStorage.getItem('theme') === 'dark') {
+        document.documentElement.setAttribute('data-theme', 'dark');
+    }
+
 const stockPromise = fetch(`/api/get-all-stocks?t=${Date.now()}`)
     .then(res => res.ok ? res.json() : [])
     .catch(err => {

@@ -123,6 +123,10 @@
 </div>
 
 <script>
+if (localStorage.getItem('theme') === 'dark') {
+        document.documentElement.setAttribute('data-theme', 'dark');
+    }
+
 async function sendVerification() {
     const email = document.getElementById('regEmail').value;
     
