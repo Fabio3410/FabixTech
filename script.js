@@ -1,3 +1,12 @@
+function applySavedTheme() {
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+}
+
+applySavedTheme();
+window.addEventListener('pageshow', applySavedTheme);
+window.addEventListener('storage', applySavedTheme);
+
 const stockPromise = fetch(`/api/get-all-stocks?t=${Date.now()}`)
     .then(res => res.ok ? res.json() : [])
     .catch(err => {
