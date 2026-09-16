@@ -16,14 +16,11 @@
     </div>
 
     <script>    
-    const savedTheme = localStorage.getItem('theme') || 'light';
-    document.documentElement.setAttribute('data-theme', savedTheme);
-
     function toggleDarkMode() {
-        const currentTheme = document.documentElement.getAttribute('data-theme');
-        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-        
-        document.documentElement.setAttribute('data-theme', newTheme);
+        const html = document.documentElement;
+        const currentTheme = html.getAttribute('data-theme');
+        const newTheme = (currentTheme === 'dark') ? 'light' : 'dark';
+        html.setAttribute('data-theme', newTheme);
         localStorage.setItem('theme', newTheme);
     }
 
