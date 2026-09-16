@@ -92,7 +92,7 @@ function updateCartUI() {
 
             itemRow.innerHTML = `
                 <div style="display: flex; flex-direction: column; flex-grow: 1; text-align: left; margin-right: 10px;">
-                    <span style="font-weight: 500; color: #333333; font-size: 15px;">${item.name || 'Unbekanntes Produkt'}</span>
+                    <span style="font-weight: 500; color: var(--text-main); font-size: 15px;">${item.name || 'Unbekanntes Produkt'}</span>
                     <span style="font-size: 12px; color: #777777; margin-top: 2px;">
                         Variante: ${item.variant || 'Standard'} 
                         <span style="color: #d40202; font-weight: bold; margin-left: 6px;">(x${menge})</span>
@@ -106,7 +106,7 @@ function updateCartUI() {
                     </span>
                 </div>
                 <button class="remove-btn" onclick="removeFromCart(${index})" style="align-self: center;">
-                    <img src="/images/delete-icon.svg" alt="delete">
+                    <img class="dark-invert" src="/images/delete-icon.svg" alt="delete">
                 </button>
                 <style>
                     .trash-icon {

@@ -26,6 +26,10 @@ html[data-theme="dark"] {
     --btn-buy: #f8fafc;
 }
 
+html[data-theme="dark"] img.dark-invert {
+    filter: brightness(0) invert(1);
+}
+
 html {
     scroll-behavior: smooth;
     font-family: 'Inter', sans-serif;
@@ -902,6 +906,10 @@ main {
 
 .legal-container a:hover {
     text-decoration: underline;
+}
+
+.legal-text {
+    color: var(--text-main);
 }
 
 .checkout-button {
