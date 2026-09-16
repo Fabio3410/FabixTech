@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Einstellungen | Fabio3D</title>
 </head>
 <body>
     <div class="input-group">
@@ -11,9 +11,20 @@
         <input type="file" id="avatarInput" accept="image/png, image/jpeg">
         <button type="button" onclick="deleteAvatar()" class="btn-danger">Bild löschen</button>
         <button type="button" onclick="uploadAvatar()" class="btn-action">Bild speichern</button>
+        <button type="button" onclick="toggleDarkMode()" class="theme-btn">Dark mode</button>
     </div>
 
     <script>
+    
+    function toggleDarkMode() {
+        const isDark = document.body.getAttribute('data-theme') === 'dark';
+        document.body.setAttribute('data-theme', isDark ? 'light' : 'dark');
+        localStorage.setItem('theme', isDark ? 'light' : 'dark');
+    }
+    if(localStorage.getItem('theme') === 'dark') {
+        document.body.setAttribute('data-theme', 'dark');
+    }
+
     async function deleteAvatar() {
         const userStr = localStorage.getItem('user');
         if (!userStr) {

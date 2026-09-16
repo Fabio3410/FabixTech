@@ -16,6 +16,14 @@
     --shadow-md: 0 12px 30px rgba(15, 23, 42, 0.08);
 }
 
+[data-theme="dark"] {
+    --bg-dark: #0f172a;        
+    --bg-card: #1e293b;        
+    --text-main: #f8fafc;
+    --text-muted: #94a3b8;    
+    --border-color: #334155;  
+}
+
 html {
     scroll-behavior: smooth;
     font-family: 'Inter', sans-serif;
@@ -554,7 +562,7 @@ main {
 }
 
 .tech-specs {
-    background: #f8fafc;
+    background: var(--bg-dark);
     border-radius: 7px;
     padding: 0.96rem;
     margin-bottom: 1.8rem;
@@ -820,7 +828,7 @@ main {
     justify-content: space-between;
     margin-bottom: 1.2rem;
     padding: 0.96rem;
-    background: #f8fafc;
+    background: var(--bg-dark);
     border-radius: 7px;
     border: 1.2px solid var(--border-color);
 }
@@ -841,7 +849,7 @@ main {
 .cart-summary-box {
     margin-top: 20px;
     padding-top: 10px;
-    border-top: 1px solid #e2e8f0;
+    border-top: 1px solid var(--border-color);
 }
 
 .summary-row {
@@ -858,7 +866,7 @@ main {
 
 .shipping-row {
     font-size: 14px;
-    color: #64748b;
+    color: var(--text-muted);
 }
 
 .summary-divider {
@@ -869,7 +877,7 @@ main {
 
 .total-row {
     font-size: 18px;
-    color: #0f172a;
+    color: var(--text-main);
 }
 
 .legal-container {
@@ -886,11 +894,11 @@ main {
 }
 
 #legal-checkbox {
-  accent-color: #d40202;
+  accent-color: var(--light-color);
 }
 
 .legal-container a {
-    color: #d40202;
+    color: var(--light-color);
     text-decoration: none;
     font-weight: bold;
 }
@@ -930,7 +938,7 @@ footer {
     font-size: 1.08rem;
     border-top: 1.2px solid var(--border-color);
     margin-top: 7.2rem;
-    background-color: #ffffff;
+    background-color: var(--bg-card);
     user-select: none;
 }
 
@@ -978,7 +986,7 @@ footer {
     align-items: center;
     justify-content: center;
     overflow: hidden;
-    background-color: #ffffff;
+    background-color: var(--bg-card);
     transition: transform 0.2s, box-shadow 0.2s;
 }
 
