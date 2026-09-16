@@ -6,6 +6,18 @@
     <title>Checkout | Fabio3D</title>
     <link rel="icon" type="image/png" href="images/favicon.png">
     <script src="https://js.stripe.com/v3/"></script>
+    <script>
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+
+        function toggleDarkMode() {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+        
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+        }
+    </script>
     <style>
         .checkout-container {
             max-width: 900px;
@@ -31,17 +43,6 @@
         document.addEventListener('DOMContentLoaded', () => {
             initCheckoutPage();
         });
-        
-        const savedTheme = localStorage.getItem('theme') || 'light';
-        document.documentElement.setAttribute('data-theme', savedTheme);
-
-        function toggleDarkMode() {
-            const currentTheme = document.documentElement.getAttribute('data-theme');
-            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-        
-            document.documentElement.setAttribute('data-theme', newTheme);
-            localStorage.setItem('theme', newTheme);
-        }
     </script>
 </body>
 </html>
