@@ -197,7 +197,7 @@ main {
     opacity: 0;
     pointer-events: none;
     transition: opacity 0.25s ease-in-out;
-    
+    color: var(--text-main);
 }
 
 .slider-container {

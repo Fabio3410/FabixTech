@@ -196,6 +196,7 @@ html {
 
 .product-card-detail-view:hover .arrow {
     opacity: 1;
+    pointer-events: auto;
 }
 
 .slider-container {
