@@ -1,7 +1,7 @@
 body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    background-color: #f8f9fa;
-    color: #333333;
+    background-color: var(--bg-dark);
+    color: var(--text-main);
     margin: 0;
     padding: 0;
     overflow-x: hidden;
@@ -70,6 +70,7 @@ html {
 .cart-icon {
     cursor: pointer;
     background: var(--bg-card);
+    color: var(--text-main);
     padding: 0.5rem 1rem;
     border-radius: 20px;
     border: 1px solid var(--border-color);
@@ -191,6 +192,10 @@ html {
 
 .arrow.prev {
     left: 0;
+}
+
+.product-card-detail-view:hover .arrow {
+    opacity: 1;
 }
 
 .slider-container {
@@ -430,7 +435,7 @@ html {
 
 .subtotal-row {
     font-size: 14px;
-    color: #475569;
+    color: var(--text-muted);
 }
 
 .shipping-row {

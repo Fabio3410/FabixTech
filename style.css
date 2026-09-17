@@ -861,7 +861,7 @@ main {
 
 .subtotal-row {
     font-size: 14px;
-    color: #475569;
+    color: var(--text-muted);
 }
 
 .shipping-row {
