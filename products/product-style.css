@@ -110,7 +110,7 @@ html {
     font-weight: 800;
     margin-top: 0;
     margin-bottom: 10px;
-    color: #000000;
+    color: var(--text-main)
 }
 
 .detail-left-side {
@@ -150,7 +150,7 @@ html {
 
 .spec {
     font-size: 14px;
-    color: #333;
+    color: var(--text-main);
 }
 
 .product-info {
@@ -171,20 +171,18 @@ html {
     position: absolute;
     top: 50%;
     transform: translateY(-50%);
-    background-color: rgba(255, 255, 255, 0.7);
+    background-color: var(--bg-card);
     border: none;
-    font-size: 20px;
-    padding: 10px 14px;
+    font-size: 24px;
+    padding: 12px 17px;
     cursor: pointer;
     border-radius: 50%;
     user-select: none;
     transition: background 0.2s;
     z-index: 10;
-    color: var(--text-main);
-}
-
-.arrow:hover {
-    background-color: rgba(255, 255, 255, 1);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s ease-in-out;
 }
 
 .arrow.next {
@@ -234,7 +232,7 @@ html {
 .product-info h4 {
     margin: 0 0 12px 0;
     font-size: 16px;
-    color: #000;
+    color: var(--text-main);
 }
 
 .color-slider-container {
@@ -311,16 +309,16 @@ html {
     top: 50%;
     transform: translateY(-50%);
     z-index: 10;
-    background: rgba(255, 255, 255, 0.9);
-    border: 1px solid #ced4da;
+    background: var(--bg-card);
+    border: 1.2px solid #ced4da;
     border-radius: 50%;
-    width: 26px;
-    height: 26px;
-    font-size: 11px;
+    width: 31px;
+    height: 31px;
+    font-size: 13px;
     cursor: pointer;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1); 
+    box-shadow: 0 2.4px 4.8px rgba(0,0,0,0.1); 
     opacity: 0;
     pointer-events: none;
     transition: opacity 0.2s ease, background 0.2s;
@@ -328,11 +326,11 @@ html {
 }
 
 .nav-arrow.left {
-    left: 5px;
+    left: 6px; 
 }
 
 .nav-arrow.right { 
-    right: 5px; 
+    right: 6px; 
 }
 
 .product-card:hover .nav-arrow {
@@ -453,6 +451,10 @@ html {
 
 #legal-checkbox {
   accent-color: var(--light-color);
+}
+
+.legal-text {
+    color: var(--text-main);
 }
 
 .checkout-button {
