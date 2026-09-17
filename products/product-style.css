@@ -50,12 +50,11 @@ html {
     position: fixed;
     top: 0;
     width: 100%;
-    background-color: rgba(255, 255, 255, 0.85);
-    backdrop-filter: blur(10px);
-    border-bottom: 1px solid var(--border-color);
+    height: 85px;
+    background-color: var(--bg-card);
+    border-bottom: 1.2px solid var(--border-color);
     z-index: 1000;
     box-shadow: var(--shadow-sm);
-    height: 85px;
 }
 
 .nav-container {
@@ -138,7 +137,7 @@ html {
 }
 
 .tech-specs {
-    background-color: #f8f9fa;
+    background: var(--bg-dark);
     border-left: 4px solid var(--dark-color);
     padding: 15px;
     border-radius: 0 6px 6px 0;
@@ -201,7 +200,7 @@ html {
     max-width: 100%;
     width: 100%;
     height: auto;
-    background-color: #f4f5f7;
+    background-color: var(--bg-dark);
     border-radius: 8px;
     overflow: hidden;
     aspect-ratio: 1 / 1;
@@ -264,26 +263,25 @@ html {
 }
 
 .variant-btn {
-    background-color: #eef2f5;
-    border: 1px solid #dcdcdc;
-    border-radius: 6px;
-    padding: 8px 14px;
-    font-size: 13px;
-    font-weight: 500;
+    background-color: var(--bg-dark);
+    border: 1.2px solid #dcdcdc;
+    padding: 7px 14px;
+    border-radius: 7px;
     cursor: pointer;
-    white-space: nowrap;
+    font-size: 16px;
     transition: all 0.2s ease;
     color: var(--text-main);
 }
 
 .variant-btn:hover {
-    background-color: #eef2f5;
     border-color: var(--light-color);
+    color: var(--light-color);
 }
 
 .variant-btn.active {
-    background-color: var(--bg-card);
-    border: 1px solid var(--light-color);
+    background-color: var(--bg-dark);
+    border-color: var(--light-color);
+    font-weight: bold;
     color: var(--light-color);
 }
 
@@ -486,28 +484,27 @@ html {
     gap: 6px;
     font-size: 24px;
     font-weight: 800;
-    color: #000;
+    color: var(--text-main);
 }
 
 .btn-buy {
-    background-color: var(--bg-card);
-    border: 1px solid var(--light-color);
+    background-color: transparent;
     color: var(--light-color);
-    padding: 10px 20px;
-    font-size: 14px;
+    border: 1.2px solid var(--light-color);
+    padding: 0.72rem 1.44rem;
+    border-radius: 5px;
     font-weight: 600;
-    border-radius: 6px;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: all 0.2s;
 }
 
 .btn-buy:hover {
-    background-color: var(--light-color);;
+    background-color: var(--light-color);
     color: #ffffff;
 }
 
 .btn-buy:disabled {
-    background-color: #cccccc !important;
+    background-color: var(--btn-buy) !important;
     color: #666666 !important;
     cursor: not-allowed !important;
     transform: none !important;
