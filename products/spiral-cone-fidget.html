@@ -6,6 +6,10 @@
     <title>Spiral Cone Fidget</title>
     <link rel="icon" type="image/png" href="../images/favicon.png">
     <link rel="stylesheet" href="product-style.css">
+    <script>
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+    </script>
     <script src="../alert.js" defer></script>
     <script src="../cart.js" defer></script>
     <script src="../script.js" defer></script>
