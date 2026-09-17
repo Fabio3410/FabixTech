@@ -10,13 +10,26 @@ body {
 :root {
     --bg-dark: #f8fafc;       
     --bg-card: #ffffff;       
-    --accent-cyan: #960505;   
-    --accent-blue: #d40202;   
+    --dark-color: #960505;   
+    --light-color: #d40202;   
     --text-main: #0f172a;
     --text-muted: #64748b;    
     --border-color: #e2e8f0;  
     --shadow-sm: 0 2px 4px rgba(0,0,0,0.02);
     --shadow-md: 0 10px 25px rgba(15, 23, 42, 0.08);
+}
+
+html[data-theme="dark"] {
+    --bg-dark: #0f172a;        
+    --bg-card: #1e293b;        
+    --text-main: #f8fafc;
+    --text-muted: #94a3b8;    
+    --border-color: #334155;
+    --btn-buy: #f8fafc;
+}
+
+html[data-theme="dark"] img.dark-invert {
+    filter: brightness(0) invert(1);
 }
 
 html {
@@ -71,7 +84,7 @@ html {
 }
 
 .docs a {
-    color: #d40202;
+    color: var(--light-color);
     text-decoration: none;
     font-weight: 600;
     font-size: 20px;
@@ -82,7 +95,7 @@ html {
 }
 
 .product-card-detail-view {
-    background-color: #ffffff;
+    background-color: var(--bg-card);
     border-radius: 12px;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
     padding: 30px;
@@ -126,7 +139,7 @@ html {
 
 .tech-specs {
     background-color: #f8f9fa;
-    border-left: 4px solid #960505;
+    border-left: 4px solid var(--dark-color);
     padding: 15px;
     border-radius: 0 6px 6px 0;
     display: flex;
@@ -150,7 +163,7 @@ html {
 .prod-category {
     font-size: 12px;
     text-transform: uppercase;
-    color: #d40202;
+    color: var(--light-color);
     font-weight: 700;
     margin-bottom: 15px;
 }
@@ -265,13 +278,13 @@ html {
 
 .variant-btn:hover {
     background-color: #eef2f5;
-    border-color: #d40202;
+    border-color: var(--light-color);
 }
 
 .variant-btn.active {
-    background-color: #ffffff;
-    border: 1px solid #d40202;
-    color: #d40202;
+    background-color: var(--bg-card);
+    border: 1px solid var(--light-color);
+    color: var(--light-color);
 }
 
 .product-footer {
@@ -380,7 +393,7 @@ html {
     justify-content: space-between;
     margin-bottom: 1rem;
     padding: 0.8rem;
-    background: #f8fafc;
+    background: var(--bg-dark);
     border-radius: 6px;
     border: 1px solid var(--border-color);
 }
@@ -409,7 +422,7 @@ html {
 .cart-summary-box {
     margin-top: 20px;
     padding-top: 10px;
-    border-top: 1px solid #e2e8f0;
+    border-top: 1px solid var(--border-color);
 }
 
 .summary-row {
@@ -426,7 +439,7 @@ html {
 
 .shipping-row {
     font-size: 14px;
-    color: #64748b;
+    color: var(--text-muted);
 }
 
 .summary-divider {
@@ -437,17 +450,17 @@ html {
 
 .total-row {
     font-size: 18px;
-    color: #0f172a;
+    color: var(--text-main);
 }
 
 #legal-checkbox {
-  accent-color: #d40202;
+  accent-color: var(--light-color);
 }
 
 .checkout-button {
     width: 100%;
     color: white;
-    background-color: var(--accent-blue);
+    background-color: var(--light-color);
     border: none;
     padding: 12px 24px;
     font-size: 16px;
@@ -477,9 +490,9 @@ html {
 }
 
 .btn-buy {
-    background-color: #ffffff;
-    border: 1px solid #d40202;
-    color: #d40202;
+    background-color: var(--bg-card);
+    border: 1px solid var(--light-color);
+    color: var(--light-color);
     padding: 10px 20px;
     font-size: 14px;
     font-weight: 600;
@@ -489,7 +502,7 @@ html {
 }
 
 .btn-buy:hover {
-    background-color: var(--accent-blue);
+    background-color: var(--light-color);;
     color: #ffffff;
 }
 
@@ -523,7 +536,7 @@ html {
 }
 
 .custom-alert-box {
-    background: #ffffff;
+    background: var(--bg-card);
     padding: 28px 24px 20px 24px;
     border-radius: 20px;
     box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.15);
@@ -542,7 +555,7 @@ html {
     margin: 0 0 10px 0;
     font-size: 19px;
     font-weight: 700;
-    color: #0f172a;
+    color: var(--text-main);
 }
 
 .custom-alert-box p {
@@ -553,7 +566,7 @@ html {
 }
 
 .custom-alert-box button {
-    background-color: #d40202;
+    background-color: var(--light-color);
     color: #ffffff;
     border: none;
     padding: 12px 24px;
@@ -565,7 +578,7 @@ html {
 }
 
 .custom-alert-box button:hover {
-    background-color: #960505;
+    background-color: var(--dark-color);
 }
 
 footer {
@@ -576,7 +589,7 @@ footer {
     font-size: 0.9rem;
     border-top: 1px solid var(--border-color);
     margin-top: 6rem;
-    background-color: #ffffff;
+    background-color: var(--bg-card);
 }
 
 .footer-links {
@@ -592,7 +605,7 @@ footer {
 }
 
 .footer-links a:hover {
-    color: var(--accent-blue);
+    color: var(--light-color);
 }
 
 @media (max-width: 768px) {
