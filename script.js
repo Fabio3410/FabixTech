@@ -14,65 +14,8 @@ const stockPromise = fetch(`/api/get-all-stocks?t=${Date.now()}`)
         return [];
     });
 
-function getPageIdFromPath() {
-    const path = window.location.pathname.replace(/^\//, '').trim();
-    return (path === '' || path === 'home' || path === 'index.html') ? 'home' : path;
-}
-
-function switchPage(pageId, updateHistory = true) {
-    if (!pageId) pageId = 'home';
-    document.querySelectorAll('.page-section').forEach(section => section.classList.remove('active'));
-    const activePage = document.getElementById(`${pageId}-page`);
-    if (activePage) {
-        activePage.classList.add('active');
-    }
-    document.querySelectorAll('.nav-link, .nav-links a').forEach(link => {
-        link.classList.remove('active');
-        const href = (link.getAttribute('href') || '').trim();
-        const dataPage = link.getAttribute('data-page');
-        const cleanHref = href.replace(/^[\/#]/, '').trim();
-        const isHomeMatch = (pageId === 'home') && (
-            href === '/' || href === '' || href === '#' || href === './' || 
-            cleanHref === 'home' || cleanHref === 'index.html'
-        );
-        const isPageMatch = (dataPage === pageId) || (cleanHref === pageId);
-
-        if (isHomeMatch || isPageMatch) {
-            link.classList.add('active');
-        }
-    });
-    if (updateHistory) {
-        const newUrl = pageId === 'home' ? '/' : `/${pageId}`;
-        if (window.location.pathname !== newUrl) {
-            history.pushState({ pageId: pageId }, '', newUrl);
-        }
-    }
-
-    window.scrollTo(0, 0);
-}
-
 document.addEventListener('DOMContentLoaded', () => {
-    document.querySelectorAll('.nav-link, .nav-links a').forEach(link => {
-        link.addEventListener('click', (e) => {
-            const href = link.getAttribute('href') || '';
-            const dataPage = link.getAttribute('data-page');
-            if (href.startsWith('http') || href.startsWith('https')) return;
-            e.preventDefault();
-            let targetPage = dataPage;
-            if (!targetPage) {
-                const cleanHref = href.replace(/^[\/#]/, '').trim();
-                targetPage = (cleanHref === '' || cleanHref === 'home' || cleanHref === 'index.html') ? 'home' : cleanHref;
-            }
-            switchPage(targetPage);
-        });
-    });
-    switchPage(getPageIdFromPath(), false);
-    
     fetchAllStocks();
-});
-
-window.addEventListener('popstate', () => {
-    switchPage(getPageIdFromPath(), false);
 });
 
 document.addEventListener('click', (event) => {
@@ -226,13 +169,13 @@ function renderUserMenu() {
                 ${avatarContent}
             </div>
             <div class="profile-dropdown" id="profileDropdown">
-                <a href="/settings">Kontoeinstellungen</a>
+                <a href="settings">Kontoeinstellungen</a>
                 <a href="#" onclick="logoutUser()">Abmelden</a>
             </div>
         `;
     } else {
         root.innerHTML = `
-            <a href="/login" class="btn btn-primary" style="padding: 0.6rem 1.5rem; font-size: 1rem;">Anmelden</a>
+            <a href="login" class="btn btn-primary" style="padding: 0.6rem 1.5rem; font-size: 1rem;">Anmelden</a>
         `;
     }
 }
