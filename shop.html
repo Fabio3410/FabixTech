@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home | Fabio3D</title>
+    <link rel="icon" type="image/png" href="images/favicon.png">
+    <link rel="stylesheet" href="style.css">
+    <script>
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+
+        function toggleDarkMode() {
+            const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+            const newTheme = isDark ? 'light' : 'dark';
+    
+            document.documentElement.setAttribute('data-theme', newTheme);
+            if (document.body) {
+                document.body.setAttribute('data-theme', newTheme);
+            }
+            localStorage.setItem('theme', newTheme);
+        }
+    </script>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="home" class="logo" onclick="switchPage('home')">FABIO<span class="gradient-text">3D</span></a>
+            <ul class="nav-links">
+                <li><a class="nav-link active" href="/home" onclick="switchPage('home'); return false;">Home</a></li>
+                <li><a class="nav-link" href="/shop" onclick="switchPage('shop'); return false;">Shop</a></li>
+                <li><a class="nav-link" href="/about" onclick="switchPage('about'); return false;">Über mich</a></li>
+                <li><a class="nav-link" href="/contact" onclick="switchPage('contact'); return false;">Kontakt</a></li>
+                <li><a class="nav-link" href="/impressum" onclick="switchPage('impressum'); return false;">Impressum</a></li>
+            </ul>
+            <div class="cart-icon" onclick="toggleCart()">
+                <i class="fa-solid fa-cart-shopping"></i> <span id="cart-count">0</span>
+            </div>
+            <div id="user-menu-root" class="user-menu-container"></div>
+        </div>
+    </nav>
+    <main>
+        <section id="shop-page" class="page-section">
+            <div class="shop-header">
+                <h2>Verfügbare <span class="gradient-text">Produkte</span></h2>
+                <p>Hier siehst du meine aktuelle Angebote.</p>
+            </div> 
+                <div class="product-grid">
+                    <div class="product-card">
+                        <div class="slider-container">
+                            <div class="slides">
+                                <a href="products/gandalf-staff" class="product-img-link">
+                                    <img class="product-img" 
+                                        src="images/Gandalf-1.png" 
+                                        data-images="images/Gandalf-1.png, images/Gandalf-2.png, images/Gandalf-3.png"
+                                        data-index="0"
+                                        alt="Gandalf Staff">
+                                </a>
+                            </div>
+                            <button class="arrow prev" id="slides-arrow">&#10094;</button>
+                            <button class="arrow next" id="slides-arrow">&#10095;</button>
+                        </div>
+                        <div class="product-info">
+                            <span class="prod-category">Deko / Spielzeug</span>
+                            <h3><a href="products/gandalf-staff" class="product-link">Gandalf The White Staff</a><br><div class="docs"><a href="https://www.thingiverse.com/thing:6801000">by sarahperdue5</a></div></h3>
+                            <h4><strong>Varianten</strong></h4>
+                            <div class="color-slider-container">
+                                <button type="button" class="nav-arrow left" onclick="scrollSlider(this, -1)">&#10094;</button>
+                                <button type="button" class="nav-arrow right" onclick="scrollSlider(this, 1)">&#10095;</button>
+                                <div class="color-slider-track">
+                                    <button class="variant-btn active" data-variant-images="images/Gandalf-1.png, images/Gandalf-2.png" data-price="39.95" data-id="gandalf_staff_mit_beleuchtung" onclick="jumpToSlide(this, 0); updatePrice(this)">Mit Beleuchtung (3 LEDs)</button>
+                                    <button class="variant-btn" data-variant-images="images/Gandalf-1.png, images/Gandalf-2.png" data-price="24.95" data-id="gandalf_staff_ohne_beleuchtung" onclick="jumpToSlide(this, 1); updatePrice(this)">Ohne Beleuchtung</button>
+                                </div>
+                            </div>
+                            <div class="product-footer">
+                                <span class="currency">CHF </span><span class="price">39,95</span>
+                                <button class="btn-buy" data-id="gandalf_staff_mit_beleuchtung" onclick="addProductFromCard(this)">In den Warenkorb</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="product-card">
+                        <div class="slider-container">
+                            <div class="slides">
+                               <a href="products/spiral-cone-fidget" class="product-img-link">
+                                    <img class="product-img" 
+                                        src="images/spiral_fidget_schwarz_rot_1.png" 
+                                        data-images="images/spiral_fidget_schwarz_rot_1.png, images/spiral_fidget_schwarz_rot_2.png, images/spiral_fidget_schwarz_gelb_1.png, images/spiral_fidget_schwarz_gelb_2.png, images/spiral_fidget_schwarz_weiss_1.png, images/spiral_fidget_schwarz_weiss_2.png, images/spiral_fidget_rot_weiss_1.png, images/spiral_fidget_rot_weiss_2.png"
+                                        data-index="0"
+                                        alt="Spiral-Cone Fidget">
+                                </a>
+                            </div>
+                            <button class="arrow prev" id="slides-arrow">&#10094;</button>
+                            <button class="arrow next" id="slides-arrow">&#10095;</button>
+                        </div>
+                        <div class="product-info">
+                            <span class="prod-category">Spielzeug</span>
+                            <h3><a href="products/spiral-cone-fidget" class="product-link">Spiral Cone Fidget</a><br><div class="docs"><a href="https://www.printables.com/model/1333478-spiral-cone-fidget">by rangido</a></div></h3>
+                            <h4><strong>Farbvarianten</strong></h4>
+                            <div class="color-slider-container">
+                                <button type="button" class="nav-arrow left" onclick="scrollSlider(this, -1)">&#10094;</button>
+                                <button type="button" class="nav-arrow right" onclick="scrollSlider(this, 1)">&#10095;</button>
+                                <div class="color-slider-track">
+                                    <button class="variant-btn active" data-variant-images="images/spiral_fidget_schwarz_rot_1.png, images/spiral_fidget_schwarz_rot_2.png" data-id="spiral_cone_schwarz_rot" onclick="jumpToSlide(this, 0)">Schwarz/Rot</button>
+                                    <button class="variant-btn" data-variant-images="images/spiral_fidget_schwarz_gelb_1.png, images/spiral_fidget_schwarz_gelb_2.png" data-id="spiral_cone_schwarz_gelb" onclick="jumpToSlide(this, 1)">Schwarz/Gelb</button>
+                                    <button class="variant-btn" data-variant-images="images/spiral_fidget_schwarz_weiss_1.png, images/spiral_fidget_schwarz_weiss_2.png" data-id="spiral_cone_schwarz_weiss" onclick="jumpToSlide(this, 2)">Schwarz/Weiss</button>
+                                    <button class="variant-btn" data-variant-images="images/spiral_fidget_rot_weiss_1.png, images/spiral_fidget_rot_weiss_2.png" data-id="spiral_cone_rot_weiss" onclick="jumpToSlide(this, 3)">Rot/Weiss</button>
+                                </div>
+                            </div>
+                            <div class="product-footer">
+                                <span class="currency">CHF </span><span class="price">1,95</span>
+                                <button class="btn-buy" data-id="spiral_cone_schwarz_rot" onclick="addProductFromCard(this)">In den Warenkorb</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="product-card">
+                        <div class="slider-container">
+                            <div class="slides">
+                                <a href="products/product.html?id=articulated_snake" class="product-img-link">
+                                    <img class="product-img" 
+                                        src="images/Snake-1.png" 
+                                        data-images="images/Snake-1.png, images/Snake-2.png, images/Snake-3.png"
+                                        data-index="0"
+                                        alt="Articulated Snake">
+                                </a>
+                            </div>
+                            <button class="arrow prev" id="slides-arrow">&#10094;</button>
+                            <button class="arrow next" id="slides-arrow">&#10095;</button>
+                        </div>
+                        <div class="product-info">
+                            <span class="prod-category">Spielzeug</span>
+                            <h3><a href="products/product.html?id=articulated_snake" class="product-link">Gelenkschlange</a><br><div class="docs"><a href="https://www.thingiverse.com/thing:6503946">by BrianBu</a></div></h3>
+                            <h4><strong>Varianten</strong></h4>
+                            <div class="color-slider-container hide">
+                                <button type="button" class="nav-arrow left" id="nav-arrow" onclick="scrollSlider(this, -1)">&#10094;</button>
+                                <button type="button" class="nav-arrow right" id="nav-arrow" onclick="scrollSlider(this, 1)">&#10095;</button>
+                                <div class="color-slider-track">
+                                    <button class="variant-btn active" data-variant-images="images/Gandalf-1.png, images/Gandalf-2.png" data-id="articulated_snake_gruen" data-price="1.45" onclick="jumpToSlide(this, 0); updatePrice(this)">Grün</button>
+                                    <button class="variant-btn" data-variant-images="images/Gandalf-1.png, images/Gandalf-2.png" data-id="articulated_snake_gelb" data-price="1.45" onclick="jumpToSlide(this, 1); updatePrice(this)">Gelb</button>
+                                    <button class="variant-btn" data-variant-images="images/Gandalf-2.png, images/Gandalf-3.png" data-id="articulated_snake_schwarz" data-price="1.45" onclick="jumpToSlide(this, 1); updatePrice(this)">Schwarz</button>
+                                </div>
+                            </div>
+                            <div class="product-footer">
+                                <span class="currency">CHF </span><span class="price">1,45</span>
+                                <button class="btn-buy" data-id="articulated_snake_gruen" onclick="addProductFromCard(this)">In den Warenkorb</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+        </section>
+    </main>
+
+    <div id="cart-sidebar" class="sidebar">
+        <div class="sidebar-header">
+            <h3>Dein Warenkorb</h3>
+            <span class="close-btn" onclick="toggleCart()">&times;</span>
+        </div>
+        <div id="cart-items-container">
+            <p class="empty-msg">Dein Warenkorb ist noch leer.</p>
+        </div>
+        <div class="sidebar-footer">
+            <div class="cart-summary-box">
+                <div class="summary-row subtotal-row">
+                    <span>Zwischensumme:</span>
+                    <span id="cart-subtotal">CHF 0.00</span>
+                </div>
+                <div class="summary-row shipping-row">
+                    <span>Versand:</span>
+                    <span id="cart-shipping">CHF 5.70</span>
+                </div>
+                <hr class="summary-divider">
+                <div class="summary-row total-row">
+                    <strong>Gesamtsumme:</strong>
+                    <strong id="cart-total">CHF 0.00</strong>
+                </div>
+            </div>
+            <div style="margin-top: 15px; font-size: 14px; line-height: 1.5; color: #333333;">
+                <input type="checkbox" id="legal-checkbox" style="vertical-align: middle; margin-right: 6px; cursor: pointer;">
+                <label class="legal-text" for="legal-checkbox" style="vertical-align: middle; cursor: pointer;">
+                    Ich habe die <a href="agb" target="_blank" style="color: #d40202; text-decoration: none; font-weight: bold;">AGB</a> und die <a href="privacy_policy" target="_blank" style="color: #d40202; text-decoration: none; font-weight: bold;">Datenschutzerklärung</a> gelesen und bin mit ihnen einverstanden.<br>
+                </label>
+            </div>
+            <button class="checkout-button" id="checkout-button" disabled onclick="checkout()">Zur Kasse</button>
+        </div>
+    </div>
+
+    <footer>
+        <div class="footer-links">
+            <a onclick="switchPage('home')">Home</a> | 
+            <a onclick="switchPage('shop')">Shop</a> | 
+            <a onclick="switchPage('about')">Über mich</a> | 
+            <a onclick="switchPage('contact')">Kontakt</a> | 
+            <a onclick="switchPage('impressum')">Impressum</a>
+        </div>
+        <p>&copy; <span id="copyright"><script>document.getElementById('copyright').appendChild(document.createTextNode(new Date().getFullYear()))</script></span> Fabio3D. Alle Rechte vorbehalten.</p>
+    </footer>
+    <script src="alert.js" defer></script>
+    <script src="script.js" defer></script>
+    <script src="color-slider.js"></script>
+    <script src="cart.js" defer></script>
+    <script src="slider.js"></script>
+    <script src="https://kit.fontawesome.com/fba23d88db.js" crossorigin="anonymous"></script>
+</body>
+</html>
