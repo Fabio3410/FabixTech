@@ -966,10 +966,12 @@ footer {
     font-weight: 600;
     color: var(--text-muted);
     transition: color 0.2s;
+    text-decoration: none;
 }
 
 .footer-links a:hover {
     color: var(--light-color);
+    text-decoration: none;
 }
 
 .user-menu-container {
