@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Impressum | Fabio3D</title>
+    <link rel="icon" type="image/png" href="images/favicon.png">
+    <link rel="stylesheet" href="style.css">
+    <script>
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+
+        function toggleDarkMode() {
+            const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+            const newTheme = isDark ? 'light' : 'dark';
+    
+            document.documentElement.setAttribute('data-theme', newTheme);
+            if (document.body) {
+                document.body.setAttribute('data-theme', newTheme);
+            }
+            localStorage.setItem('theme', newTheme);
+        }
+    </script>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="index" class="logo">FABIO<span class="gradient-text">3D</span></a>
+            <ul class="nav-links">
+                <li><a class="nav-link" href="index">Home</a></li>
+                <li><a class="nav-link" href="shop">Shop</a></li>
+                <li><a class="nav-link" href="about">Über mich</a></li>
+                <li><a class="nav-link" href="contact">Kontakt</a></li>
+                <li><a class="nav-link active" href="impressum">Impressum</a></li>
+            </ul>
+            <div class="cart-icon" onclick="toggleCart()">
+                <i class="fa-solid fa-cart-shopping"></i> <span id="cart-count">0</span>
+            </div>
+            <div id="user-menu-root" class="user-menu-container"></div>
+        </div>
+    </nav>
+
+    <main>
+        <section id="impressum-page" class="page-section active">
+            <div class="page-header">
+                <h2><span class="gradient-text">Impressum</span></h2>
+            </div>
+            <div class="legal-content">
+                <h3>Persönliche Angaben</h3>
+                <p>Mein Name: ......<br>Fabio3D<br>Gesetzlicher Vertreter: ......<br>Adresse: ......</p>
+                
+                <h3>Kontakt</h3>
+                <p>E-Mail: ......<br>Telefon: ......</p>
+                
+                <h3>Sonstige Angaben</h3>
+                <p>Umsatzsteuer-ID: keine<br>Handelsregister-Eintrag: keiner</p>
+                
+                <h3>Datenschutzerklärung & AGB</h3>
+                <div class="docs">
+                    <p><a href="privacy_policy">Datenschutzerklärung</a><br><a href="agb">AGB</a></p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <div id="cart-sidebar" class="sidebar">
+        <div class="sidebar-header">
+            <h3>Dein Warenkorb</h3>
+            <span class="close-btn" onclick="toggleCart()">&times;</span>
+        </div>
+        <div id="cart-items-container">
+            <p class="empty-msg">Dein Warenkorb ist noch leer.</p>
+        </div>
+        <div class="sidebar-footer">
+            <div class="cart-summary-box">
+                <div class="summary-row subtotal-row">
+                    <span>Zwischensumme:</span>
+                    <span id="cart-subtotal">CHF 0.00</span>
+                </div>
+                <div class="summary-row shipping-row">
+                    <span>Versand:</span>
+                    <span id="cart-shipping">CHF 5.70</span>
+                </div>
+                <hr class="summary-divider">
+                <div class="summary-row total-row">
+                    <strong>Gesamtsumme:</strong>
+                    <strong id="cart-total">CHF 0.00</strong>
+                </div>
+            </div>
+            <div style="margin-top: 15px; font-size: 14px; line-height: 1.5; color: #333333;">
+                <input type="checkbox" id="legal-checkbox" style="vertical-align: middle; margin-right: 6px; cursor: pointer;">
+                <label class="legal-text" for="legal-checkbox" style="vertical-align: middle; cursor: pointer;">
+                    Ich habe die <a href="agb" target="_blank" style="color: #d40202; text-decoration: none; font-weight: bold;">AGB</a> und die <a href="privacy_policy" target="_blank" style="color: #d40202; text-decoration: none; font-weight: bold;">Datenschutzerklärung</a> gelesen und bin mit ihnen einverstanden.<br>
+                </label>
+            </div>
+            <button class="checkout-button" id="checkout-button" disabled onclick="checkout()">Zur Kasse</button>
+        </div>
+    </div>
+
+    <footer>
+        <div class="footer-links">
+            <a href="index">Home</a> | 
+            <a href="shop">Shop</a> | 
+            <a href="about">Über mich</a> | 
+            <a href="contact">Kontakt</a> | 
+            <a href="impressum">Impressum</a>
+        </div>
+        <p>&copy; <span id="copyright"><script>document.getElementById('copyright').appendChild(document.createTextNode(new Date().getFullYear()))</script></span> Fabio3D. Alle Rechte vorbehalten.</p>
+    </footer>
+    <script src="alert.js" defer></script>
+    <script src="script.js" defer></script>
+    <script src="cart.js" defer></script>
+    <script src="https://kit.fontawesome.com/fba23d88db.js" crossorigin="anonymous"></script>
+</body>
+</html>
