@@ -975,6 +975,8 @@ footer {
 }
 
 .user-menu-container {
+    min-width: 120px;
+    min-height: 40px;
     position: relative;
     display: flex;
     align-items: center;
