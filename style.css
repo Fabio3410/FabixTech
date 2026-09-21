@@ -1046,6 +1046,7 @@ footer {
 
 .profile-dropdown a:hover {
     background: #f1f5f9;
+    color: var(--text-main);
 }
 
 @media (max-width: 768px) {
