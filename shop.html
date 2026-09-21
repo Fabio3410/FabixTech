@@ -25,13 +25,13 @@
 <body>
     <nav class="navbar">
         <div class="nav-container">
-            <a href="home" class="logo" onclick="switchPage('home')">FABIO<span class="gradient-text">3D</span></a>
+            <a href="index" class="logo">FABIO<span class="gradient-text">3D</span></a>
             <ul class="nav-links">
-                <li><a class="nav-link active" href="index.html" onclick="switchPage('home'); return false;">Home</a></li>
-                <li><a class="nav-link" href="shop.html" onclick="switchPage('shop'); return false;">Shop</a></li>
-                <li><a class="nav-link" href="/about" onclick="switchPage('about'); return false;">Über mich</a></li>
-                <li><a class="nav-link" href="/contact" onclick="switchPage('contact'); return false;">Kontakt</a></li>
-                <li><a class="nav-link" href="/impressum" onclick="switchPage('impressum'); return false;">Impressum</a></li>
+                <li><a class="nav-link" href="index">Home</a></li>
+                <li><a class="nav-link active" href="shop">Shop</a></li>
+                <li><a class="nav-link" href="about">Über mich</a></li>
+                <li><a class="nav-link" href="contact">Kontakt</a></li>
+                <li><a class="nav-link" href="impressum">Impressum</a></li>
             </ul>
             <div class="cart-icon" onclick="toggleCart()">
                 <i class="fa-solid fa-cart-shopping"></i> <span id="cart-count">0</span>
@@ -187,11 +187,11 @@
 
     <footer>
         <div class="footer-links">
-            <a onclick="switchPage('home')">Home</a> | 
-            <a onclick="switchPage('shop')">Shop</a> | 
-            <a onclick="switchPage('about')">Über mich</a> | 
-            <a onclick="switchPage('contact')">Kontakt</a> | 
-            <a onclick="switchPage('impressum')">Impressum</a>
+            <a href="index">Home</a> | 
+            <a href="shop">Shop</a> | 
+            <a href="about">Über mich</a> | 
+            <a href="contact">Kontakt</a> | 
+            <a href="impressum">Impressum</a>
         </div>
         <p>&copy; <span id="copyright"><script>document.getElementById('copyright').appendChild(document.createTextNode(new Date().getFullYear()))</script></span> Fabio3D. Alle Rechte vorbehalten.</p>
     </footer>
