@@ -9,9 +9,8 @@
         const savedTheme = localStorage.getItem('theme') || 'light';
         document.documentElement.setAttribute('data-theme', savedTheme);
     </script>
-
+    <script src="alert.js"></script>
     <style>
-        /* Farbvariablen für Light Mode */
         :root {
             --bg-page: #f8fafc;
             --bg-card: #ffffff;
@@ -20,12 +19,9 @@
             --border-color: #e2e8f0;
             --primary: #d40202;
             --primary-hover: #b90000;
-            --danger: #ef4444;
-            --danger-hover: #dc2626;
             --transition-speed: 0.4s;
         }
 
-        /* Farbvariablen für Dark Mode */
         html[data-theme="dark"] {
             --bg-page: #0f172a;
             --bg-card: #1e293b;
@@ -34,12 +30,10 @@
             --border-color: #334155;
         }
 
-        /* Verhindert Animationen beim initialen Laden der Seite */
         .preload * {
             transition: none !important;
         }
 
-        /* Globale Transition für den soften Wechsel */
         body, .settings-card, h1, h2, span, label, input, button {
             transition: background-color var(--transition-speed) ease,
                         color var(--transition-speed) ease,
@@ -113,7 +107,6 @@
             color: var(--text-muted);
         }
 
-        /* Toggle Switch Styling */
         .theme-switch {
             position: relative;
             display: inline-block;
@@ -157,7 +150,6 @@
             transform: translateX(22px);
         }
 
-        /* Datei-Upload Styling */
         .file-upload-wrapper {
             position: relative;
             overflow: hidden;
@@ -170,7 +162,6 @@
             cursor: pointer;
         }
 
-        /* Buttons Styling */
         .btn-group {
             display: flex;
             gap: 12px;
@@ -203,12 +194,12 @@
 
         .btn-danger {
             background-color: transparent;
-            color: var(--danger);
-            border: 1px solid var(--danger);
+            color: var(--primary);
+            border: 1px solid var(--primary);
         }
 
         .btn-danger:hover {
-            background-color: var(--danger);
+            background-color: var(--primary-hover);
             color: #ffffff;
         }
 
@@ -223,14 +214,12 @@
 
     <div class="settings-container">
         <h1>Einstellungen</h1>
-
-        <!-- Theme Einstellungen -->
         <div class="settings-card">
-            <h2><i class="fa-solid fa-moon"></i> Erscheinungsbild</h2>
+            <h2><i class="fa-solid fa-moon"></i> Dark Mode</h2>
             <div class="setting-row">
                 <div class="setting-info">
                     <span class="setting-title">Dark Mode aktivieren</span>
-                    <span class="setting-desc">Passe die Farben für eine augenschonendere Ansicht an.</span>
+                    <span class="setting-desc">Passe die Farben der Seite an.</span>
                 </div>
                 <label class="theme-switch">
                     <input type="checkbox" id="darkModeToggle" onchange="toggleDarkMode()">
@@ -238,8 +227,6 @@
                 </label>
             </div>
         </div>
-
-        <!-- Profil Einstellungen -->
         <div class="settings-card">
             <h2><i class="fa-solid fa-user-circle"></i> Profilbild</h2>
             <div class="setting-info" style="margin-bottom: 16px;">
@@ -258,11 +245,9 @@
     </div>
 
     <script>
-        // Preload-Klasse entfernen, wenn die Seite geladen ist (verhindert Animations-Bug beim Start)
         window.addEventListener('load', () => {
             document.body.classList.remove('preload');
             
-            // Toggle Switch auf den korrekten Status setzen
             const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
             document.getElementById('darkModeToggle').checked = isDark;
         });
