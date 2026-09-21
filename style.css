@@ -912,7 +912,7 @@ main {
 }
 
 .checkout-button {
-    color: var(--text-main);
+    color: #ffffff;
     background-color: var(--light-color);
     border: none;
     padding: 14px 29px;
