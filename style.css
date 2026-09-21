@@ -484,7 +484,6 @@ main {
 }
 
 .btn-secondary:hover {
-    background: #f1f5f9;
     transform: scale(1.03);
     transition: transform 0.3s ease;
 }
