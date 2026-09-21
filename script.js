@@ -148,6 +148,8 @@ function logoutUser() {
 
 function renderUserMenu() {
     const root = document.getElementById('user-menu-root');
+    if (!root) return;
+
     const userStr = localStorage.getItem('user');
     if (userStr) {
         const user = JSON.parse(userStr);
@@ -172,10 +174,6 @@ function renderUserMenu() {
                 <a href="settings">Kontoeinstellungen</a>
                 <a href="#" onclick="logoutUser()">Abmelden</a>
             </div>
-        `;
-    } else {
-        root.innerHTML = `
-            <a href="login" class="btn btn-primary" style="padding: 0.6rem 1.5rem; font-size: 1rem;">Anmelden</a>
         `;
     }
 }

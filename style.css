@@ -975,12 +975,10 @@ footer {
 }
 
 .user-menu-container {
-    min-width: 120px;
-    min-height: 40px;
-    position: relative;
     display: flex;
     align-items: center;
-    margin-left: 1.5rem;
+    justify-content: flex-end;
+    height: 40px;
 }
 
 .avatar {
