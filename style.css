@@ -38,6 +38,7 @@ html {
     overflow-x: hidden !important;
     max-width: 100%;
     user-select: none;
+    scrollbar-gutter: stable;
 }
 
 main {
@@ -72,6 +73,8 @@ main {
     text-decoration: none;
     letter-spacing: 1.2px;
     cursor: pointer;
+    display: inline-block;
+    min-width: 120px;
 }
 
 .logo span {
@@ -105,6 +108,7 @@ main {
     border: 1.2px solid var(--border-color);
     transition: all 0.2s;
     font-weight: 600;
+    min-width: 40px;
 }
 
 .cart-icon:hover {
@@ -1047,6 +1051,12 @@ footer {
 
 .profile-dropdown a:hover {
     background: var(--bg-dark);
+}
+
+@supports not (scrollbar-gutter: stable) {
+    html {
+        overflow-y: scroll;
+    }
 }
 
 @media (max-width: 768px) {
