@@ -1,136 +1,381 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="de">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Einstellungen | Fabio3D</title>
-    <link rel="stylesheet" href="style.css">
+    <script src="https://kit.fontawesome.com/fba23d88db.js" crossorigin="anonymous"></script>
+    <script>
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+    </script>
+
+    <style>
+        /* Farbvariablen für Light Mode */
+        :root {
+            --bg-page: #f8fafc;
+            --bg-card: #ffffff;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --border-color: #e2e8f0;
+            --primary: #d40202;
+            --primary-hover: #b90000;
+            --danger: #ef4444;
+            --danger-hover: #dc2626;
+            --transition-speed: 0.4s;
+        }
+
+        /* Farbvariablen für Dark Mode */
+        html[data-theme="dark"] {
+            --bg-page: #0f172a;
+            --bg-card: #1e293b;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --border-color: #334155;
+        }
+
+        /* Verhindert Animationen beim initialen Laden der Seite */
+        .preload * {
+            transition: none !important;
+        }
+
+        /* Globale Transition für den soften Wechsel */
+        body, .settings-card, h1, h2, span, label, input, button {
+            transition: background-color var(--transition-speed) ease,
+                        color var(--transition-speed) ease,
+                        border-color var(--transition-speed) ease,
+                        box-shadow var(--transition-speed) ease,
+                        transform 0.2s ease;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-page);
+            color: var(--text-main);
+            margin: 0;
+            padding: 40px 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .settings-container {
+            max-width: 600px;
+            width: 100%;
+        }
+
+        h1 {
+            font-size: 32px;
+            font-weight: 800;
+            margin-bottom: 30px;
+        }
+
+        .settings-card {
+            background-color: var(--bg-card);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            border: 1px solid var(--border-color);
+        }
+
+        .settings-card h2 {
+            font-size: 18px;
+            margin-top: 0;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 12px;
+        }
+
+        .setting-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .setting-info {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .setting-title {
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        .setting-desc {
+            font-size: 14px;
+            color: var(--text-muted);
+        }
+
+        /* Toggle Switch Styling */
+        .theme-switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 28px;
+        }
+
+        .theme-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #cbd5e1;
+            transition: .4s;
+            border-radius: 34px;
+        }
+
+        html[data-theme="dark"] .slider {
+            background-color: var(--primary);
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(22px);
+        }
+
+        /* Datei-Upload Styling */
+        .file-upload-wrapper {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+        }
+
+        .file-upload-wrapper input[type="file"] {
+            font-size: 14px;
+            color: var(--text-muted);
+            cursor: pointer;
+        }
+
+        /* Buttons Styling */
+        .btn-group {
+            display: flex;
+            gap: 12px;
+            margin-top: 15px;
+            width: 100%;
+        }
+
+        button {
+            padding: 10px 18px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            flex: 1;
+        }
+
+        button:active {
+            transform: scale(0.97);
+        }
+
+        .btn-action {
+            background-color: var(--primary);
+            color: #ffffff;
+        }
+
+        .btn-action:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .btn-danger {
+            background-color: transparent;
+            color: var(--danger);
+            border: 1px solid var(--danger);
+        }
+
+        .btn-danger:hover {
+            background-color: var(--danger);
+            color: #ffffff;
+        }
+
+        @media (max-width: 480px) {
+            .btn-group {
+                flex-direction: column;
+            }
+        }
+    </style>
 </head>
-<body>
-    <div class="input-group">
-        <label>Neues Profilbild hochladen</label>
-        <input type="file" id="avatarInput" accept="image/png, image/jpeg">
-        <button type="button" onclick="deleteAvatar()" class="btn-danger">Bild löschen</button>
-        <button type="button" onclick="uploadAvatar()" class="btn-action">Bild speichern</button>
-        <button type="button" onclick="toggleDarkMode()" class="theme-btn">Dark mode</button>
+<body class="preload">
+
+    <div class="settings-container">
+        <h1>Einstellungen</h1>
+
+        <!-- Theme Einstellungen -->
+        <div class="settings-card">
+            <h2><i class="fa-solid fa-moon"></i> Erscheinungsbild</h2>
+            <div class="setting-row">
+                <div class="setting-info">
+                    <span class="setting-title">Dark Mode aktivieren</span>
+                    <span class="setting-desc">Passe die Farben für eine augenschonendere Ansicht an.</span>
+                </div>
+                <label class="theme-switch">
+                    <input type="checkbox" id="darkModeToggle" onchange="toggleDarkMode()">
+                    <span class="slider"></span>
+                </label>
+            </div>
+        </div>
+
+        <!-- Profil Einstellungen -->
+        <div class="settings-card">
+            <h2><i class="fa-solid fa-user-circle"></i> Profilbild</h2>
+            <div class="setting-info" style="margin-bottom: 16px;">
+                <span class="setting-desc">Lade ein neues Bild hoch (.png, .jpg) oder lösche dein aktuelles.</span>
+            </div>
+            
+            <div class="file-upload-wrapper">
+                <input type="file" id="avatarInput" accept="image/png, image/jpeg">
+            </div>
+
+            <div class="btn-group">
+                <button type="button" onclick="uploadAvatar()" class="btn-action"><i class="fa-solid fa-cloud-arrow-up"></i> Speichern</button>
+                <button type="button" onclick="deleteAvatar()" class="btn-danger"><i class="fa-solid fa-trash-can"></i> Löschen</button>
+            </div>
+        </div>
     </div>
 
-    <script>   
-    const savedTheme = localStorage.getItem('theme') || 'light';
-    document.documentElement.setAttribute('data-theme', savedTheme);
-
-    function toggleDarkMode() {
-        const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-        const newTheme = isDark ? 'light' : 'dark';
-    
-        document.documentElement.setAttribute('data-theme', newTheme);
-        if (document.body) {
-            document.body.setAttribute('data-theme', newTheme);
-        }
-        localStorage.setItem('theme', newTheme);
-    }
-
-    async function deleteAvatar() {
-        const userStr = localStorage.getItem('user');
-        if (!userStr) {
-            alert('Bitte melde dich zuerst an.');
-            return;
-        }
-
-        const user = JSON.parse(userStr);
-    
-        if (!user.profile_picture) {
-            alert('Du hast aktuell kein eigenes Profilbild.');
-            return;
-        }
-
-        if (!confirm('Möchtest du dein Profilbild wirklich löschen? Es wird wieder das farbige 3D-Logo angezeigt.')) {
-            return;
-        }
-
-        const response = await fetch('/api/auth', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                action: 'delete_avatar',
-                email: user.email
-            })
+    <script>
+        // Preload-Klasse entfernen, wenn die Seite geladen ist (verhindert Animations-Bug beim Start)
+        window.addEventListener('load', () => {
+            document.body.classList.remove('preload');
+            
+            // Toggle Switch auf den korrekten Status setzen
+            const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+            document.getElementById('darkModeToggle').checked = isDark;
         });
 
-        const result = await response.json();
-
-        if (result.status === 'success') {
-            user.profile_picture = null;
-            localStorage.setItem('user', JSON.stringify(user));
-            alert('Profilbild erfolgreich gelöscht.');
-            window.location.href = '/';
-        } else {
-            alert('Fehler beim Löschen: ' + (result.message || 'Unbekannter Fehler'));
-        }
-    }
-
-    async function uploadAvatar() {
-        const fileInput = document.getElementById('avatarInput');
-        const userStr = localStorage.getItem('user');
-
-        if (!userStr) {
-            alert('Bitte melde dich zuerst an.');
-            return;
+        function toggleDarkMode() {
+            const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+            const newTheme = isDark ? 'light' : 'dark';
+        
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
         }
 
-        const user = JSON.parse(userStr);
-        if (!fileInput.files[0]) {
-            alert('Bitte wähle ein Bild aus.');
-            return;
+        async function deleteAvatar() {
+            const userStr = localStorage.getItem('user');
+            if (!userStr) {
+                alert('Bitte melde dich zuerst an.');
+                return;
+            }
+
+            const user = JSON.parse(userStr);
+        
+            if (!user.profile_picture) {
+                alert('Du hast aktuell kein eigenes Profilbild.');
+                return;
+            }
+
+            if (!confirm('Möchtest du dein Profilbild wirklich löschen? Es wird wieder das farbige 3D-Logo angezeigt.')) {
+                return;
+            }
+
+            const response = await fetch('/api/auth', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    action: 'delete_avatar',
+                    email: user.email
+                })
+            });
+
+            const result = await response.json();
+
+            if (result.status === 'success') {
+                user.profile_picture = null;
+                localStorage.setItem('user', JSON.stringify(user));
+                alert('Profilbild erfolgreich gelöscht.');
+                window.location.href = '/';
+            } else {
+                alert('Fehler beim Löschen: ' + (result.message || 'Unbekannter Fehler'));
+            }
         }
 
-        const file = fileInput.files[0];
-        const reader = new FileReader();
+        async function uploadAvatar() {
+            const fileInput = document.getElementById('avatarInput');
+            const userStr = localStorage.getItem('user');
 
-        reader.onload = function (e) {
-            const img = new Image();
-            img.src = e.target.result;
+            if (!userStr) {
+                alert('Bitte melde dich zuerst an.');
+                return;
+            }
 
-            img.onload = async function () {
-                const canvas = document.createElement('canvas');
-                const ctx = canvas.getContext('2d');
-                canvas.width = 150;
-                canvas.height = 150;
-                ctx.drawImage(img, 0, 0, 150, 150);
+            const user = JSON.parse(userStr);
+            if (!fileInput.files[0]) {
+                alert('Bitte wähle ein Bild aus.');
+                return;
+            }
 
-                const base64Image = canvas.toDataURL('image/jpeg', 0.8);
-                const response = await fetch('/api/auth', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        action: 'update_avatar',
-                        email: user.email,
-                        profile_picture: base64Image
-                    })
-                });
-                
-                const contentType = response.headers.get('content-type');
-                if (!contentType || !contentType.includes('application/json')) {
-                    const errorHTML = await response.text();
-                    console.error('Serverantwort (kein JSON):', errorHTML);
-                    alert('Serverfehler beim Speichern. Bitte D1-Datenbank prüfen.');
-                    return;
-                }
-                
-                const result = await response.json();
+            const file = fileInput.files[0];
+            const reader = new FileReader();
 
-                if (result.status === 'success') {
-                    user.profile_picture = base64Image;
-                    localStorage.setItem('user', JSON.stringify(user));
-                    alert('Profilbild geändert!');
-                    window.location.href = '/';
-                } else {
-                    alert('Fehler beim Hochladen.');
-                }
+            reader.onload = function (e) {
+                const img = new Image();
+                img.src = e.target.result;
+
+                img.onload = async function () {
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+                    canvas.width = 150;
+                    canvas.height = 150;
+                    ctx.drawImage(img, 0, 0, 150, 150);
+
+                    const base64Image = canvas.toDataURL('image/jpeg', 0.8);
+                    const response = await fetch('/api/auth', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            action: 'update_avatar',
+                            email: user.email,
+                            profile_picture: base64Image
+                        })
+                    });
+                    
+                    const contentType = response.headers.get('content-type');
+                    if (!contentType || !contentType.includes('application/json')) {
+                        const errorHTML = await response.text();
+                        console.error('Serverantwort (kein JSON):', errorHTML);
+                        alert('Serverfehler beim Speichern. Bitte prüfen.');
+                        return;
+                    }
+                    
+                    const result = await response.json();
+
+                    if (result.status === 'success') {
+                        user.profile_picture = base64Image;
+                        localStorage.setItem('user', JSON.stringify(user));
+                        alert('Profilbild geändert!');
+                        window.location.href = '/';
+                    } else {
+                        alert('Fehler beim Hochladen.');
+                    }
+                };
             };
-        };
-    reader.readAsDataURL(file);
-    }
+            reader.readAsDataURL(file);
+        }
     </script>
 </body>
 </html>
