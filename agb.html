@@ -28,6 +28,7 @@
             background-color: #f8f9fa;
             margin: 0;
             padding: 0;
+            transition: background-color 0.4s ease, color 0.4s ease;
         }
 
         .container {
@@ -37,6 +38,7 @@
             padding: 40px;
             border-radius: 12px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            transition: background-color 0.4s ease, box-shadow 0.4s ease;
         }
 
         h1 {
@@ -44,6 +46,7 @@
             border-bottom: 2px solid #eef2f5;
             padding-bottom: 15px;
             font-size: 28px;
+            transition: border-color 0.4s ease, color 0.4s ease;
         }
 
         h2 {
@@ -83,6 +86,44 @@
             text-align: center;
             font-size: 12px;
             color: #a0aec0;
+        }
+
+        /* Dark Mode Anpassungen */
+        html[data-theme="dark"] body {
+            background-color: #0f172a;
+            color: #f8fafc;
+        }
+
+        html[data-theme="dark"] .container {
+            background-color: #1e293b;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            border: 1px solid #334155;
+        }
+
+        html[data-theme="dark"] h1 {
+            color: #f8fafc;
+            border-bottom-color: #334155;
+        }
+
+        html[data-theme="dark"] h2 {
+            color: #ff4d4d;
+        }
+
+        html[data-theme="dark"] p,
+        html[data-theme="dark"] li {
+            color: #cbd5e1;
+        }
+
+        html[data-theme="dark"] .btn-back {
+            color: #ff4d4d;
+        }
+
+        html[data-theme="dark"] .btn-back:hover {
+            color: #ff8080;
+        }
+
+        html[data-theme="dark"] footer {
+            color: #64748b;
         }
     </style>
 </head>

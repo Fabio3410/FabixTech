@@ -42,6 +42,7 @@ window.showAlert = function(message, title = "Hinweis") {
                 opacity: 1;
             }
 
+            /* Light Mode (Standard) */
             .custom-alert-box {
                 background: #ffffff;
                 padding: 34px 29px 24px 29px;
@@ -51,7 +52,7 @@ window.showAlert = function(message, title = "Hinweis") {
                 width: 88%;
                 text-align: center;
                 transform: scale(0.9);
-                transition: transform 0.2s ease;
+                transition: transform 0.2s ease, background-color 0.4s ease;
             }
 
             .custom-alert-overlay.active .custom-alert-box {
@@ -86,6 +87,21 @@ window.showAlert = function(message, title = "Hinweis") {
 
             .custom-alert-box button:hover {
                 background-color: #960505;
+            }
+
+            /* Dark Mode Übersteuerung */
+            html[data-theme="dark"] .custom-alert-box {
+                background: #1e293b;
+                border: 1px solid #334155;
+                box-shadow: 0 24px 30px -6px rgba(0, 0, 0, 0.5);
+            }
+
+            html[data-theme="dark"] .custom-alert-box h3 {
+                color: #f8fafc;
+            }
+
+            html[data-theme="dark"] .custom-alert-box p {
+                color: #94a3b8;
             }
             </style>
             <div class="custom-alert-box">
