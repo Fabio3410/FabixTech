@@ -49,7 +49,11 @@ export async function onRequestGet(context) {
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Danke für deinen Einkauf!</title>
-        <link rel="icon" type="image/png" href="images/favicon.png">
+        <link rel="icon" type="image/png" href="../favicon/favicon-96x96.png" sizes="96x96"/>
+        <link rel="icon" type="image/svg+xml" href="../favicon/favicon.svg"/>
+        <link rel="shortcut icon" href="../favicon/favicon.ico"/>
+        <link rel="apple-touch-icon" sizes="180x180" href="../favicon/apple-touch-icon.png"/>
+        <link rel="manifest" href="../favicon/site.webmanifest"/>
         <style>
             body { font-family: sans-serif; background: #f4f6f8; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
             .card { background: #fff; padding: 30px; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); max-width: 400px; width: 90%; }
