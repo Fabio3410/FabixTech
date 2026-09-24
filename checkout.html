@@ -32,6 +32,16 @@
             --input-bg: black;
         }
 
+        html[data-theme="dark"] .form-control {
+            background-color: #30313d;
+            border: 1px solid #424353;
+            color: #ffffff;
+        }
+
+        html[data-theme="dark"] .form-control::placeholder {
+            color: #adbdcc;
+        }
+
         body {
             margin: 0;
             padding: 0;
@@ -90,10 +100,7 @@
             width: 100%;
             padding: 10px 12px;
             font-size: 14px;
-            border: 1px solid var(--border-color);
             border-radius: 6px;
-            background-color: var(--input-bg);
-            color: var(--text-main);
             box-sizing: border-box;
             outline: none;
         }
