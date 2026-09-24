@@ -175,6 +175,10 @@ function renderUserMenu() {
                 <a href="#" onclick="logoutUser()">Abmelden</a>
             </div>
         `;
+    } else {
+        root.innerHTML = `
+            <a href="login" class="btn btn-primary nav-login-btn">Anmelden</a>
+        `;
     }
 }
 

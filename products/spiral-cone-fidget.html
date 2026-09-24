@@ -8,6 +8,17 @@
     <script>
         const savedTheme = localStorage.getItem('theme') || 'light';
         document.documentElement.setAttribute('data-theme', savedTheme);
+
+        function toggleDarkMode() {
+            const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+            const newTheme = isDark ? 'light' : 'dark';
+    
+            document.documentElement.setAttribute('data-theme', newTheme);
+            if (document.body) {
+                document.body.setAttribute('data-theme', newTheme);
+            }
+            localStorage.setItem('theme', newTheme);
+        }
     </script>
     <link rel="icon" type="image/png" href="../favicon/favicon-96x96.png" sizes="96x96"/>
     <link rel="icon" type="image/svg+xml" href="../favicon/favicon.svg"/>
@@ -24,12 +35,18 @@
 <body>
     <nav class="navbar">
         <div class="nav-container">
-            <div class="docs">
-                <a href="/shop" style="display: inline-block;">&larr; Zurück zum Shop</a>
-            </div>
+            <a href="../index" class="logo">FABIO<span class="gradient-text">3D</span></a>
+            <ul class="nav-links">
+                <li><a class="nav-link" href="../index">Home</a></li>
+                <li><a class="nav-link active" href="../shop">Shop</a></li>
+                <li><a class="nav-link" href="../about">Über mich</a></li>
+                <li><a class="nav-link" href="../contact">Kontakt</a></li>
+                <li><a class="nav-link" href="../impressum">Impressum</a></li>
+            </ul>
             <div class="cart-icon" onclick="toggleCart()">
                 <i class="fa-solid fa-cart-shopping"></i> <span id="cart-count">0</span>
             </div>
+            <div id="user-menu-root" class="user-menu-container"></div>
         </div>
     </nav>
     <div class="product-details">
@@ -104,7 +121,7 @@
                     <strong id="cart-total">CHF 0.00</strong>
                 </div>
             </div>
-            <div style="margin-top: 15px; font-size: 14px; line-height: 1.5;">
+            <div style="margin-top: 15px; font-size: 14px; line-height: 1.5; color: #333333;">
                 <input type="checkbox" id="legal-checkbox" style="vertical-align: middle; margin-right: 6px; cursor: pointer;">
                 <label class="legal-text" for="legal-checkbox" style="vertical-align: middle; cursor: pointer;">
                     Ich habe die <a href="../agb" target="_blank" style="color: #d40202; text-decoration: none; font-weight: bold;">AGB</a> und die <a href="../privacy_policy" target="_blank" style="color: #d40202; text-decoration: none; font-weight: bold;">Datenschutzerklärung</a> gelesen und bin mit ihnen einverstanden.<br>
@@ -114,7 +131,14 @@
         </div>
     </div>
     <footer>
-    <p>&copy; <span id="copyright"><script>document.getElementById('copyright').appendChild(document.createTextNode(new Date().getFullYear()))</script></span> Fabio3D. Alle Rechte vorbehalten.</p>
+        <div class="footer-links">
+            <a href="../index">Home</a> | 
+            <a href="../shop">Shop</a> | 
+            <a href="../about">Über mich</a> | 
+            <a href="../contact">Kontakt</a> | 
+            <a href="../impressum">Impressum</a>
+        </div>
+        <p>&copy; <span id="copyright"><script>document.getElementById('copyright').appendChild(document.createTextNode(new Date().getFullYear()))</script></span> Fabio3D. Alle Rechte vorbehalten.</p>
     </footer>
 </body>
 </html>
