@@ -185,11 +185,27 @@ async function initCheckoutPage() {
         }
 
         const stripe = Stripe('pk_test_51Tt9xjHRWCYHtDl0BltylAKQKcSZtBqXnkdvoRPHxrWK89UNPaM8dAvbDps7eE7kYkaj2T8yCJEHVpVjoNk6PO9w00CgUpqhlO');
-
-        const checkoutSession = await stripe.initEmbeddedCheckout({
-            clientSecret: data.clientSecret,
+        const isDark = localStorage.getItem('theme') === 'dark';
+        const checkout = await stripe.initEmbeddedCheckout({
+            fetchClientSecret,
+            appearance: {
+                theme: isDark ? 'night' : 'stripe',
+                variables: {
+                    colorPrimary: '#d40202',
+                }
+            }
         });
 
+        checkout.mount('#checkout-container');
+        const checkoutSession = await stripe.initEmbeddedCheckout({
+            clientSecret: data.clientSecret,
+            appearance: {
+                theme: isDark ? 'night' : 'stripe', // Schaltet auf dunkel, wenn isDark true ist
+                variables: {
+                    colorPrimary: '#d40202', // Färbt den Bezahl-Button rot
+                }
+            }
+        });
         container.innerHTML = '';
         checkoutSession.mount('#checkout-container');
 
