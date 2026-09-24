@@ -4,12 +4,28 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Seite nicht gefunden</title>
+    <script>
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+    </script>
     <link rel="icon" type="image/png" href="favicon/favicon-96x96.png" sizes="96x96"/>
     <link rel="icon" type="image/svg+xml" href="favicon/favicon.svg"/>
     <link rel="shortcut icon" href="favicon/favicon.ico"/>
     <link rel="apple-touch-icon" sizes="180x180" href="favicon/apple-touch-icon.png"/>
     <link rel="manifest" href="favicon/site.webmanifest"/>
     <style>
+        :root {
+            --bg-color: #f8fafc;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+        }
+
+        html[data-theme="dark"] {
+            --bg-color: #0f172a;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+        }
+
         body {
             margin: 0;
             padding: 0;
@@ -19,9 +35,10 @@
             align-items: center;
             justify-content: center;
             height: 100vh;
-            background-color: #f8fafc;
-            color: #0f172a;
+            background-color: var(--bg-color);
+            color: var(--text-main);
             text-align: center;
+            transition: background-color 0.3s, color 0.3s;
         }
 
         h1 {
@@ -38,7 +55,7 @@
         p {
             font-size: 1.1rem;
             margin-bottom: 30px;
-            color: #64748b;
+            color: var(--text-muted);
         }
 
         .btn-back {
@@ -58,11 +75,9 @@
     </style>
 </head>
 <body>
-
     <h1>404</h1>
     <h2>Hoppla!</h2>
     <p>Die Seite, die du suchst, gibts nicht.</p>
     <a href="/" class="btn-back">&larr; Zurück zur Startseite</a>
-
 </body>
 </html>
