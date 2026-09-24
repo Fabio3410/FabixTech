@@ -114,13 +114,14 @@ html, #cart-items-container {
 }
 
 .logo span {
-    color: var(--dark-color);
+    color: var(--light-color);
 }
 
 .nav-links {
     display: flex;
     list-style: none;
     gap: 2.4rem;
+    pointer-events: none;
 }
 
 .nav-link {
@@ -129,7 +130,7 @@ html, #cart-items-container {
     font-weight: 700;
     font-size: 21px;
     transition: color 0.3s;
-    cursor: pointer;
+    cursor: default;
 }
 
 .nav-link:hover, .nav-link.active {
@@ -497,7 +498,7 @@ html, #cart-items-container {
 .sidebar {
     position: fixed;
     top: 0;
-    right: -480px;
+    right: -100%;
     width: 480px;
     height: 100%;
     background-color: var(--bg-card);
@@ -756,6 +757,7 @@ footer {
     font-weight: 600;
     color: var(--text-muted);
     transition: color 0.2s;
+    text-decoration: none;
 }
 
 .footer-links a:hover {
