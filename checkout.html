@@ -39,7 +39,14 @@
         }
 
         html[data-theme="dark"] .form-control::placeholder {
-            color: #adbdcc;
+            color: #797f8c;
+            opacity: 1;
+        }
+
+        html[data-theme="dark"] .form-control:focus {
+            border-color: #d40202;
+            box-shadow: 0 0 0 1px #d40202, 0 0 8px rgba(212, 2, 2, 0.35);
+            outline: none;
         }
 
         body {
