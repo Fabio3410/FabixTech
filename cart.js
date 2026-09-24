@@ -185,22 +185,12 @@ async function initCheckoutPage() {
         }
 
         const stripe = Stripe('pk_test_51Tt9xjHRWCYHtDl0BltylAKQKcSZtBqXnkdvoRPHxrWK89UNPaM8dAvbDps7eE7kYkaj2T8yCJEHVpVjoNk6PO9w00CgUpqhlO');
-        const isDark = localStorage.getItem('theme') === 'dark';
-
         container.innerHTML = '';
-
         const checkoutSession = await stripe.initEmbeddedCheckout({
-            clientSecret: data.clientSecret,
-            appearance: {
-                theme: isDark ? 'night' : 'stripe',
-                variables: {
-                    colorPrimary: '#d40202',
-                }
-            }
+            clientSecret: data.clientSecret
         });
 
         checkoutSession.mount('#checkout-container');
-
     } catch (error) {
         console.error("Fehler beim Laden der Kasse:", error);
         container.innerHTML = '<p style="color:red;">Netzwerkfehler beim Laden der Zahlung.</p>';
