@@ -10,23 +10,26 @@
         document.documentElement.setAttribute('data-theme', savedTheme);
     </script>
     <link rel="icon" type="image/png" href="favicon/favicon-96x96.png" sizes="96x96"/>
-    <link rel="icon" type="image/svg+xml" href="favicon/favicon.svg"/>
-    <link rel="shortcut icon" href="favicon/favicon.ico"/>
-    <link rel="apple-touch-icon" sizes="180x180" href="favicon/apple-touch-icon.png"/>
     <link rel="manifest" href="favicon/site.webmanifest"/>
     <style>
         :root {
             --bg-body: #f8fafc;
             --bg-card: #ffffff;
+            --bg-inner-box: #f8fafc;
             --text-main: #1e293b;
+            --text-muted: #64748b;
             --border-color: #e2e8f0;
+            --input-bg: #ffffff;
         }
 
         html[data-theme="dark"] {
             --bg-body: #0f172a;
             --bg-card: #1e293b;
+            --bg-inner-box: #0f172a;
             --text-main: #f8fafc;
+            --text-muted: #94a3b8;
             --border-color: #334155;
+            --input-bg: #1e293b;
         }
 
         body {
@@ -39,32 +42,90 @@
         }
 
         .checkout-container {
-            max-width: 900px;
+            max-width: 520px;
             margin: 40px auto;
-            padding: 24px;
+            padding: 32px;
             background: var(--bg-card);
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
             border: 1px solid var(--border-color);
         }
 
         .checkout-title {
-            font-size: 26px;
+            font-size: 24px;
             font-weight: 700;
             color: var(--text-main);
-            margin-top: 10px;
-            margin-bottom: 25px;
-            text-align: left;
-            letter-spacing: -0.5px;
+            margin-top: 0;
+            margin-bottom: 20px;
         }
 
-        #checkout-container {
-            font-size: 15px;
-            font-weight: 500;
+        .stripe-inner-card {
+            background: var(--bg-inner-box);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 15px;
+        }
+
+        .section-heading {
+            font-size: 14px;
+            font-weight: 600;
             color: var(--text-main);
-            margin-top: 10px;
-            margin-bottom: 25px;
-            text-align: left;
+            margin-top: 0;
+            margin-bottom: 12px;
+        }
+
+        .form-group {
+            margin-bottom: 14px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-bottom: 5px;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 10px 12px;
+            font-size: 14px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            background-color: var(--input-bg);
+            color: var(--text-main);
+            box-sizing: border-box;
+            outline: none;
+        }
+
+        .pay-btn {
+            width: 100%;
+            background-color: #d40202;
+            color: #ffffff;
+            border: none;
+            border-radius: 8px;
+            padding: 14px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: background 0.2s;
+        }
+
+        .pay-btn:hover {
+            background-color: #b00202;
+        }
+
+        .pay-btn:disabled {
+            background-color: #94a3b8;
+            cursor: not-allowed;
+        }
+
+        .footer-links {
+            text-align: center;
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 15px;
         }
     </style>
 </head>
@@ -72,9 +133,26 @@
 
     <div class="checkout-container">
         <h2 class="checkout-title">Bestellung abschließen</h2>
-        <div id="checkout-container">
-            <p>Kasse wird geladen...</p>
-        </div>
+
+        <form id="payment-form">
+            <div class="stripe-inner-card">
+                <h3 class="section-heading">Versanddaten</h3>
+                <div class="form-group">
+                    <label for="email">E-Mail</label>
+                    <input type="email" id="email" class="form-control" placeholder="email@beispiel.ch" required>
+                </div>
+                <div class="form-group">
+                    <label for="name">Vollständiger Name</label>
+                    <input type="text" id="name" class="form-control" placeholder="Max Mustermann" required>
+                </div>
+                <h3 class="section-heading" style="margin-top: 20px;">Zahlungsmethode</h3>
+                <div id="payment-element"></div>
+                <button type="submit" id="submit-btn" class="pay-btn">Zahlen</button>
+                <div class="footer-links">
+                    Powered by <strong>Stripe</strong>
+                </div>
+            </div>
+        </form>
     </div>
 
     <script src="/cart.js"></script>

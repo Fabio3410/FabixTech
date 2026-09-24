@@ -154,11 +154,11 @@ function checkout() {
 }
 
 async function initCheckoutPage() {
-    const container = document.getElementById('checkout-container');
-    if (!container) return;
+    const form = document.getElementById('payment-form');
+    if (!form) return;
 
     if (cart.length === 0) {
-        container.innerHTML = '<p>Dein Warenkorb ist leer. <a href="/">Zurück zum Shop</a></p>';
+        document.querySelector('.checkout-container').innerHTML = '<p>Dein Warenkorb ist leer. <a href="/">Zurück zum Shop</a></p>';
         return;
     }
 
@@ -180,20 +180,53 @@ async function initCheckoutPage() {
         const data = await response.json();
 
         if (data.error) {
-            container.innerHTML = `<p style="color:red;">Fehler: ${data.error}</p>`;
+            alert("Fehler: " + data.error);
             return;
         }
 
         const stripe = Stripe('pk_test_51Tt9xjHRWCYHtDl0BltylAKQKcSZtBqXnkdvoRPHxrWK89UNPaM8dAvbDps7eE7kYkaj2T8yCJEHVpVjoNk6PO9w00CgUpqhlO');
-        container.innerHTML = '';
-        const checkoutSession = await stripe.initEmbeddedCheckout({
-            clientSecret: data.clientSecret
+        const isDark = localStorage.getItem('theme') === 'dark';
+        const elements = stripe.elements({
+            clientSecret: data.clientSecret,
+            appearance: {
+                theme: isDark ? 'night' : 'stripe',
+                variables: {
+                    colorPrimary: '#d40202',
+                    borderRadius: '8px'
+                }
+            }
         });
 
-        checkoutSession.mount('#checkout-container');
+        const paymentElement = elements.create('payment');
+        paymentElement.mount('#payment-element');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const submitBtn = document.getElementById('submit-btn');
+            submitBtn.disabled = true;
+            submitBtn.innerText = 'Wird verarbeitet...';
+
+            const { error } = await stripe.confirmPayment({
+                elements,
+                confirmParams: {
+                    return_url: window.location.origin + '/success.html',
+                    receipt_email: document.getElementById('email').value,
+                    shipping: {
+                        name: document.getElementById('name').value,
+                        address: { country: 'CH' }
+                    }
+                }
+            });
+
+            if (error) {
+                alert(error.message);
+                submitBtn.disabled = false;
+                submitBtn.innerText = 'Zahlen';
+            }
+        });
+
     } catch (error) {
-        console.error("Fehler beim Laden der Kasse:", error);
-        container.innerHTML = '<p style="color:red;">Netzwerkfehler beim Laden der Zahlung.</p>';
+        console.error("Fehler beim Laden des Checkouts:", error);
     }
 }
 

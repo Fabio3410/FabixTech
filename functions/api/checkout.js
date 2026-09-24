@@ -18,7 +18,7 @@ export async function onRequestPost(context) {
 
             if (aktuellerBestand < kundenMenge) {
                 return new Response(JSON.stringify({ 
-                    error: `Das Produkt "${item.name}" ist leider nicht mehr in deiner ausgwählten Anzahl verfügbar.` 
+                    error: `Das Produkt "${item.name}" ist leider nicht mehr in deiner ausgewählten Anzahl verfügbar.` 
                 }), { 
                     status: 400,
                     headers: { 'Content-Type': 'application/json' }
@@ -26,20 +26,10 @@ export async function onRequestPost(context) {
             }
         }
         
-        const lineItems = cart.map(item => {
-            const produktBeschreibung = item.farbe ? `Variante: ${item.farbe}` : '';
-            return {
-                price_data: {
-                    currency: 'chf',
-                    product_data: {
-                        name: item.name,
-                        description: produktBeschreibung,
-                    },
-                    unit_amount: item.price,
-                },
-                quantity: item.quantity,
-            };
-        });
+        let totalAmount = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+        
+        const versandkostenRappen = 590;
+        totalAmount += versandkostenRappen;
 
         const sessionMetadata = {};
         cart.forEach(item => {
@@ -48,19 +38,16 @@ export async function onRequestPost(context) {
             }
         });
 
-        const session = await stripe.checkout.sessions.create({
-            ui_mode: 'embedded',
-            payment_method_types: ['card', 'twint'],
-            line_items: lineItems,
-            mode: 'payment',
-            allow_promotion_codes: true,
+        const paymentIntent = await stripe.paymentIntents.create({
+            amount: totalAmount,
+            currency: 'chf',
+            automatic_payment_methods: {
+                enabled: true,
+            },
             metadata: sessionMetadata,
-            shipping_address_collection: { allowed_countries: ['CH'] },
-            shipping_options: [{ shipping_rate: 'shr_1UDTIdHRWCYHtDl0fMHuhs0U' }],
-            return_url: 'https://fabio3d.pages.dev/success?session_id={CHECKOUT_SESSION_ID}',
         });
 
-        return new Response(JSON.stringify({ clientSecret: session.client_secret }), {
+        return new Response(JSON.stringify({ clientSecret: paymentIntent.client_secret }), {
             status: 200,
             headers: { 'Content-Type': 'application/json' }
         });
