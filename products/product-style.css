@@ -39,6 +39,28 @@ html {
     color: var(--text-main);
 }
 
+#cart-items-container {
+    scrollbar-width: thin;
+    scrollbar-color: #334155 transparent;
+}
+
+#cart-items-container::-webkit-scrollbar {
+    width: 6px;
+}
+
+#cart-items-container::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+#cart-items-container::-webkit-scrollbar-thumb {
+    background-color: #334155;
+    border-radius: 10px;
+}
+
+#cart-items-container::-webkit-scrollbar-thumb:hover {
+    background-color: #475569;
+}
+
 .product-details {
     max-width: 1100px;
     margin: 0 auto;
