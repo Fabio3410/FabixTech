@@ -33,7 +33,7 @@ export async function onRequestGet(context) {
             }
         });
     }
-    
+
     for (const item of items) {
         if (item.id && item.quantity) {
             await context.env.DB.prepare(
@@ -168,7 +168,7 @@ export async function onRequestGet(context) {
                 ${artikelListeHtml}
                 <div style="display: flex; justify-content: space-between; color: var(--text-muted); font-size: 13px; white-space: nowrap; margin-bottom: 2px;">
                   <span>Versand</span>
-                  <span>5.70 ${waehrung}</span>
+                  <span>5.90 ${waehrung}</span>
                 </div>
                 <div style="display: flex; justify-content: space-between; font-weight: bold; color: var(--text-main); margin-top: 10px;">
                     <span>Gesamt</span>

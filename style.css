@@ -1124,7 +1124,6 @@ html, body, .navbar, .tech-box, .material-card, .product-card, .sidebar, footer 
     box-shadow: 0 15px 25px rgba(0, 0, 0, 0.15);
     border-color: var(--light-color);
     color: var(--light-color);
-    transform: translateY(-3px) scale(1.05);
 }
 
 .theme-toggle-btn i {

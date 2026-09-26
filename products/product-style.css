@@ -123,7 +123,6 @@ html, #cart-items-container {
     gap: 2.4rem;
     pointer-events: none;
     opacity: 0;
-    display: none;
 }
 
 .nav-link {
@@ -512,6 +511,7 @@ html, #cart-items-container {
     display: flex;
     flex-direction: column;
     user-select: none;
+    box-sizing: border-box;
 }
 
 .sidebar.open {
