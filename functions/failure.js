@@ -14,6 +14,7 @@ export async function onRequestGet(context) {
         <link rel="shortcut icon" href="../favicon/favicon.ico"/>
         <link rel="apple-touch-icon" sizes="180x180" href="../favicon/apple-touch-icon.png"/>
         <link rel="manifest" href="../favicon/site.webmanifest"/>
+        <script src="/theme-toggle.js" defer></script>
         <style>
         
         body {

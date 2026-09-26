@@ -71,6 +71,7 @@ export async function onRequestGet(context) {
         <link rel="shortcut icon" href="/favicon/favicon.ico"/>
         <link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png"/>
         <link rel="manifest" href="/favicon/site.webmanifest"/>
+        <script src="/theme-toggle.js" defer></script>
         <style>
             body { font-family: sans-serif; background: #f4f6f8; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
             .card { background: #fff; padding: 30px; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); max-width: 400px; width: 90%; }

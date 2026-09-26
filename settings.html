@@ -293,7 +293,7 @@
             }
 
             const user = JSON.parse(userStr);
-        
+
             if (!user.profile_picture) {
                 alert('Du hast aktuell kein eigenes Profilbild.');
                 return;
@@ -318,7 +318,10 @@
                 user.profile_picture = null;
                 localStorage.setItem('user', JSON.stringify(user));
                 alert('Profilbild erfolgreich gelöscht.');
-                window.location.href = '/';
+        
+                setTimeout(() => {
+                    window.location.href = '/';
+                }, 1200);
             } else {
                 alert('Fehler beim Löschen: ' + (result.message || 'Unbekannter Fehler'));
             }
@@ -363,7 +366,7 @@
                             profile_picture: base64Image
                         })
                     });
-                    
+            
                     const contentType = response.headers.get('content-type');
                     if (!contentType || !contentType.includes('application/json')) {
                         const errorHTML = await response.text();
@@ -371,14 +374,17 @@
                         alert('Serverfehler beim Speichern. Bitte prüfen.');
                         return;
                     }
-                    
+            
                     const result = await response.json();
 
                     if (result.status === 'success') {
                         user.profile_picture = base64Image;
                         localStorage.setItem('user', JSON.stringify(user));
                         alert('Profilbild geändert!');
-                        window.location.href = '/';
+                
+                        setTimeout(() => {
+                            window.location.href = '/';
+                        }, 1200);
                     } else {
                         alert('Fehler beim Hochladen.');
                     }
