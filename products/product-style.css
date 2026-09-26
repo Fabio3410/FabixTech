@@ -492,7 +492,7 @@ html, #cart-items-container {
 }
 
 .product-card:hover .nav-arrow {
-    opacity: 1;
+    opacity: 0;
     pointer-events: auto; 
 }
 
@@ -840,6 +840,11 @@ footer {
     bottom: 0;
     z-index: 1000;
     transition: right 0.3s ease;
+
+    .product-card:hover .nav-arrow {
+    opacity: 1;
+    pointer-events: auto; 
+    }
   }
 }
 
@@ -852,6 +857,11 @@ footer {
   .user-menu-container .btn {
     padding: 0.5rem 0.9rem !important;
     font-size: 0.88rem !important;
+    
+    .product-card:hover .nav-arrow {
+    opacity: 1;
+    pointer-events: auto; 
+    }
   }
 }
 
