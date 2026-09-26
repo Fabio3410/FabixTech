@@ -1018,6 +1018,13 @@ footer {
     height: 40px;
 }
 
+.user-menu-container .btn-primary {
+    padding: 0.55rem 1.2rem;
+    font-size: 0.95rem;
+    border-radius: 20px;
+    font-weight: 600;
+}
+
 .avatar {
     width: 45px;
     height: 45px;
