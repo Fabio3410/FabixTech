@@ -153,7 +153,7 @@ function checkout() {
     window.location.href = '/checkout';
 }
 
-async function initCheckoutPage() {
+async function initCheckoutPage(promoCode = null) {
     const form = document.getElementById('payment-form');
     if (!form) return;
 
@@ -174,14 +174,57 @@ async function initCheckoutPage() {
         const response = await fetch('/api/checkout', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ cart: formattedCart }),
+            body: JSON.stringify({ cart: formattedCart, promoCode }),
         });
 
         const data = await response.json();
 
         if (data.error) {
-            alert("Fehler: " + data.error);
+            alert(data.error);
             return;
+        }
+
+        const itemListContainer = document.getElementById('checkout-item-list');
+        const totalPriceContainer = document.getElementById('checkout-total-price');
+        const promoMsgContainer = document.getElementById('promo-message');
+
+        if (itemListContainer && totalPriceContainer) {
+            let html = cart.map(item => {
+                const itemTotal = item.price * (item.quantity || 1);
+                return `<div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
+                            <span>${item.quantity || 1}x ${item.name} (${item.variant || 'Standard'})</span>
+                            <span>CHF ${itemTotal.toFixed(2)}</span>
+                        </div>`;
+            }).join('');
+
+            html += `<div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
+                        <span>Versandkosten</span>
+                        <span>CHF ${data.shipping.toFixed(2)}</span>
+                    </div>`;
+
+            if (data.discount > 0) {
+                html += `<div style="display: flex; justify-content: space-between; margin-bottom: 6px; color: #16a34a; font-weight: 600;">
+                            <span>Rabatt (${data.appliedCode})</span>
+                            <span>- CHF ${data.discount.toFixed(2)}</span>
+                        </div>`;
+            }
+
+            itemListContainer.innerHTML = html;
+            totalPriceContainer.innerText = `CHF ${data.total.toFixed(2)}`;
+        }
+
+        if (promoMsgContainer) {
+            if (data.appliedCode) {
+                promoMsgContainer.style.color = '#16a34a';
+                promoMsgContainer.innerText = `Aktionscode "${data.appliedCode}" wurde angewendet!`;
+            } else {
+                promoMsgContainer.innerText = '';
+            }
+        }
+
+        const paymentElementDiv = document.getElementById('payment-element');
+        if (paymentElementDiv) {
+            paymentElementDiv.innerHTML = ''; 
         }
 
         const stripe = Stripe('pk_test_51Tt9xjHRWCYHtDl0BltylAKQKcSZtBqXnkdvoRPHxrWK89UNPaM8dAvbDps7eE7kYkaj2T8yCJEHVpVjoNk6PO9w00CgUpqhlO');
@@ -190,17 +233,14 @@ async function initCheckoutPage() {
             clientSecret: data.clientSecret,
             appearance: {
                 theme: isDark ? 'night' : 'stripe',
-                variables: {
-                    colorPrimary: '#d40202',
-                    borderRadius: '8px'
-                }
+                variables: { primaryColor: '#d40202', borderRadius: '8px' }
             }
         });
 
         const paymentElement = elements.create('payment');
         paymentElement.mount('#payment-element');
 
-        form.addEventListener('submit', async (e) => {
+        form.onsubmit = async (e) => {
             e.preventDefault();
             const submitBtn = document.getElementById('submit-btn');
             if (submitBtn) {
@@ -235,13 +275,22 @@ async function initCheckoutPage() {
                 localStorage.removeItem('fabio3d_cart');
                 window.location.href = `/success?payment_intent=${paymentIntent.id}`;
             }
-        });
+        };
 
     } catch (error) {
         console.error("Fehler beim Laden des Checkouts:", error);
         alert("Beim Laden des Zahlungsformulars ist ein Fehler aufgetreten.");
     }
 }
+
+function applyPromoCode() {
+    const input = document.getElementById('promo-code-input');
+    if (input && input.value.trim() !== '') {
+        initCheckoutPage(input.value.trim());
+    }
+}
+
+window.applyPromoCode = applyPromoCode;
 
 function removeFromCart(index) {
     cart.splice(index, 1); 

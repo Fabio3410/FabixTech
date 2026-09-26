@@ -1128,7 +1128,7 @@ html, body, .navbar, .tech-box, .material-card, .product-card, .sidebar, footer 
 }
 
 .theme-toggle-btn i {
-    transition: transform 0.4s ease;
+    transition: transform 0.15s ease, opacity 0.15s ease;
 }
 
 @media (max-width: 1024px) {

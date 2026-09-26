@@ -5,13 +5,9 @@ document.addEventListener('DOMContentLoaded', () => {
     toggleBtn.setAttribute('aria-label', 'Dark Mode umschalten');
 
     const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
-    
-    toggleBtn.innerHTML = currentTheme === 'dark' 
-        ? '<i class="fa-solid fa-moon"></i>' 
-        : '<i class="fa-solid fa-sun"></i>';
-    
+    toggleBtn.innerHTML = `<i class="${currentTheme === 'dark' ? 'fa-solid fa-moon' : 'fa-solid fa-sun'}"></i>`;
     document.body.appendChild(toggleBtn);
-
+    
     toggleBtn.addEventListener('click', () => {
         const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
         const newTheme = isDark ? 'light' : 'dark';
@@ -22,14 +18,14 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         localStorage.setItem('theme', newTheme);
         
-        toggleBtn.style.transform = 'scale(0) rotate(-180deg)';
+        const icon = toggleBtn.querySelector('i');
+        icon.style.opacity = '0';
+        icon.style.transform = 'rotate(90deg)';
         
         setTimeout(() => {
-            toggleBtn.innerHTML = newTheme === 'dark' 
-                ? '<i class="fa-solid fa-moon"></i>' 
-                : '<i class="fa-solid fa-sun"></i>';
-            
-            toggleBtn.style.transform = 'scale(1) rotate(0deg)';
-        }, 300);
+            icon.className = newTheme === 'dark' ? 'fa-solid fa-moon' : 'fa-solid fa-sun';
+            icon.style.opacity = '1';
+            icon.style.transform = 'rotate(0deg)';
+        }, 150);
     });
 });

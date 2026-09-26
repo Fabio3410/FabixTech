@@ -40,17 +40,17 @@ export async function onRequestGet(context) {
       const gesamtZeilenPreis = ((item.price * item.quantity) / 100).toFixed(2);
 
       return `
-      <div class="item" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 10px;">
+      <div class="item" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid var(--border-color); padding-bottom: 10px;">
           <div class="item-details" style="display: flex; flex-direction: column; text-align: left;">
-              <strong style="color: #000000; font-size: 15px;">${item.name}</strong>
-              <small style="color: #8792a2; margin-top: 2px;">${variante}</small>
+              <strong style="color: var(--text-main); font-size: 15px;">${item.name}</strong>
+              <small style="color: var(--text-muted); margin-top: 2px;">${variante}</small>
           </div>
           
           <div class="item-price" style="display: flex; flex-direction: column; align-items: flex-end; text-align: right;">
-              <strong style="color: #000000; font-size: 16px; white-space: nowrap;">
+              <strong style="color: var(--text-main); font-size: 16px; white-space: nowrap;">
                   ${gesamtZeilenPreis} CHF
               </strong>
-              <span style="color: #8792a2; font-size: 13px; white-space: nowrap; margin-bottom: 2px;">
+              <span style="color: var(--text-muted); font-size: 13px; white-space: nowrap; margin-bottom: 2px;">
                   ${item.quantity}x ${einzelPreis} CHF
               </span>
           </div>
@@ -66,30 +66,86 @@ export async function onRequestGet(context) {
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <meta name="apple-mobile-web-app-title" content="Fabio3D">
         <title>Danke für deinen Einkauf!</title>
+        <script>
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+        </script>
         <link rel="icon" type="image/png" href="/favicon/favicon-96x96.png" sizes="96x96"/>
         <link rel="icon" type="image/svg+xml" href="/favicon/favicon.svg"/>
         <link rel="shortcut icon" href="/favicon/favicon.ico"/>
         <link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png"/>
         <link rel="manifest" href="/favicon/site.webmanifest"/>
-        <script src="/theme-toggle.js" defer></script>
         <style>
-            body { font-family: sans-serif; background: #f4f6f8; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
-            .card { background: #fff; padding: 30px; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); max-width: 400px; width: 90%; }
-            h1 { text-align: center; font-size: 22px; }
-            .btn { display: block; text-align: center; background: #d40202; color: white; padding: 12px; border-radius: 8px; text-decoration: none; margin-top: 20px; font-weight: bold; }
+            :root {
+                --bg-body: #f4f6f8;
+                --bg-card: #ffffff;
+                --text-main: #0f172a;
+                --text-muted: #64748b;
+                --border-color: #e2e8f0;
+                --icon-bg: #e3faf2;
+            }
+
+            html[data-theme="dark"] {
+                --bg-body: #0f172a;
+                --bg-card: #1e293b;
+                --text-main: #f8fafc;
+                --text-muted: #94a3b8;
+                --border-color: #334155;
+                --icon-bg: #064e3b;
+            }
+
+            body { 
+                font-family: sans-serif; 
+                background: var(--bg-body); 
+                color: var(--text-main); 
+                display: flex; 
+                justify-content: center; 
+                align-items: center; 
+                min-height: 100vh; 
+                margin: 0; 
+                transition: background-color 0.3s, color 0.3s;
+            }
+
+            .card { 
+                background: var(--bg-card); 
+                padding: 30px; 
+                border-radius: 16px; 
+                box-shadow: 0 10px 30px rgba(0,0,0,0.1); 
+                border: 1px solid var(--border-color);
+                max-width: 400px; 
+                width: 90%; 
+            }
+
+            h1 { 
+                text-align: center; 
+                font-size: 22px; 
+                color: var(--text-main);
+            }
+
+            .btn { 
+                display: block; 
+                text-align: center; 
+                background: #d40202; 
+                color: white; 
+                padding: 12px; 
+                border-radius: 8px; 
+                text-decoration: none; 
+                margin-top: 20px; 
+                font-weight: bold; 
+            }
+
             .icon {
-              display: flex;
-              justify-content: center;
-              align-items: center;
-              width: 56px;
-              height: 56px;
-              background-color: #e3faf2;
-              font-size: 24px;
-              font-weight: bold;
-              border-radius: 50%;
-              margin: 0 auto 24px auto;
-          }
-          .icon img { width: 56px; height: 56px; }
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                width: 56px;
+                height: 56px;
+                background-color: var(--icon-bg);
+                border-radius: 50%;
+                margin: 0 auto 24px auto;
+            }
+
+            .icon img { width: 56px; height: 56px; }
         </style>
     </head>
     <body>
@@ -98,15 +154,15 @@ export async function onRequestGet(context) {
                 <img src="../images/success.png" alt="Erfolg">
             </div>
             <h1>${begruessungText}</h1>
-            <p style="text-align: center; color: #8792a2;">Deine Zahlung war erfolgreich.</p>
+            <p style="text-align: center; color: var(--text-muted);">Deine Zahlung war erfolgreich.</p>
             
             <div style="margin-top: 20px;">
                 ${artikelListeHtml}
-                <div style="display: flex; justify-content: space-between; color: #8792a2; font-size: 13px; white-space: nowrap; margin-bottom: 2px;">
+                <div style="display: flex; justify-content: space-between; color: var(--text-muted); font-size: 13px; white-space: nowrap; margin-bottom: 2px;">
                   <span>Versand</span>
                   <span>5.70 ${waehrung}</span>
                 </div>
-                <div style="display: flex; justify-content: space-between; font-weight: bold; margin-top: 10px;">
+                <div style="display: flex; justify-content: space-between; font-weight: bold; color: var(--text-main); margin-top: 10px;">
                     <span>Gesamt</span>
                     <span>${gesamtBetrag} ${waehrung}</span>
                 </div>

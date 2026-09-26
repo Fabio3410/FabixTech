@@ -1,9 +1,15 @@
 import Stripe from 'stripe';
 
+const PROMO_CODES = {
+    'RABATT10': { type: 'percent', value: 10 },  // 10% Rabatt
+    'SPARE5': { type: 'fixed', value: 500 },     // 5.00 CHF Rabatt (500 Rappen)
+    'VIP20': { type: 'percent', value: 20 }      // 20% Rabatt
+};
+
 export async function onRequestPost(context) {
     try {
         const stripe = new Stripe(context.env.STRIPE_SECRET_KEY);
-        const { cart } = await context.request.json();
+        const { cart, promoCode } = await context.request.json();
         
         for (const item of cart) {
             const productId = item.id;
@@ -24,14 +30,50 @@ export async function onRequestPost(context) {
                     headers: { 'Content-Type': 'application/json' }
                 });
             }
+
+            await context.env.DB.prepare(
+                "UPDATE inventory SET stock = stock - ? WHERE id = ?"
+            ).bind(kundenMenge, productId).run();
         }
         
-        let totalAmount = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-        
-        const versandkostenRappen = 570; // 5.70 CHF
-        totalAmount += versandkostenRappen;
+        let itemsSubtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+        let rabattRappen = 0;
+        let angewendeterCode = null;
 
-        const sessionMetadata = {};
+        if (promoCode && promoCode.trim() !== '') {
+            const cleanCode = promoCode.trim().toUpperCase();
+            const promo = PROMO_CODES[cleanCode];
+
+            if (!promo) {
+                return new Response(JSON.stringify({ 
+                    error: 'Der eingegebene Aktionscode ist ungültig.' 
+                }), { 
+                    status: 400,
+                    headers: { 'Content-Type': 'application/json' }
+                });
+            }
+
+            if (promo.type === 'percent') {
+                rabattRappen = Math.round((itemsSubtotal * promo.value) / 100);
+            } else if (promo.type === 'fixed') {
+                rabattRappen = promo.value;
+            }
+
+            if (rabattRappen > itemsSubtotal) {
+                rabattRappen = itemsSubtotal;
+            }
+
+            angewendeterCode = cleanCode;
+        }
+
+        const versandkostenRappen = 590;
+        const totalAmount = (itemsSubtotal - rabattRappen) + versandkostenRappen;
+
+        const sessionMetadata = {
+            promoCode: angewendeterCode || 'Keiner',
+            rabatt: `${(rabattRappen / 100).toFixed(2)} CHF`
+        };
+
         cart.forEach((item, index) => {
             sessionMetadata[`item_${index}`] = JSON.stringify({
                 name: item.name,
@@ -44,13 +86,18 @@ export async function onRequestPost(context) {
         const paymentIntent = await stripe.paymentIntents.create({
             amount: totalAmount,
             currency: 'chf',
-            automatic_payment_methods: {
-                enabled: true,
-            },
+            automatic_payment_methods: { enabled: true },
             metadata: sessionMetadata,
         });
 
-        return new Response(JSON.stringify({ clientSecret: paymentIntent.client_secret }), {
+        return new Response(JSON.stringify({ 
+            clientSecret: paymentIntent.client_secret,
+            subtotal: itemsSubtotal / 100,
+            discount: rabattRappen / 100,
+            shipping: versandkostenRappen / 100,
+            total: totalAmount / 100,
+            appliedCode: angewendeterCode
+        }), {
             status: 200,
             headers: { 'Content-Type': 'application/json' }
         });
