@@ -31,14 +31,15 @@ export async function onRequestPost(context) {
         const versandkostenRappen = 570; // 5.70 CHF
         totalAmount += versandkostenRappen;
 
-        const sessionMetadata = {
-            items: JSON.stringify(cart.map(item => ({
+        const sessionMetadata = {};
+        cart.forEach((item, index) => {
+            sessionMetadata[`item_${index}`] = JSON.stringify({
                 name: item.name,
                 quantity: item.quantity,
                 price: item.price,
                 farbe: item.farbe || ''
-            })))
-        };
+            });
+        });
 
         const paymentIntent = await stripe.paymentIntents.create({
             amount: totalAmount,

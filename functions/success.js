@@ -20,15 +20,19 @@ export async function onRequestGet(context) {
     const begruessungText = kundeName ? `Danke, ${kundeName}!` : "Danke für deine Bestellung!";
     const gesamtBetrag = (paymentIntent.amount / 100).toFixed(2);
     const waehrung = paymentIntent.currency.toUpperCase();
-
     let items = [];
-    try {
-      if (paymentIntent.metadata?.items) {
-        items = JSON.parse(paymentIntent.metadata.items);
-      }
-    } catch (e) {
-      console.error("Fehler beim Parsen der Metadata:", e);
-    }
+        if (paymentIntent.metadata) {
+            Object.keys(paymentIntent.metadata)
+            .filter(key => key.startsWith('item_'))
+            .sort((a, b) => parseInt(a.split('_')[1]) - parseInt(b.split('_')[1]))
+            .forEach(key => {
+                try {
+                    items.push(JSON.parse(paymentIntent.metadata[key]));
+                } catch (e) {
+                    console.error("Fehler beim Parsen von", key, e);
+                }
+            });
+        }
 
     const artikelListeHtml = items.map(item => {
       const variante = item.farbe || '';
