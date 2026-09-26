@@ -28,15 +28,17 @@ export async function onRequestPost(context) {
         
         let totalAmount = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
         
-        const versandkostenRappen = 590;
+        const versandkostenRappen = 570; // 5.70 CHF
         totalAmount += versandkostenRappen;
 
-        const sessionMetadata = {};
-        cart.forEach(item => {
-            if (item.id) {
-                sessionMetadata[`prod_${item.id}`] = item.quantity.toString();
-            }
-        });
+        const sessionMetadata = {
+            items: JSON.stringify(cart.map(item => ({
+                name: item.name,
+                quantity: item.quantity,
+                price: item.price,
+                farbe: item.farbe || ''
+            })))
+        };
 
         const paymentIntent = await stripe.paymentIntents.create({
             amount: totalAmount,

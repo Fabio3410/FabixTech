@@ -2,45 +2,57 @@ import Stripe from 'stripe';
 
 export async function onRequestGet(context) {
   const url = new URL(context.request.url);
-  const sessionId = url.searchParams.get('session_id');
+  const paymentIntentId = url.searchParams.get('payment_intent');
 
-  if (!sessionId) {
-    return new Response("Keine Session-ID übergeben.", { status: 400 });
+  if (!paymentIntentId) {
+    return new Response("Keine Zahlungs-ID übergeben.", { status: 400 });
   }
 
   try {
     const stripe = new Stripe(context.env.STRIPE_SECRET_KEY);
-    const session = await stripe.checkout.sessions.retrieve(sessionId, {
-      expand: ['line_items', 'line_items.data.price.product'],
-    });
+    const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
 
-    const kundeName = session.customer_details?.name;
+    if (paymentIntent.status !== 'succeeded') {
+      return new Response("Die Zahlung wurde noch nicht abgeschlossen.", { status: 400 });
+    }
+
+    const kundeName = paymentIntent.shipping?.name || '';
     const begruessungText = kundeName ? `Danke, ${kundeName}!` : "Danke für deine Bestellung!";
-    const gesamtBetrag = (session.amount_total / 100).toFixed(2);
-    const waehrung = session.currency.toUpperCase();
-    const artikelListeHtml = session.line_items.data.map(item => {
-      const variante = item.price.product.description || '';
-      const einzelPreis = (item.amount_total / 100 / item.quantity).toFixed(2);
-      const gesamtZeilenPreis = (item.amount_total / 100).toFixed(2);
+    const gesamtBetrag = (paymentIntent.amount / 100).toFixed(2);
+    const waehrung = paymentIntent.currency.toUpperCase();
 
-    return `
-    <div class="item" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 10px;">
-        <div class="item-details" style="display: flex; flex-direction: column; text-align: left;">
-            <strong style="color: #00000; font-size: 15px;">${item.description}</strong>
-            <small style="color: #8792a2; margin-top: 2px;">${variante}</small>
-        </div>
-        
-        <div class="item-price" style="display: flex; flex-direction: column; align-items: flex-end; text-align: right;">
-            <strong style="color: #00000; font-size: 16px; white-space: nowrap;">
-                ${gesamtZeilenPreis} CHF
-            </strong>
-            <span style="color: #8792a2; font-size: 13px; white-space: nowrap; margin-bottom: 2px;">
-                ${item.quantity}x ${einzelPreis} CHF
-            </span>
-        </div>
-    </div>
-    `;
-}).join('');
+    let items = [];
+    try {
+      if (paymentIntent.metadata?.items) {
+        items = JSON.parse(paymentIntent.metadata.items);
+      }
+    } catch (e) {
+      console.error("Fehler beim Parsen der Metadata:", e);
+    }
+
+    const artikelListeHtml = items.map(item => {
+      const variante = item.farbe || '';
+      const einzelPreis = (item.price / 100).toFixed(2);
+      const gesamtZeilenPreis = ((item.price * item.quantity) / 100).toFixed(2);
+
+      return `
+      <div class="item" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 10px;">
+          <div class="item-details" style="display: flex; flex-direction: column; text-align: left;">
+              <strong style="color: #000000; font-size: 15px;">${item.name}</strong>
+              <small style="color: #8792a2; margin-top: 2px;">${variante}</small>
+          </div>
+          
+          <div class="item-price" style="display: flex; flex-direction: column; align-items: flex-end; text-align: right;">
+              <strong style="color: #000000; font-size: 16px; white-space: nowrap;">
+                  ${gesamtZeilenPreis} CHF
+              </strong>
+              <span style="color: #8792a2; font-size: 13px; white-space: nowrap; margin-bottom: 2px;">
+                  ${item.quantity}x ${einzelPreis} CHF
+              </span>
+          </div>
+      </div>
+      `;
+    }).join('');
 
     const html = `
     <!DOCTYPE html>
@@ -50,9 +62,6 @@ export async function onRequestGet(context) {
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Danke für deinen Einkauf!</title>
         <link rel="icon" type="image/png" href="../favicon/favicon-96x96.png" sizes="96x96"/>
-        <link rel="icon" type="image/svg+xml" href="../favicon/favicon.svg"/>
-        <link rel="shortcut icon" href="../favicon/favicon.ico"/>
-        <link rel="apple-touch-icon" sizes="180x180" href="../favicon/apple-touch-icon.png"/>
         <link rel="manifest" href="../favicon/site.webmanifest"/>
         <style>
             body { font-family: sans-serif; background: #f4f6f8; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
@@ -71,17 +80,13 @@ export async function onRequestGet(context) {
               border-radius: 50%;
               margin: 0 auto 24px auto;
           }
-
-          .icon img {
-              width: 56px;
-              height: 56px;
-              }
+          .icon img { width: 56px; height: 56px; }
         </style>
     </head>
     <body>
         <div class="card">
             <div class="icon">
-                <img src="../images/success.png">
+                <img src="../images/success.png" alt="Erfolg">
             </div>
             <h1>${begruessungText}</h1>
             <p style="text-align: center; color: #8792a2;">Deine Zahlung war erfolgreich.</p>
@@ -102,6 +107,7 @@ export async function onRequestGet(context) {
         </div>
         <script>
             localStorage.removeItem('fabio3d_cart');
+            localStorage.removeItem('cart');
         </script>
     </body>
     </html>`;
