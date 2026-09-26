@@ -122,6 +122,8 @@ html, #cart-items-container {
     list-style: none;
     gap: 2.4rem;
     pointer-events: none;
+    opacity: 0;
+    display: none;
 }
 
 .nav-link {

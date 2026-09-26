@@ -110,6 +110,35 @@
             border-radius: 6px;
             box-sizing: border-box;
             outline: none;
+            background-color: #ffffff;
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .form-control::placeholder {
+            color: #94a3b8;
+            opacity: 1;
+        }
+
+        .form-control:focus {
+            border-color: #d40202;
+            box-shadow: 0 0 0 1px #d40202, 0 0 6px rgba(212, 2, 2, 0.2);
+        }
+
+        html[data-theme="dark"] .form-control {
+            background-color: #30313d;
+            border: 1px solid #424353;
+            color: #ffffff;
+        }
+
+        html[data-theme="dark"] .form-control::placeholder {
+            color: #797f8c;
+        }
+
+        html[data-theme="dark"] .form-control:focus {
+            border-color: #d40202;
+            box-shadow: 0 0 0 1px #d40202, 0 0 8px rgba(212, 2, 2, 0.35);
         }
 
         .pay-btn {

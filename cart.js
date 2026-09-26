@@ -157,7 +157,7 @@ async function initCheckoutPage() {
     const form = document.getElementById('payment-form');
     if (!form) return;
 
-    if (cart.length === 0) {
+    if (typeof cart === 'undefined' || !cart || cart.length === 0) {
         document.querySelector('.checkout-container').innerHTML = '<p>Dein Warenkorb ist leer. <a href="/">Zurück zum Shop</a></p>';
         return;
     }
@@ -203,30 +203,42 @@ async function initCheckoutPage() {
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
             const submitBtn = document.getElementById('submit-btn');
-            submitBtn.disabled = true;
-            submitBtn.innerText = 'Wird verarbeitet...';
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.innerText = 'Wird verarbeitet...';
+            }
 
-            const { error } = await stripe.confirmPayment({
+            const emailInput = document.getElementById('email');
+            const nameInput = document.getElementById('name');
+
+            const { error, paymentIntent } = await stripe.confirmPayment({
                 elements,
                 confirmParams: {
-                    return_url: window.location.origin + '/success.html',
-                    receipt_email: document.getElementById('email').value,
+                    return_url: window.location.origin + '/success',
+                    receipt_email: emailInput ? emailInput.value : undefined,
                     shipping: {
-                        name: document.getElementById('name').value,
+                        name: nameInput ? nameInput.value : 'Kunde',
                         address: { country: 'CH' }
                     }
-                }
+                },
+                redirect: 'if_required'
             });
 
             if (error) {
                 alert(error.message);
-                submitBtn.disabled = false;
-                submitBtn.innerText = 'Zahlen';
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.innerText = 'Zahlen';
+                }
+            } else if (paymentIntent && paymentIntent.status === 'succeeded') {
+                localStorage.removeItem('cart');
+                window.location.href = '/success';
             }
         });
 
     } catch (error) {
         console.error("Fehler beim Laden des Checkouts:", error);
+        alert("Beim Laden des Zahlungsformulars ist ein Fehler aufgetreten.");
     }
 }
 
