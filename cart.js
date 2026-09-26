@@ -232,7 +232,8 @@ async function initCheckoutPage() {
                 }
             } else if (paymentIntent && paymentIntent.status === 'succeeded') {
                 localStorage.removeItem('cart');
-                window.location.href = '/success';
+                localStorage.removeItem('fabio3d_cart');
+                window.location.href = `/success?payment_intent=${paymentIntent.id}`;
             }
         });
 
