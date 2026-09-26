@@ -21,18 +21,26 @@ export async function onRequestGet(context) {
     const gesamtBetrag = (paymentIntent.amount / 100).toFixed(2);
     const waehrung = paymentIntent.currency.toUpperCase();
     let items = [];
-        if (paymentIntent.metadata) {
-            Object.keys(paymentIntent.metadata)
-            .filter(key => key.startsWith('item_'))
-            .sort((a, b) => parseInt(a.split('_')[1]) - parseInt(b.split('_')[1]))
-            .forEach(key => {
-                try {
-                    items.push(JSON.parse(paymentIntent.metadata[key]));
-                } catch (e) {
-                    console.error("Fehler beim Parsen von", key, e);
-                }
-            });
+    if (paymentIntent.metadata) {
+        Object.keys(paymentIntent.metadata)
+        .filter(key => key.startsWith('item_'))
+        .sort((a, b) => parseInt(a.split('_')[1]) - parseInt(b.split('_')[1]))
+        .forEach(key => {
+            try {
+                items.push(JSON.parse(paymentIntent.metadata[key]));
+            } catch (e) {
+                console.error("Fehler beim Parsen von", key, e);
+            }
+        });
+    }
+    
+    for (const item of items) {
+        if (item.id && item.quantity) {
+            await context.env.DB.prepare(
+                "UPDATE inventory SET stock = stock - ? WHERE id = ?"
+            ).bind(item.quantity, item.id).run();
         }
+    }
 
     const artikelListeHtml = items.map(item => {
       const variante = item.farbe || '';

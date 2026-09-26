@@ -1,9 +1,9 @@
 import Stripe from 'stripe';
 
 const PROMO_CODES = {
-    'RABATT10': { type: 'percent', value: 10 },  // 10% Rabatt
-    'SPARE5': { type: 'fixed', value: 500 },     // 5.00 CHF Rabatt (500 Rappen)
-    'VIP20': { type: 'percent', value: 20 }      // 20% Rabatt
+    'RABATT10': { type: 'percent', value: 10 }, // 10% Rabatt
+    'SPARE5': { type: 'fixed', value: 500 },    // 5 Franken Rabatt
+    'VIP20': { type: 'percent', value: 20 }     // 20% Rabatt
 };
 
 export async function onRequestPost(context) {
@@ -30,10 +30,6 @@ export async function onRequestPost(context) {
                     headers: { 'Content-Type': 'application/json' }
                 });
             }
-
-            await context.env.DB.prepare(
-                "UPDATE inventory SET stock = stock - ? WHERE id = ?"
-            ).bind(kundenMenge, productId).run();
         }
         
         let itemsSubtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
@@ -76,6 +72,7 @@ export async function onRequestPost(context) {
 
         cart.forEach((item, index) => {
             sessionMetadata[`item_${index}`] = JSON.stringify({
+                id: item.id,
                 name: item.name,
                 quantity: item.quantity,
                 price: item.price,

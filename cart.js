@@ -233,7 +233,7 @@ async function initCheckoutPage(promoCode = null) {
             clientSecret: data.clientSecret,
             appearance: {
                 theme: isDark ? 'night' : 'stripe',
-                variables: { primaryColor: '#d40202', borderRadius: '8px' }
+                variables: { colorPrimary: '#d40202', borderRadius: '8px' }
             }
         });
 
