@@ -109,12 +109,14 @@ export async function onRequestPost(context) {
         .bind(email, hashedPassword).all();
         
         if (results.length > 0) {
+            const userRow = results[0];
             return new Response(JSON.stringify({ 
                 status: 'success', 
                 message: 'Erfolgreich angemeldet.',
                 user: {
-                    email: results[0].email,
-                    profile_picture: results[0].profile_picture || null
+                    email: userRow.email,
+                    profile_picture: userRow.profile_picture || null,
+                    is_admin: userRow.is_admin === 1
                 }
             }));
         } else {

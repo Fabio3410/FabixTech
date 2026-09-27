@@ -144,6 +144,8 @@ function toggleProfileMenu() {
 function logoutUser() {
     localStorage.removeItem('user');
     window.location.reload();
+    localStorage.removeItem('is_admin');
+    window.location.href = '/';
 }
 
 function renderUserMenu() {

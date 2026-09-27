@@ -47,6 +47,45 @@ export async function onRequestGet(context) {
         });
     }
 
+    const existingOrder = await context.env.DB.prepare(
+        "SELECT id FROM orders WHERE payment_intent_id = ?"
+    ).bind(paymentIntentId).first();
+
+    if (!existingOrder) {
+        const orderId = "ORD-" + Date.now();
+        const shipping = paymentIntent.shipping;
+        const addressStr = shipping?.address 
+            ? `${shipping.address.line1 || ''}, ${shipping.address.postal_code || ''} ${shipping.address.city || ''}, ${shipping.address.country || ''}`
+            : 'Keine Adresse';
+
+        await context.env.DB.prepare(`
+            INSERT INTO orders (id, payment_intent_id, customer_name, customer_email, shipping_address, total_amount, discount_amount, promo_code, status)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'offen')
+        `).bind(
+            orderId,
+            paymentIntentId,
+            shipping?.name || 'Unbekannt',
+            paymentIntent.receipt_email || paymentIntent.customer_details?.email || 'Keine E-Mail',
+            addressStr,
+            parseFloat(gesamtBetrag),
+            rabattWert,
+            promoCode || 'Keiner'
+        ).run();
+
+        for (const item of items) {
+            await context.env.DB.prepare(`
+                INSERT INTO order_items (order_id, product_name, variant, quantity, price)
+                VALUES (?, ?, ?, ?, ?)
+            `).bind(
+                orderId,
+                item.name,
+                item.farbe || 'Standard',
+                item.quantity,
+                (item.price / 100)
+            ).run();
+        }
+    }
+
     for (const item of items) {
         if (item.id && item.quantity) {
             await context.env.DB.prepare(
@@ -85,17 +124,11 @@ export async function onRequestGet(context) {
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <meta name="apple-mobile-web-app-title" content="Fabio3D">
         <title>Danke für deinen Einkauf!</title>
         <script>
             const savedTheme = localStorage.getItem('theme') || 'light';
             document.documentElement.setAttribute('data-theme', savedTheme);
         </script>
-        <link rel="icon" type="image/png" href="/favicon/favicon-96x96.png" sizes="96x96"/>
-        <link rel="icon" type="image/svg+xml" href="/favicon/favicon.svg"/>
-        <link rel="shortcut icon" href="/favicon/favicon.ico"/>
-        <link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png"/>
-        <link rel="manifest" href="/favicon/site.webmanifest"/>
         <style>
             :root {
                 --bg-body: #f4f6f8;
@@ -124,7 +157,6 @@ export async function onRequestGet(context) {
                 align-items: center; 
                 min-height: 100vh; 
                 margin: 0; 
-                transition: background-color 0.3s, color 0.3s;
             }
 
             .card { 
@@ -137,50 +169,22 @@ export async function onRequestGet(context) {
                 width: 90%; 
             }
 
-            h1 { 
-                text-align: center; 
-                font-size: 22px; 
-                color: var(--text-main);
-            }
-
-            .btn { 
-                display: block; 
-                text-align: center; 
-                background: #d40202; 
-                color: white; 
-                padding: 12px; 
-                border-radius: 8px; 
-                text-decoration: none; 
-                margin-top: 20px; 
-                font-weight: bold; 
-            }
-
-            .icon {
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                width: 56px;
-                height: 56px;
-                background-color: var(--icon-bg);
-                border-radius: 50%;
-                margin: 0 auto 24px auto;
-            }
-
+            h1 { text-align: center; font-size: 22px; color: var(--text-main); }
+            .btn { display: block; text-align: center; background: #d40202; color: white; padding: 12px; border-radius: 8px; text-decoration: none; margin-top: 20px; font-weight: bold; }
+            .icon { display: flex; justify-content: center; align-items: center; width: 56px; height: 56px; background-color: var(--icon-bg); border-radius: 50%; margin: 0 auto 24px auto; }
             .icon img { width: 56px; height: 56px; }
         </style>
     </head>
     <body>
         <div class="card">
-            <div class="icon">
-                <img src="../images/success.png" alt="Erfolg">
-            </div>
+            <div class="icon"><img src="../images/success.png" alt="Erfolg"></div>
             <h1>${begruessungText}</h1>
             <p style="text-align: center; color: var(--text-muted);">Deine Zahlung war erfolgreich.</p>
             
             <div style="margin-top: 20px;">
                 ${artikelListeHtml}
                 ${rabattHtml}
-                <div style="display: flex; justify-content: space-between; color: var(--text-muted); font-size: 13px; white-space: nowrap; margin-bottom: 2px;">
+                <div style="display: flex; justify-content: space-between; color: var(--text-muted); font-size: 13px; margin-bottom: 2px;">
                   <span>Versand</span>
                   <span>5.90 ${waehrung}</span>
                 </div>
