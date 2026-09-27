@@ -1130,6 +1130,79 @@ html, body, .navbar, .tech-box, .material-card, .product-card, .sidebar, footer 
     transition: transform 0.15s ease, opacity 0.15s ease;
 }
 
+/* ==========================================
+   COOKIE BANNER (DARK & LIGHT MODE)
+   ========================================== */
+.cookie-banner {
+    position: fixed;
+    bottom: 25px;
+    right: 25px;
+    max-width: 400px;
+    background-color: var(--bg-card);
+    color: var(--text-main);
+    border: 1.2px solid var(--border-color);
+    border-radius: 14px;
+    padding: 1.5rem;
+    box-shadow: var(--shadow-md);
+    z-index: 9999;
+    transition: opacity 0.3s ease, 
+                transform 0.3s ease, 
+                background-color 0.4s ease, 
+                border-color 0.4s ease, 
+                color 0.4s ease;
+}
+
+.cookie-banner.hidden {
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(20px);
+}
+
+.cookie-content h3 {
+    margin: 0 0 0.5rem 0;
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--text-main);
+}
+
+.cookie-content p {
+    font-size: 0.95rem;
+    color: var(--text-muted);
+    margin: 0 0 1.2rem 0;
+    line-height: 1.5;
+}
+
+.cookie-buttons {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.btn-cookie {
+    background-color: var(--light-color);
+    color: #ffffff;
+    border: none;
+    padding: 0.6rem 1.2rem;
+    border-radius: 7px;
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 0.95rem;
+    transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.btn-cookie:hover {
+    opacity: 0.9;
+    transform: scale(1.02);
+}
+
+@media (max-width: 480px) {
+    .cookie-banner {
+        bottom: 15px;
+        left: 15px;
+        right: 15px;
+        max-width: none;
+    }
+}
+
 @media (max-width: 1024px) {
     .theme-toggle-btn {
         bottom: 20px;

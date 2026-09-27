@@ -197,6 +197,25 @@ document.addEventListener('click', function(event) {
     if (root && dropdown && !root.contains(event.target)) {
         dropdown.classList.remove('active');
     }
+    const cookieBanner = document.getElementById('cookie-banner');
+    const acceptBtn = document.getElementById('accept-cookies-btn');
+
+    const hasConsented = localStorage.getItem('cookie_consent');
+    const hasBeenShownThisSession = sessionStorage.getItem('cookie_banner_shown');
+
+    if (cookieBanner && !hasConsented && !hasBeenShownThisSession) {
+        cookieBanner.classList.remove('hidden');
+        sessionStorage.setItem('cookie_banner_shown', 'true');
+    }
+
+    if (acceptBtn) {
+        acceptBtn.addEventListener('click', () => {
+            localStorage.setItem('cookie_consent', 'granted');
+            if (cookieBanner) {
+                cookieBanner.classList.add('hidden');
+            }
+        });
+    }
 });
 
 document.addEventListener('DOMContentLoaded', renderUserMenu);

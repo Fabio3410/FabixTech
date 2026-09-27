@@ -98,7 +98,7 @@
 
         async function loadOrders() {
             try {
-                const res = await fetch('/api/admin/orders');
+                const res = await fetch('/api/orders');
                 if (!res.ok) {
                     document.getElementById('orders-list').innerHTML = '<p style="text-align:center; color: var(--text-muted);">Fehler beim Laden der Bestellungen.</p>';
                     return;
@@ -161,7 +161,7 @@
         }
 
         async function markAsShipped(orderId) {
-            await fetch('/api/admin/orders', {
+            await fetch('/api/orders', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ orderId, status: 'versendet' })
