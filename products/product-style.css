@@ -160,6 +160,8 @@ html, #cart-items-container {
     align-items: center;
     justify-content: flex-end;
     height: 40px;
+    opacity: 0;
+    pointer-events: none;
 }
 
 .cart-icon, .user-menu-container {
