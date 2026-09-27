@@ -138,12 +138,13 @@ function stringToColor(str) {
 
 function toggleProfileMenu() {
     const dropdown = document.getElementById('profileDropdown');
-    dropdown.classList.toggle('active');
+    if (dropdown) {
+        dropdown.classList.toggle('active');
+    }
 }
 
 function logoutUser() {
     localStorage.removeItem('user');
-    window.location.reload();
     localStorage.removeItem('is_admin');
     window.location.href = '/';
 }
@@ -168,12 +169,18 @@ function renderUserMenu() {
             ? `<img src="${user.profile_picture}" alt="Profilbild">`
             : defaultSvg;
 
+        const isAdmin = localStorage.getItem('is_admin') === 'true' || Boolean(user.is_admin);
+        const adminLinkHtml = isAdmin 
+            ? `<a href="admin.html" style="color: #d40202; font-weight: 600;">Admin Dashboard</a>` 
+            : '';
+
         root.innerHTML = `
             <div class="avatar" style="background-color: #ffffff;" onclick="toggleProfileMenu()">
                 ${avatarContent}
             </div>
             <div class="profile-dropdown" id="profileDropdown">
                 <a href="settings">Kontoeinstellungen</a>
+                ${adminLinkHtml}
                 <a href="#" onclick="logoutUser()">Abmelden</a>
             </div>
         `;
