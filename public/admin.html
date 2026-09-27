@@ -93,81 +93,107 @@
         <div id="orders-list"><p style="text-align:center; color: var(--text-muted);">Lade Bestellungen...</p></div>
     </div>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', loadOrders);
+<script>
+document.addEventListener('DOMContentLoaded', loadOrders);
 
-        async function loadOrders() {
-            try {
-                const res = await fetch('/api/orders');
-                if (!res.ok) {
-                    document.getElementById('orders-list').innerHTML = '<p style="text-align:center; color: var(--text-muted);">Fehler beim Laden der Bestellungen.</p>';
-                    return;
-                }
+function getSessionToken() {
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    return user.session_id || localStorage.getItem('session_id') || '';
+}
 
-                const orders = await res.json();
-                const container = document.getElementById('orders-list');
-                container.innerHTML = '';
-
-                if (!orders || orders.length === 0) {
-                    container.innerHTML = '<p style="text-align:center; color: var(--text-muted);">Noch keine Bestellungen vorhanden.</p>';
-                    return;
-                }
-
-                orders.forEach(order => {
-                    const itemsHtml = order.items.map(i => `
-                        <li>
-                            <span><strong>${i.quantity}x</strong> ${i.product_name} (${i.variant})</span>
-                            <span>CHF ${i.price.toFixed(2)}</span>
-                        </li>
-                    `).join('');
-                    
-                    const isShipped = order.status === 'versendet';
-
-                    container.innerHTML += `
-                        <div class="order-card">
-                            <div class="order-header">
-                                <span class="order-title">${order.id}</span>
-                                <span class="badge ${isShipped ? 'badge-versendet' : 'badge-offen'}">${order.status}</span>
-                            </div>
-
-                            <div class="order-grid">
-                                <div class="info-block">
-                                    <h4>Kunde</h4>
-                                    <p>${order.customer_name}<br><small style="color: var(--text-muted);">${order.customer_email}</small></p>
-                                </div>
-                                <div class="info-block">
-                                    <h4>Lieferadresse</h4>
-                                    <p>${order.shipping_address}</p>
-                                </div>
-                            </div>
-
-                            <ul class="items-list">
-                                ${itemsHtml}
-                            </ul>
-
-                            <div class="order-footer">
-                                <div>
-                                    <span class="total-price">Gesamt: CHF ${order.total_amount.toFixed(2)}</span>
-                                    ${order.discount_amount > 0 ? `<br><small style="color: #16a34a;">(inkl. Rabatt: CHF ${order.discount_amount.toFixed(2)})</small>` : ''}
-                                </div>
-                                ${!isShipped ? `<button class="btn-shipped" onclick="markAsShipped('${order.id}')">Als versendet markieren</button>` : ''}
-                            </div>
-                        </div>
-                    `;
-                });
-            } catch (err) {
-                console.error("Fehler:", err);
+async function loadOrders() {
+    try {
+        const token = getSessionToken();
+        const res = await fetch('/api/orders', {
+            method: 'GET',
+            credentials: 'include',
+            headers: {
+                'Authorization': `Bearer ${token}`
             }
+        });
+
+        if (!res.ok) {
+            document.getElementById('orders-list').innerHTML = 
+                '<p style="text-align:center; color: var(--text-muted);">Fehler beim Laden der Bestellungen (Keine Berechtigung oder nicht angemeldet).</p>';
+            return;
         }
 
-        async function markAsShipped(orderId) {
-            await fetch('/api/orders', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ orderId, status: 'versendet' })
-            });
-            loadOrders();
+        const orders = await res.json();
+        const container = document.getElementById('orders-list');
+        container.innerHTML = '';
+
+        if (!orders || orders.length === 0) {
+            container.innerHTML = '<p style="text-align:center; color: var(--text-muted);">Noch keine Bestellungen vorhanden.</p>';
+            return;
         }
-    </script>
+
+        orders.forEach(order => {
+            const itemsHtml = (order.items || []).map(i => `
+                <li>
+                    <span><strong>${i.quantity}x</strong> ${i.product_name} (${i.variant})</span>
+                    <span>CHF ${Number(i.price).toFixed(2)}</span>
+                </li>
+            `).join('');
+            
+            const isShipped = order.status === 'versendet';
+
+            container.innerHTML += `
+                <div class="order-card">
+                    <div class="order-header">
+                        <span class="order-title">Bestellung #${order.id}</span>
+                        <span class="badge ${isShipped ? 'badge-versendet' : 'badge-offen'}">${order.status}</span>
+                    </div>
+
+                    <div class="order-grid">
+                        <div class="info-block">
+                            <h4>Kunde</h4>
+                            <p>${order.customer_name}<br><small style="color: var(--text-muted);">${order.customer_email}</small></p>
+                        </div>
+                        <div class="info-block">
+                            <h4>Lieferadresse</h4>
+                            <p>${order.shipping_address}</p>
+                        </div>
+                    </div>
+
+                    <ul class="items-list">
+                        ${itemsHtml}
+                    </ul>
+
+                    <div class="order-footer">
+                        <div>
+                            <span class="total-price">Gesamt: CHF ${Number(order.total_amount).toFixed(2)}</span>
+                            ${order.discount_amount > 0 ? `<br><small style="color: #16a34a;">(inkl. Rabatt: CHF ${Number(order.discount_amount).toFixed(2)})</small>` : ''}
+                        </div>
+                        ${!isShipped ? `<button class="btn-shipped" onclick="markAsShipped('${order.id}')">Als versendet markieren</button>` : ''}
+                    </div>
+                </div>
+            `;
+        });
+    } catch (err) {
+        console.error("Fehler beim Laden der Bestellungen:", err);
+        document.getElementById('orders-list').innerHTML = 
+            '<p style="text-align:center; color: var(--text-muted);">Verbindungsfehler zum Server.</p>';
+    }
+}
+
+async function markAsShipped(orderId) {
+    const token = getSessionToken();
+    const res = await fetch('/api/orders', {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ orderId, status: 'versendet' })
+    });
+
+    if (res.ok) {
+        loadOrders();
+    } else {
+        alert('Status konnte nicht aktualisiert werden.');
+    }
+}
+</script>
 </body>
 </html>

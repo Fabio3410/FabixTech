@@ -191,12 +191,7 @@ function renderUserMenu() {
     }
 }
 
-document.addEventListener('click', function(event) {
-    const root = document.getElementById('user-menu-root');
-    const dropdown = document.getElementById('profileDropdown');
-    if (root && dropdown && !root.contains(event.target)) {
-        dropdown.classList.remove('active');
-    }
+function initCookieBanner() {
     const cookieBanner = document.getElementById('cookie-banner');
     const acceptBtn = document.getElementById('accept-cookies-btn');
 
@@ -216,9 +211,21 @@ document.addEventListener('click', function(event) {
             }
         });
     }
+}
+
+document.addEventListener('click', function(event) {
+    const root = document.getElementById('user-menu-root');
+    const dropdown = document.getElementById('profileDropdown');
+    if (root && dropdown && !root.contains(event.target)) {
+        dropdown.classList.remove('active');
+    }
 });
 
-document.addEventListener('DOMContentLoaded', renderUserMenu);
+document.addEventListener('DOMContentLoaded', () => {
+    renderUserMenu();
+    initCookieBanner();
+});
+
 window.addEventListener('pageshow', () => {
     fetchAllStocks();
 });
