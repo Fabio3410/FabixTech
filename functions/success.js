@@ -20,6 +20,19 @@ export async function onRequestGet(context) {
     const begruessungText = kundeName ? `Danke, ${kundeName}!` : "Danke für deine Bestellung!";
     const gesamtBetrag = (paymentIntent.amount / 100).toFixed(2);
     const waehrung = paymentIntent.currency.toUpperCase();
+    const promoCode = paymentIntent.metadata?.promoCode;
+    const rabattText = paymentIntent.metadata?.rabatt || '0.00';
+    const rabattWert = parseFloat(rabattText);
+
+    let rabattHtml = '';
+    if (rabattWert > 0 && promoCode && promoCode !== 'Keiner') {
+      rabattHtml = `
+      <div style="display: flex; justify-content: space-between; color: #16a34a; font-weight: 600; font-size: 13px; margin-bottom: 6px;">
+          <span>Rabatt (${promoCode})</span>
+          <span>-${rabattWert.toFixed(2)} ${waehrung}</span>
+      </div>`;
+    }
+
     let items = [];
     if (paymentIntent.metadata) {
         Object.keys(paymentIntent.metadata)
@@ -166,6 +179,7 @@ export async function onRequestGet(context) {
             
             <div style="margin-top: 20px;">
                 ${artikelListeHtml}
+                ${rabattHtml}
                 <div style="display: flex; justify-content: space-between; color: var(--text-muted); font-size: 13px; white-space: nowrap; margin-bottom: 2px;">
                   <span>Versand</span>
                   <span>5.90 ${waehrung}</span>
