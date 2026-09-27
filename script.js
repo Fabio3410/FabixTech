@@ -171,7 +171,7 @@ function renderUserMenu() {
 
         const isAdmin = localStorage.getItem('is_admin') === 'true' || Boolean(user.is_admin);
         const adminLinkHtml = isAdmin 
-            ? `<a href="admin.html" style="color: #d40202; font-weight: 600;">Admin Dashboard</a>` 
+            ? `<a href="admin" style="font-weight: 600;">Admin Dashboard</a>` 
             : '';
 
         root.innerHTML = `
