@@ -195,10 +195,12 @@ function initCookieBanner() {
     const cookieBanner = document.getElementById('cookie-banner');
     const acceptBtn = document.getElementById('accept-cookies-btn');
 
+    if (!cookieBanner) return;
+
     const hasConsented = localStorage.getItem('cookie_consent');
     const hasBeenShownThisSession = sessionStorage.getItem('cookie_banner_shown');
 
-    if (cookieBanner && !hasConsented && !hasBeenShownThisSession) {
+    if (!hasConsented && !hasBeenShownThisSession) {
         cookieBanner.classList.remove('hidden');
         sessionStorage.setItem('cookie_banner_shown', 'true');
     }
@@ -206,9 +208,7 @@ function initCookieBanner() {
     if (acceptBtn) {
         acceptBtn.addEventListener('click', () => {
             localStorage.setItem('cookie_consent', 'granted');
-            if (cookieBanner) {
-                cookieBanner.classList.add('hidden');
-            }
+            cookieBanner.classList.add('hidden');
         });
     }
 }
