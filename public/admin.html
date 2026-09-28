@@ -102,24 +102,32 @@ function getSessionToken() {
 }
 
 async function loadOrders() {
+    const container = document.getElementById('orders-list');
     try {
         const token = getSessionToken();
+        const headers = { 'Content-Type': 'application/json' };
+        
+        if (token) {
+            headers['Authorization'] = `Bearer ${token}`;
+        }
+
         const res = await fetch('/api/orders', {
             method: 'GET',
             credentials: 'include',
-            headers: {
-                'Authorization': `Bearer ${token}`
-            }
+            headers: headers
         });
 
-        if (!res.ok) {
-            document.getElementById('orders-list').innerHTML = 
-                '<p style="text-align:center; color: var(--text-muted);">Fehler beim Laden der Bestellungen (Keine Berechtigung oder nicht angemeldet).</p>';
+        if (res.status === 401 || res.status === 403) {
+            container.innerHTML = 
+                '<p style="text-align:center; color: var(--primary);">Sitzung abgelaufen oder keine Berechtigung. Bitte melde dich auf der Shop-Seite erneut als Admin an.</p>';
             return;
         }
 
+        if (!res.ok) {
+            throw new Error(`Server-Status ${res.status}`);
+        }
+
         const orders = await res.json();
-        const container = document.getElementById('orders-list');
         container.innerHTML = '';
 
         if (!orders || orders.length === 0) {
@@ -171,20 +179,20 @@ async function loadOrders() {
         });
     } catch (err) {
         console.error("Fehler beim Laden der Bestellungen:", err);
-        document.getElementById('orders-list').innerHTML = 
+        container.innerHTML = 
             '<p style="text-align:center; color: var(--text-muted);">Verbindungsfehler zum Server.</p>';
     }
 }
 
 async function markAsShipped(orderId) {
     const token = getSessionToken();
+    const headers = { 'Content-Type': 'application/json' };
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+
     const res = await fetch('/api/orders', {
         method: 'POST',
         credentials: 'include',
-        headers: { 
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-        },
+        headers: headers,
         body: JSON.stringify({ orderId, status: 'versendet' })
     });
 
@@ -195,5 +203,15 @@ async function markAsShipped(orderId) {
     }
 }
 </script>
+<div id="cookie-banner" class="cookie-banner hidden">
+    <div class="cookie-content">
+        <h3>Cookie-Einstellungen</h3>
+        <p>Ich verwende technisch notwendige Cookies, um Funktionen wie die Anmeldung und den Warenkorb zu ermöglichen.</p>
+        <div class="cookie-buttons">
+            <button id="accept-cookies-btn" class="btn-cookie">Akzeptieren</button>
+        </div>
+    </div>
+</div>
+<script src="script.js" defer></script>
 </body>
 </html>
