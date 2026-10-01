@@ -192,25 +192,21 @@ function renderUserMenu() {
 }
 
 function initCookieBanner() {
-    const cookieBanner = document.getElementById('cookie-banner');
+    const banner = document.getElementById('cookie-banner');
     const acceptBtn = document.getElementById('accept-cookies-btn');
 
-    if (!cookieBanner) return;
+    if (!banner || !acceptBtn) return;
 
-    const hasConsented = localStorage.getItem('cookie_consent');
-    const hasBeenShownThisSession = sessionStorage.getItem('cookie_banner_shown');
-
-    if (!hasConsented && !hasBeenShownThisSession) {
-        cookieBanner.classList.remove('hidden');
-        sessionStorage.setItem('cookie_banner_shown', 'true');
+    if (localStorage.getItem('cookie_consent') === 'granted') {
+        banner.classList.add('hidden');
+    } else {
+        banner.classList.remove('hidden');
     }
 
-    if (acceptBtn) {
-        acceptBtn.addEventListener('click', () => {
-            localStorage.setItem('cookie_consent', 'granted');
-            cookieBanner.classList.add('hidden');
-        });
-    }
+    acceptBtn.onclick = () => {
+        localStorage.setItem('cookie_consent', 'granted');
+        banner.classList.add('hidden');
+    };
 }
 
 document.addEventListener('click', function(event) {
