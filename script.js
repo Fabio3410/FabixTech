@@ -146,6 +146,7 @@ function toggleProfileMenu() {
 function logoutUser() {
     localStorage.removeItem('user');
     localStorage.removeItem('is_admin');
+    localStorage.removeItem('session_id');
     window.location.href = '/';
 }
 
@@ -169,7 +170,7 @@ function renderUserMenu() {
             ? `<img src="${user.profile_picture}" alt="Profilbild">`
             : defaultSvg;
 
-        const isAdmin = localStorage.getItem('is_admin') === 'true' || Boolean(user.is_admin);
+        const isAdmin = Boolean(user.is_admin);
         const adminLinkHtml = isAdmin 
             ? `<a href="admin" style="font-weight: 600;">Admin Dashboard</a>` 
             : '';

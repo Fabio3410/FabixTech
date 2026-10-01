@@ -198,6 +198,11 @@ document.getElementById('authForm').addEventListener('submit', async function(e)
     if (result.status === 'success') {
         localStorage.setItem('user', JSON.stringify(result.user));
         
+        const sessionId = result.session_id || (result.user && result.user.session_id);
+        if (sessionId) {
+            localStorage.setItem('session_id', sessionId);
+        }
+        
         if (result.user && result.user.is_admin) {
             localStorage.setItem('is_admin', 'true');
         } else {
@@ -206,7 +211,7 @@ document.getElementById('authForm').addEventListener('submit', async function(e)
 
         showAlert('Erfolgreich angemeldet!', 'Willkommen');
         setTimeout(() => {
-            window.location.href = '/'; 
+            window.location.href = result.user && result.user.is_admin ? '/admin' : '/'; 
         }, 1500);
     } else {
         showAlert(result.message || 'Falsche Anmeldedaten.', 'Fehler');

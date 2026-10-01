@@ -7,10 +7,6 @@
     <script>
         const savedTheme = localStorage.getItem('theme') || 'light';
         document.documentElement.setAttribute('data-theme', savedTheme);
-
-        if (localStorage.getItem('is_admin') !== 'true') {
-            window.location.href = '/';
-        }
     </script>
     <script src="https://kit.fontawesome.com/fba23d88db.js" crossorigin="anonymous"></script>
     <link rel="icon" type="image/png" href="/favicon/favicon-96x96.png" sizes="96x96"/>
@@ -212,8 +208,7 @@ async function loadOrders() {
         });
 
         if (res.status === 401 || res.status === 403) {
-            container.innerHTML = 
-                '<p style="text-align:center; color: var(--primary);">Sitzung abgelaufen oder keine Berechtigung. Bitte melde dich auf der Shop-Seite erneut als Admin an.</p>';
+            window.location.href = '/';
             return;
         }
 
