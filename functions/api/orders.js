@@ -12,7 +12,7 @@ async function checkAdminAuth(context) {
     
     let sessionId = parseCookie(cookieHeader, 'session_id');
     if (!sessionId && authHeader.startsWith('Bearer ')) {
-        sessionId = authHeader.substring(7);
+        sessionId = authHeader.substring(7).trim();
     }
 
     if (!sessionId) {
@@ -20,10 +20,9 @@ async function checkAdminAuth(context) {
     }
 
     const user = await env.DB.prepare(`
-        SELECT users.is_admin 
-        FROM sessions 
-        JOIN users ON sessions.user_id = users.id 
-        WHERE sessions.id = ?
+        SELECT is_admin 
+        FROM users 
+        WHERE session_id = ?
     `).bind(sessionId).first();
 
     return user && user.is_admin === 1;

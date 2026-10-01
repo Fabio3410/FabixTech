@@ -103,20 +103,31 @@ export async function onRequestPost(context) {
         return new Response(JSON.stringify({ status: 'success', message: 'Konto erfolgreich erstellt.' }));
     }
     
-    if (action === 'login') {
+if (action === 'login') {
         const hashedPassword = await hashPassword(password);
         const { results } = await env.DB.prepare("SELECT * FROM users WHERE email = ? AND password_hash = ?")
         .bind(email, hashedPassword).all();
         
         if (results.length > 0) {
             const userRow = results[0];
+            const sessionId = crypto.randomUUID();
+
+            try {
+                await env.DB.prepare("UPDATE users SET session_id = ? WHERE email = ?")
+                    .bind(sessionId, userRow.email).run();
+            } catch (err) {
+                console.error("Fehler beim Speichern der Session-ID:", err);
+            }
+
             return new Response(JSON.stringify({ 
                 status: 'success', 
                 message: 'Erfolgreich angemeldet.',
+                session_id: sessionId,
                 user: {
                     email: userRow.email,
                     profile_picture: userRow.profile_picture || null,
-                    is_admin: userRow.is_admin === 1
+                    is_admin: userRow.is_admin === 1,
+                    session_id: sessionId
                 }
             }));
         } else {
