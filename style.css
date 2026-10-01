@@ -543,7 +543,7 @@ html, #cart-items-container {
     border-radius: 14px;
     overflow: hidden;
     flex-direction: column;
-    transition: transform 0.3s, box-shadow 0.3s;
+    transition: transform 0.3s ease, box-shadow 0.3s ease, background-color 0.4s ease, color 0.4s ease, border-color 0.4s ease;
     box-shadow: 0 4.8px 18px rgba(0, 0, 0, 0.05);
     display: inline-block;
     margin-right: 7px;
@@ -823,11 +823,11 @@ html, #cart-items-container {
     border-left: 1.2px solid var(--border-color);
     box-shadow: -12px 0 36px rgba(0,0,0,0.05);
     z-index: 2000;
-    transition: right 0.3s ease;
     padding: 2.4rem;
     display: flex;
     flex-direction: column;
     user-select: none;
+    transition: right 0.3s ease, background-color 0.4s ease, color 0.4s ease, border-color 0.4s ease, box-shadow 0.4s ease;
 }
 
 .sidebar.open {
@@ -1093,7 +1093,7 @@ footer {
     background: var(--bg-dark);
 }
 
-html, body, .navbar, .tech-box, .material-card, .product-card, .sidebar, footer {
+html, body, .navbar, .tech-box, .material-card, footer {
     transition: background-color 0.4s ease, color 0.4s ease, border-color 0.4s ease, box-shadow 0.4s ease;
 }
 
