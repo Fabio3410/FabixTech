@@ -1130,9 +1130,6 @@ html, body, .navbar, .tech-box, .material-card, .product-card, .sidebar, footer 
     transition: transform 0.15s ease, opacity 0.15s ease;
 }
 
-/* ==========================================
-   COOKIE BANNER (DARK & LIGHT MODE)
-   ========================================== */
 .cookie-banner {
     position: fixed;
     bottom: 25px;

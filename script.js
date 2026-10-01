@@ -226,6 +226,24 @@ document.addEventListener('DOMContentLoaded', () => {
     initCookieBanner();
 });
 
+document.addEventListener('DOMContentLoaded', () => {
+    const acceptBtn = document.getElementById('accept-cookies-btn');
+    const banner = document.getElementById('cookie-banner');
+
+    if (acceptBtn && banner) {
+        if (localStorage.getItem('cookies_accepted') === 'true') {
+            banner.classList.add('hidden');
+        } else {
+            banner.classList.remove('hidden');
+        }
+
+        acceptBtn.addEventListener('click', () => {
+            localStorage.setItem('cookies_accepted', 'true');
+            banner.classList.add('hidden');
+        });
+    }
+});
+
 window.addEventListener('pageshow', () => {
     fetchAllStocks();
 });
