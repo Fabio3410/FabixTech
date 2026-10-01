@@ -242,14 +242,17 @@ async function initCheckoutPage(promoCode = null) {
 
         form.onsubmit = async (e) => {
             e.preventDefault();
+
+            const emailInput = document.getElementById('email');
+            const nameInput = document.getElementById('name');
+            const streetInput = document.getElementById('street');
+            const zipInput = document.getElementById('zip');
+            const cityInput = document.getElementById('city');
             const submitBtn = document.getElementById('submit-btn');
             if (submitBtn) {
                 submitBtn.disabled = true;
                 submitBtn.innerText = 'Wird verarbeitet...';
             }
-
-            const emailInput = document.getElementById('email');
-            const nameInput = document.getElementById('name');
 
             const { error, paymentIntent } = await stripe.confirmPayment({
                 elements,
@@ -258,7 +261,12 @@ async function initCheckoutPage(promoCode = null) {
                     receipt_email: emailInput ? emailInput.value : undefined,
                     shipping: {
                         name: nameInput ? nameInput.value : 'Kunde',
-                        address: { country: 'CH' }
+                        address: {
+                            line1: streetInput ? streetInput.value : '',
+                            postal_code: zipInput ? zipInput.value : '',
+                            city: cityInput ? cityInput.value : '',
+                            country: 'CH'
+                        }
                     }
                 },
                 redirect: 'if_required'
@@ -276,13 +284,41 @@ async function initCheckoutPage(promoCode = null) {
                 window.location.href = `/success?payment_intent=${paymentIntent.id}`;
             }
         };
-
     } catch (error) {
         console.error("Fehler beim Laden des Checkouts:", error);
         alert("Beim Laden des Zahlungsformulars ist ein Fehler aufgetreten.");
     }
+    initSwissZipAutocomplete();
 }
 
+function initSwissZipAutocomplete() {
+    const zipInput = document.getElementById('zip');
+    const cityInput = document.getElementById('city');
+
+    if (!zipInput || !cityInput) return;
+    if (zipInput.dataset.autocompleteInitialized === 'true') return;
+    zipInput.dataset.autocompleteInitialized = 'true';
+
+    zipInput.addEventListener('input', async (e) => {
+        const zip = e.target.value.trim();
+
+        if (/^[1-9][0-9]{3}$/.test(zip)) {
+            try {
+                const response = await fetch(`https://api3.geo.admin.ch/rest/services/api/SearchServer?type=locations&searchText=${zip}&entryLocations=zipcode`);
+                const data = await response.json();
+
+                if (data.results && data.results.length > 0) {
+                    const label = data.results[0].attrs.label;
+                    const cleanCity = label.replace(/<[^>]*>?/gm, '').replace(/^[0-9]{4}\s*/, '');
+                    
+                    cityInput.value = cleanCity;
+                }
+            } catch (err) {
+                console.error("Fehler beim Abrufen der Swisstopo PLZ:", err);
+            }
+        }
+    });
+}
 function applyPromoCode() {
     const input = document.getElementById('promo-code-input');
     if (input && input.value.trim() !== '') {

@@ -205,6 +205,22 @@
                     <label for="name">Vollständiger Name</label>
                     <input type="text" id="name" class="form-control" placeholder="Dein Name" required>
                 </div>
+                <div class="form-group">
+                    <label for="street">Strasse & Hausnummer</label>
+                    <input type="text" id="street" class="form-control" placeholder="Musterstrasse 12" required minlength="4">
+                </div>
+                <div style="display: flex; gap: 12px;">
+                    <div class="form-group" style="flex: 1;">
+                        <label for="zip">PLZ</label>
+                        <input type="text" id="zip" class="form-control" placeholder="3000" 
+                            required pattern="[1-9][0-9]{3}" maxlength="4" 
+                            title="Bitte eine gültige 4-stellige Schweizer PLZ eingeben">
+                    </div>
+                    <div class="form-group" style="flex: 2;">
+                        <label for="city">Ort</label>
+                        <input type="text" id="city" class="form-control" placeholder="Bern" required minlength="2">
+                    </div>
+                </div>
                 <h3 class="section-heading" style="margin-top: 20px;">Zahlungsmethode</h3>
                 <div id="payment-element"></div>
                 <button type="submit" id="submit-btn" class="pay-btn">Zahlen</button>

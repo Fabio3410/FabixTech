@@ -9,7 +9,7 @@ const PROMO_CODES = {
 export async function onRequestPost(context) {
     try {
         const stripe = new Stripe(context.env.STRIPE_SECRET_KEY);
-        const { cart, promoCode } = await context.request.json();
+        const { cart, promoCode, shippingAddress } = await context.request.json();
         
         for (const item of cart) {
             const productId = item.id;
@@ -65,9 +65,16 @@ export async function onRequestPost(context) {
         const versandkostenRappen = 590;
         const totalAmount = (itemsSubtotal - rabattRappen) + versandkostenRappen;
 
+        const formattedAddress = shippingAddress 
+            ? `${shippingAddress.street}, ${shippingAddress.zip} ${shippingAddress.city}, CH`
+            : '';
+
         const sessionMetadata = {
             promoCode: angewendeterCode || 'Keiner',
-            rabatt: `${(rabattRappen / 100).toFixed(2)} CHF`
+            rabatt: `${(rabattRappen / 100).toFixed(2)} CHF`,
+            customer_name: shippingAddress?.name || '',
+            customer_email: shippingAddress?.email || '',
+            shipping_address: formattedAddress
         };
 
         cart.forEach((item, index) => {
@@ -85,6 +92,15 @@ export async function onRequestPost(context) {
             currency: 'chf',
             automatic_payment_methods: { enabled: true },
             metadata: sessionMetadata,
+            shipping: shippingAddress ? {
+                name: shippingAddress.name,
+                address: {
+                    line1: shippingAddress.street,
+                    postal_code: shippingAddress.zip,
+                    city: shippingAddress.city,
+                    country: 'CH'
+                }
+            } : undefined
         });
 
         return new Response(JSON.stringify({ 
