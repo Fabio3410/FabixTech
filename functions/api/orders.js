@@ -28,6 +28,31 @@ async function checkAdminAuth(context) {
     return user && user.is_admin === 1;
 }
 
+export async function onRequestGet(context) {
+    const isAdmin = await checkAdminAuth(context);
+    if (!isAdmin) {
+        return new Response(JSON.stringify({ error: "Zugriff verweigert" }), { 
+            status: 401,
+            headers: { 'Content-Type': 'application/json' }
+        });
+    }
+
+    const { results: orders } = await context.env.DB.prepare(
+        "SELECT * FROM orders ORDER BY created_at DESC"
+    ).all();
+
+    for (let order of orders) {
+        const { results: items } = await context.env.DB.prepare(
+            "SELECT * FROM order_items WHERE order_id = ?"
+        ).bind(order.id).all();
+        order.items = items;
+    }
+
+    return new Response(JSON.stringify(orders), {
+        headers: { 'Content-Type': 'application/json' }
+    });
+}
+
 export async function onRequestPost(context) {
     const isAdmin = await checkAdminAuth(context);
     if (!isAdmin) {
@@ -50,25 +75,6 @@ export async function onRequestPost(context) {
             "UPDATE orders SET tracking_number = ? WHERE id = ?"
         ).bind(trackingNumber, orderId).run();
     }
-
-    return new Response(JSON.stringify({ success: true }), {
-        headers: { 'Content-Type': 'application/json' }
-    });
-}
-export async function onRequestPost(context) {
-    const isAdmin = await checkAdminAuth(context);
-    if (!isAdmin) {
-        return new Response(JSON.stringify({ error: "Zugriff verweigert" }), { 
-            status: 401,
-            headers: { 'Content-Type': 'application/json' }
-        });
-    }
-
-    const { orderId, status } = await context.request.json();
-
-    await context.env.DB.prepare(
-        "UPDATE orders SET status = ? WHERE id = ?"
-    ).bind(status, orderId).run();
 
     return new Response(JSON.stringify({ success: true }), {
         headers: { 'Content-Type': 'application/json' }
