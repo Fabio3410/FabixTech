@@ -238,7 +238,7 @@ async function loadOrders() {
                 <div class="order-card">
                     <div class="order-header">
                         <span class="order-title">Bestellung #${order.id}</span>
-                        <span class="badge ${isShipped ? 'badge-versendet' : 'badge-offen'}">${order.status}</span>
+                        <span class="badge" style="background-color: #f1f5f9; color: #0f172a; border: 1px solid #cbd5e1;">${order.status || 'Offen'}</span>
                     </div>
 
                     <div class="order-grid">
@@ -261,7 +261,23 @@ async function loadOrders() {
                             <span class="total-price">Gesamt: CHF ${Number(order.total_amount).toFixed(2)}</span>
                             ${order.discount_amount > 0 ? `<br><small style="color: #16a34a;">(inkl. Rabatt: CHF ${Number(order.discount_amount).toFixed(2)})</small>` : ''}
                         </div>
-                        ${!isShipped ? `<button class="btn-shipped" onclick="markAsShipped('${order.id}')">Als versendet markieren</button>` : ''}
+            
+                        <div>
+                            <select onchange="updateOrderStatus('${order.id}', this.value)" style="padding: 8px; border-radius: 6px; border: 1px solid var(--border); background: var(--bg-card); color: var(--text-main); font-weight: 600; cursor: pointer;">
+                                <option value="Offen" ${order.status === 'Offen' ? 'selected' : ''}>Offen</option>
+                                <option value="In Bearbeitung" ${order.status === 'In Bearbeitung' ? 'selected' : ''}>In Bearbeitung</option>
+                                <option value="Versendet" ${order.status === 'Versendet' ? 'selected' : ''}>Versendet</option>
+                                <option value="Zugestellt" ${order.status === 'Zugestellt' ? 'selected' : ''}>Zugestellt</option>
+                                <option value="Abgebrochen" ${order.status === 'Abgebrochen' ? 'selected' : ''}>Abgebrochen</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div style="margin-top: 15px; padding-top: 15px; border-top: 1px dashed var(--border);">
+                        <label style="font-size: 12px; font-weight: bold; text-transform: uppercase; color: var(--text-muted); display: block; margin-bottom: 6px;">Post Sendungsnummer (Tracking-Nr.):</label>
+                        <div style="display: flex; gap: 8px;">
+                            <input type="text" id="tracking-${order.id}" value="${order.tracking_number || ''}" placeholder="z. B. 99.00.123456.12345678" style="flex: 1; padding: 8px; border-radius: 6px; border: 1px solid var(--border); background: var(--bg-card); color: var(--text-main);">
+                            <button onclick="saveTracking('${order.id}')" style="background: #334155; padding: 8px 14px;">Speichern</button>
+                        </div>
                     </div>
                 </div>
             `;
@@ -273,7 +289,7 @@ async function loadOrders() {
     }
 }
 
-async function markAsShipped(orderId) {
+async function updateOrderStatus(orderId, newStatus) {
     const token = getSessionToken();
     const headers = { 'Content-Type': 'application/json' };
     if (token) headers['Authorization'] = `Bearer ${token}`;
@@ -282,25 +298,36 @@ async function markAsShipped(orderId) {
         method: 'POST',
         credentials: 'include',
         headers: headers,
-        body: JSON.stringify({ orderId, status: 'versendet' })
+        body: JSON.stringify({ orderId, status: newStatus })
     });
 
     if (res.ok) {
-        loadOrders();
+        loadOrders(); 
     } else {
         alert('Status konnte nicht aktualisiert werden.');
     }
 }
+
+async function saveTracking(orderId) {
+    const trackingNumber = document.getElementById(`tracking-${orderId}`).value.trim();
+    const token = getSessionToken();
+    const headers = { 'Content-Type': 'application/json' };
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+
+    const res = await fetch('/api/orders', {
+        method: 'POST',
+        credentials: 'include',
+        headers: headers,
+        body: JSON.stringify({ orderId, trackingNumber })
+    });
+
+    if (res.ok) {
+        alert('Sendungsnummer gespeichert!');
+    } else {
+        alert('Fehler beim Speichern.');
+    }
+}
 </script>
-<div id="cookie-banner" class="cookie-banner hidden">
-    <div class="cookie-content">
-        <h3>Cookie-Einstellungen</h3>
-        <p>Ich verwende notwendige Cookies, um Funktionen wie die Anmeldung und den Warenkorb zu ermöglichen.</p>
-        <div class="cookie-buttons">
-            <button id="accept-cookies-btn" class="btn-cookie">Akzeptieren</button>
-        </div>
-    </div>
-</div>
 <script src="/script.js" defer></script>
 </body>
 </html>

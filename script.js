@@ -181,6 +181,7 @@ function renderUserMenu() {
             </div>
             <div class="profile-dropdown" id="profileDropdown">
                 <a href="settings">Kontoeinstellungen</a>
+                <a href="orders">Meine Bestellungen</a>
                 ${adminLinkHtml}
                 <a href="#" onclick="logoutUser()">Abmelden</a>
             </div>
