@@ -4,8 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="apple-mobile-web-app-title" content="Fabio3D">
-    <title>Spiral Cone Fidget</title>
+    <title>Produktdetails | Fabio3D</title>
     <link rel="stylesheet" href="product-style.css">
+    <script src="../products.js" defer></script>
     <script>
         const savedTheme = localStorage.getItem('theme') || 'light';
         document.documentElement.setAttribute('data-theme', savedTheme);
@@ -13,7 +14,6 @@
         function toggleDarkMode() {
             const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
             const newTheme = isDark ? 'light' : 'dark';
-    
             document.documentElement.setAttribute('data-theme', newTheme);
             if (document.body) {
                 document.body.setAttribute('data-theme', newTheme);
@@ -51,51 +51,9 @@
             <div id="user-menu-root" class="user-menu-container"></div>
         </div>
     </nav>
+
     <div class="product-details">
-        <div class="product-card-detail-view">
-            <h1>Spiral Cone Fidget</h1>
-            <div class="detail-left-side">
-                <div class="slider-container">
-                    <div class="slides">
-                        <img class="product-img" 
-                            src="../images/spiral_fidget_schwarz_rot_1.png" 
-                            data-images="../images/spiral_fidget_schwarz_rot_1.png, ../images/spiral_fidget_schwarz_rot_2.png, ../images/spiral_fidget_schwarz_gelb_1.png, ../images/spiral_fidget_schwarz_gelb_2.png, ../images/spiral_fidget_schwarz_weiss_1.png, ../images/spiral_fidget_schwarz_weiss_2.png, ../images/spiral_fidget_rot_weiss_1.png, ../images/spiral_fidget_rot_weiss_2.png"
-                            data-index="0"
-                            alt="Spiral-Cone Fidget">
-                    </div>
-                    <button class="arrow prev" id="slides-arrow">&#10094;</button>
-                    <button class="arrow next" id="slides-arrow">&#10095;</button>
-                </div>
-                <div class="tech-specs">
-                    <span class="spec"><b>Material:</b> PLA</span>
-                    <span class="spec"><b>Qualität:</b> 0.20mm</span>
-                    <span class="spec"><b>Infill:</b> 20% Gyroid</span>
-                </div>
-            </div>
-            <div class="product-info">
-                <span class="prod-category">Spielzeug</span>
-                <div class="long-description">
-                    <p></p>
-                </div>
-                <h4><strong>Varianten</strong></h4>
-                <div class="color-slider-container">
-                    <button type="button" class="nav-arrow left" onclick="scrollSlider(this, -1)">&#10094;</button>
-                    <button type="button" class="nav-arrow right" onclick="scrollSlider(this, 1)">&#10095;</button>
-                    <div class="color-slider-track">
-                        <button class="variant-btn active" data-variant-images="../images/spiral_fidget_schwarz_rot_1.png, ../images/spiral_fidget_schwarz_rot_2.png" data-id="spiral_cone_schwarz_rot" onclick="jumpToSlide(this, 0)">Schwarz/Rot</button>
-                        <button class="variant-btn" data-variant-images="../images/spiral_fidget_schwarz_gelb_1.png, ../images/spiral_fidget_schwarz_gelb_2.png" data-id="spiral_cone_schwarz_gelb" onclick="jumpToSlide(this, 1)">Schwarz/Gelb</button>
-                        <button class="variant-btn" data-variant-images="../images/spiral_fidget_schwarz_weiss_1.png, ../images/spiral_fidget_schwarz_weiss_2.png" data-id="spiral_cone_schwarz_weiss" onclick="jumpToSlide(this, 2)">Schwarz/Weiss</button>
-                        <button class="variant-btn" data-variant-images="../images/spiral_fidget_rot_weiss_1.png, ../images/spiral_fidget_rot_weiss_2.png" data-id="spiral_cone_rot_weiss" onclick="jumpToSlide(this, 3)">Rot/Weiss</button>
-                    </div>
-                </div>
-            </div>
-            <div class="product-footer">
-                <div class="price-block">
-                    <span class="currency">CHF</span>
-                    <span class="price">1,95</span>
-                </div>
-                <button class="btn-buy" data-id="spiral_cone_schwarz_rot" onclick="addProductFromCard(this)">In den Warenkorb</button>
-            </div>
+        <div id="product-detail-container" class="product-card-detail-view">
         </div>
     </div>
     
@@ -132,6 +90,7 @@
             <button class="checkout-button" id="checkout-button" disabled onclick="checkout()">Zur Kasse</button>
         </div>
     </div>
+    
     <footer>
         <div class="footer-links">
             <a href="../index">Home</a> | 
@@ -142,5 +101,76 @@
         </div>
         <p>&copy; <span id="copyright"><script>document.getElementById('copyright').appendChild(document.createTextNode(new Date().getFullYear()))</script></span> Fabio3D. Alle Rechte vorbehalten.</p>
     </footer>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const productId = urlParams.get('id');
+        
+        const product = productsDB.find(p => p.baseId === productId);
+        
+        if (!product) {
+            document.getElementById('product-detail-container').innerHTML = "<h1>Produkt nicht gefunden</h1>";
+            return;
+        }
+
+        const defaultVariant = product.variants[0];
+        const allImages = [...new Set(product.variants.flatMap(v => v.images))].join(', ');
+        
+        const variantsHtml = product.variants.map((v, index) => `
+            <button class="variant-btn ${index === 0 ? 'active' : ''}" 
+                    data-variant-images="${v.images.join(', ')}" 
+                    data-id="${v.id}" 
+                    onclick="jumpToSlide(this, ${index}); updatePrice(this)">${v.name}</button>
+        `).join('');
+
+        document.getElementById('product-detail-container').innerHTML = `
+            <h1>${product.title}</h1>
+            <div class="detail-left-side">
+                <div class="slider-container">
+                    <div class="slides">
+                        <img class="product-img" 
+                            src="${defaultVariant.images[0]}" 
+                            data-images="${allImages}"
+                            data-index="0"
+                            alt="${product.title}">
+                    </div>
+                    <button class="arrow prev" id="slides-arrow">&#10094;</button>
+                    <button class="arrow next" id="slides-arrow">&#10095;</button>
+                </div>
+                <div class="tech-specs">
+                    <span class="spec"><b>Material:</b> ${product.material}</span>
+                    <span class="spec"><b>Qualität:</b> ${product.quality || '0.20mm'}</span>
+                    <span class="spec"><b>Infill:</b> ${product.infill || '20%'}</span>
+                </div>
+            </div>
+            <div class="product-info">
+                <span class="prod-category">${product.category}</span>
+                <div class="long-description">
+                    <p>${product.longDescription}</p>
+                </div>
+                <h4><strong>Varianten</strong></h4>
+                <div class="color-slider-container">
+                    <button type="button" class="nav-arrow left" onclick="scrollSlider(this, -1)">&#10094;</button>
+                    <button type="button" class="nav-arrow right" onclick="scrollSlider(this, 1)">&#10095;</button>
+                    <div class="color-slider-track">
+                        ${variantsHtml}
+                    </div>
+                </div>
+            </div>
+            <div class="product-footer">
+                <div class="price-block">
+                    <span class="currency">CHF</span>
+                    <span class="price">${defaultVariant.price.toFixed(2).replace('.', ',')}</span>
+                </div>
+                <button class="btn-buy" data-id="${defaultVariant.id}" onclick="addProductFromCard(this)">In den Warenkorb</button>
+            </div>
+        `;
+        
+        if (typeof initSliders === 'function') initSliders();
+        if (typeof checkSliderArrows === 'function') checkSliderArrows();
+        if (typeof fetchAllStocks === 'function') fetchAllStocks();
+    });
+    </script>
 </body>
 </html>

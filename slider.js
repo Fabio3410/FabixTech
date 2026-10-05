@@ -1,5 +1,6 @@
-document.addEventListener('DOMContentLoaded', () => {
+window.initSliders = function() {
     const productCards = document.querySelectorAll('.product-card, .product-card-detail-view');
+    
     productCards.forEach(card => {
         const activeVariantBtn = card.querySelector('.variant-btn.active');
         if (activeVariantBtn) {
@@ -8,11 +9,14 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     productCards.forEach(card => {
+        if (card.dataset.sliderInitialized) return;
+        card.dataset.sliderInitialized = 'true';
+
         const imgElement = card.querySelector('.product-img');
         const prevBtn = card.querySelector('.arrow.prev');
         const nextBtn = card.querySelector('.arrow.next');
+        
         if (imgElement && prevBtn && nextBtn) {
-            
             nextBtn.addEventListener('click', (event) => {
                 event.preventDefault();
                 event.stopPropagation();
@@ -25,7 +29,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 imgElement.classList.add('fade-out');
                 
                 setTimeout(() => {
-                    currentIndex = (currentIndex + 1) % images.length; 
+                    currentIndex = (currentIndex + 1) % images.length;
                     imgElement.setAttribute('data-index', currentIndex);
                     imgElement.src = images[currentIndex].trim();
                     imgElement.classList.remove('fade-out');
@@ -52,7 +56,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
     });
-});
+};
 
 function preloadAllProductImages() {
     const imageUrls = new Set();
@@ -83,7 +87,6 @@ window.jumpToSlide = function(buttonElement, indexFallback) {
         track.querySelectorAll('.variant-btn').forEach(btn => btn.classList.remove('active'));
         buttonElement.classList.add('active');
     }
-
     syncImagesWithVariant(buttonElement);
 };
 
@@ -94,7 +97,6 @@ function syncImagesWithVariant(variantBtn) {
 
     if (imgElement && variantImagesData) {
         imgElement.setAttribute('data-images', variantImagesData);
-        
         const images = variantImagesData.split(',');
         imgElement.src = images[0].trim();
         imgElement.setAttribute('data-index', '0');
