@@ -1,6 +1,9 @@
 function applySavedTheme() {
     const savedTheme = localStorage.getItem('theme') || 'light';
     document.documentElement.setAttribute('data-theme', savedTheme);
+    if (typeof updateThemeIcon === 'function') {
+        updateThemeIcon(savedTheme);
+    }
 }
 
 applySavedTheme();

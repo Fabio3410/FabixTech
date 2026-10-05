@@ -25,6 +25,7 @@
             --border-color: #e2e8f0;
             --primary: #d40202;
             --primary-hover: #b90000;
+            --dark-color: #960505;    
             --shadow-sm: 0 2.4px 4.8px rgba(0,0,0,0.02);
             --shadow-md: 0 12px 30px rgba(15, 23, 42, 0.08);
             --transition-speed: 0.4s;
@@ -44,13 +45,12 @@
             --scrollbar-track: transparent;
         }
 
-        .preload * {
-            transition: none !important;
+        html {
+            padding-top: 85px;
         }
 
-        main {
-            padding-top: 85px; 
-            min-height: calc(100vh - 150px);
+        .preload * {
+            transition: none !important;
         }
 
         html, #cart-items-container {
@@ -129,19 +129,26 @@
             min-width: 40px;
         }
 
-        .btn-back {
-            display: inline-block;
-            margin-bottom: 20px;
-            color: #d40202;
+        .logo {
+            font-weight: 800;
+            font-size: 1.8rem;
+            color: var(--text-main);
             text-decoration: none;
-            font-weight: bold;
-            font-size: 14px;
-            transition: color 0.2s;
+            letter-spacing: 1.2px;
+            cursor: pointer;
+            display: inline-block;
+            min-width: 120px;
         }
 
-        .btn-back:hover {
-            color: #960505;
-            text-decoration: underline;
+        .logo span {
+            color: var(--dark-color);
+        }
+
+        .gradient-text {
+            background: var(--primary);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
 
         body, .settings-card, .modal-card, h1, h2, h3, span, label, input, button {
@@ -437,7 +444,7 @@
 <body class="preload">
     <nav class="navbar">
         <div class="nav-container">
-            <a href="index" class="btn-back">&larr; Zurück zur Startseite</a>            
+            <a href="index" class="logo">FABIO<span class="gradient-text">3D</span></a>
             <ul class="nav-links">
                 <li><a class="nav-link active" href="index">Home</a></li>
                 <li><a class="nav-link" href="shop">Shop</a></li>

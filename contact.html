@@ -10,16 +10,35 @@
         const savedTheme = localStorage.getItem('theme') || 'light';
         document.documentElement.setAttribute('data-theme', savedTheme);
 
+        function updateThemeIcon(theme) {
+            const icon = document.getElementById('theme-icon') || document.querySelector('.theme-toggle-btn i, .theme-toggle i');
+            if (!icon) return;
+
+            if (theme === 'dark') {
+                icon.classList.remove('fa-moon');
+                icon.classList.add('fa-sun');
+            } else {
+                icon.classList.remove('fa-sun');
+                icon.classList.add('fa-moon');
+            }
+        }
+
         function toggleDarkMode() {
             const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
             const newTheme = isDark ? 'light' : 'dark';
-    
+
             document.documentElement.setAttribute('data-theme', newTheme);
             if (document.body) {
                 document.body.setAttribute('data-theme', newTheme);
             }
             localStorage.setItem('theme', newTheme);
+            updateThemeIcon(newTheme);
         }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const currentTheme = localStorage.getItem('theme') || 'light';
+            updateThemeIcon(currentTheme);
+        });
     </script>
     <script src="https://kit.fontawesome.com/fba23d88db.js" crossorigin="anonymous"></script>
     <link rel="icon" type="image/png" href="favicon/favicon-96x96.png" sizes="96x96"/>
