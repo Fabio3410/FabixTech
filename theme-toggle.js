@@ -1,17 +1,10 @@
 function updateAllThemeIcons(theme) {
-    // Sucht alle Theme-Icons auf der Seite (Floating Button + Header/Navbar)
-    const icons = document.querySelectorAll('#floating-theme-toggle i, #theme-icon, .theme-toggle-btn i, .theme-toggle i');
+    const buttons = document.querySelectorAll('#floating-theme-toggle, .theme-toggle-btn, .theme-toggle');
     
-    icons.forEach(icon => {
-        icon.style.opacity = '0';
-        icon.style.transform = 'rotate(90deg)';
-        
-        setTimeout(() => {
-            // Zeigt im Dark-Mode die Sonne (für Wechsel zu Light) und im Light-Mode den Mond
-            icon.className = theme === 'dark' ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
-            icon.style.opacity = '1';
-            icon.style.transform = 'rotate(0deg)';
-        }, 150);
+    buttons.forEach(btn => {
+        btn.innerHTML = theme === 'dark' 
+            ? '<i class="fa-solid fa-sun"></i>' 
+            : '<i class="fa-solid fa-moon"></i>';
     });
 }
 
@@ -39,7 +32,6 @@ document.addEventListener('DOMContentLoaded', () => {
         toggleBtn.id = 'floating-theme-toggle';
         toggleBtn.className = 'theme-toggle-btn';
         toggleBtn.setAttribute('aria-label', 'Dark Mode umschalten');
-        toggleBtn.innerHTML = `<i></i>`;
         document.body.appendChild(toggleBtn);
         
         toggleBtn.addEventListener('click', toggleDarkMode);
