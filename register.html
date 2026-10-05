@@ -170,7 +170,6 @@
         Bereits ein Konto? <a href="login">Anmelden</a>
     </p>
 </div>
-
 <script>
 async function sendVerification() {
     const email = document.getElementById('regEmail').value;
@@ -197,6 +196,7 @@ async function sendVerification() {
 document.getElementById('registerForm').addEventListener('submit', async function(e) {
     e.preventDefault();
 
+    const name = document.getElementById('regName').value;
     const email = document.getElementById('regEmail').value;
     const password = document.getElementById('regPass').value;
     const code = document.getElementById('regCode').value;
@@ -206,6 +206,7 @@ document.getElementById('registerForm').addEventListener('submit', async functio
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
             action: 'register', 
+            name: name,
             email: email, 
             password: password, 
             code: code 

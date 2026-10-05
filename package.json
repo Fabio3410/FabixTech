@@ -4,7 +4,6 @@
   "description": "Teil des Shops auf Cloudflare Pages",
   "main": "index.html",
   "dependencies": {
-    "mimetext": "^3.0.16",
     "stripe": "^15.0.0"
   }
 }
