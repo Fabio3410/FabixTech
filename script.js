@@ -227,7 +227,7 @@ async function loadWebsiteVersion() {
                 if (!versionEl) {
                     versionEl = document.createElement('p');
                     versionEl.id = 'footer-version-tag';
-                    versionEl.style.fontSize = '20px';
+                    versionEl.style.fontSize = '16px';
                     versionEl.style.color = 'var(--text-muted)';
                     versionEl.style.marginTop = '4px';
                     versionEl.style.opacity = '0.85';
