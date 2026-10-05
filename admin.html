@@ -384,11 +384,108 @@
     </nav>
 
     <div class="container">
-        <div id="orders-list"><p style="text-align:center; color: var(--text-muted);">Lade Bestellungen...</p></div>
-    </div>
+        <div style="display: flex; gap: 10px; margin-bottom: 25px; border-bottom: 1px solid var(--border); padding-bottom: 12px;">
+            <button id="btn-tab-orders" onclick="switchAdminTab('orders')" style="background: var(--primary);">Bestellungen</button>
+            <button id="btn-tab-settings" onclick="switchAdminTab('settings')" style="background: #334155;">Verwalten</button>
+        </div>
+        <div id="tab-orders">
+            <div id="orders-list"><p style="text-align:center; color: var(--text-muted);">Lade Bestellungen...</p></div>
+        </div>
+        <div id="tab-settings" style="display: none;">
+            <div class="order-card">
+                <h3 style="margin-top: 0; margin-bottom: 15px;">Website Version Einstellungen</h3>
+            
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; font-size: 13px; font-weight: bold; margin-bottom: 5px;">Versionsnummer:</label>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <span style="font-weight: bold; color: var(--text-muted);">Version</span>
+                        <input type="text" id="version-num-input" placeholder="1.0.0" style="padding: 10px; border-radius: 6px; border: 1px solid var(--border); background: var(--bg-card); color: var(--text-main); font-size: 14px; width: 160px;">
+                    </div>
+                </div>
 
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; font-size: 13px; font-weight: bold; margin-bottom: 5px;">Status</label>
+                    <select id="version-stage-select" style="padding: 10px; border-radius: 6px; border: 1px solid var(--border); background: var(--bg-card); color: var(--text-main); font-size: 14px;">
+                        <option value="">Keiner</option>
+                        <option value="ALPHA">ALPHA</option>
+                        <option value="BETA">BETA</option>
+                    </select>
+                </div>
+
+                <div style="margin-bottom: 20px; padding: 12px; background: var(--bg-body); border-radius: 8px; font-size: 14px;">
+                    <strong>Vorschau:</strong> <span id="version-preview" style="color: var(--primary); font-weight: bold;">Version 1.0.0</span>
+                </div>
+                <button onclick="saveVersionSettings()" style="background: #16a34a;">Version speichern</button>
+            </div>
+        </div>
+    </div>
 <script>
 document.addEventListener('DOMContentLoaded', loadOrders);
+
+function switchAdminTab(tab) {
+    const ordersTab = document.getElementById('tab-orders');
+    const settingsTab = document.getElementById('tab-settings');
+    const btnOrders = document.getElementById('btn-tab-orders');
+    const btnSettings = document.getElementById('btn-tab-settings');
+
+    if (tab === 'orders') {
+        ordersTab.style.display = 'block';
+        settingsTab.style.display = 'none';
+        btnOrders.style.background = 'var(--primary)';
+        btnSettings.style.background = '#334155';
+    } else {
+        ordersTab.style.display = 'none';
+        settingsTab.style.display = 'block';
+        btnOrders.style.background = '#334155';
+        btnSettings.style.background = 'var(--primary)';
+        loadVersionSettings();
+    }
+}
+
+async function loadVersionSettings() {
+    try {
+        const res = await fetch('/api/version');
+        if (!res.ok) return;
+        const data = await res.json();
+        
+        document.getElementById('version-num-input').value = data.versionNumber || '1.0.0';
+        document.getElementById('version-stage-select').value = data.versionStage || '';
+        updateVersionPreview();
+    } catch (err) {
+        console.error("Fehler beim Laden der Version:", err);
+    }
+}
+
+function updateVersionPreview() {
+    const num = document.getElementById('version-num-input').value.trim() || '1.0.0';
+    const stage = document.getElementById('version-stage-select').value;
+    document.getElementById('version-preview').innerText = `Version ${num}${stage ? ' ' + stage : ''}`;
+}
+
+document.getElementById('version-num-input').addEventListener('input', updateVersionPreview);
+document.getElementById('version-stage-select').addEventListener('change', updateVersionPreview);
+
+async function saveVersionSettings() {
+    const versionNumber = document.getElementById('version-num-input').value.trim() || '1.0.0';
+    const versionStage = document.getElementById('version-stage-select').value;
+
+    const token = getSessionToken();
+    const headers = { 'Content-Type': 'application/json' };
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+
+    const res = await fetch('/api/version', {
+        method: 'POST',
+        headers: headers,
+        body: JSON.stringify({ versionNumber, versionStage })
+    });
+
+    if (res.ok) {
+        alert('Website-Version erfolgreich aktualisiert!');
+        if (typeof loadWebsiteVersion === 'function') loadWebsiteVersion();
+    } else {
+        alert('Fehler beim Speichern der Version.');
+    }
+}
 
 function getSessionToken() {
     const user = JSON.parse(localStorage.getItem('user') || '{}');

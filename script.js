@@ -214,6 +214,33 @@ function initCookieBanner() {
     };
 }
 
+async function loadWebsiteVersion() {
+    try {
+        const res = await fetch('/api/version');
+        if (!res.ok) return;
+        const data = await res.json();
+
+        if (data && data.formattedText) {
+            const footer = document.querySelector('footer');
+            if (footer) {
+                let versionEl = document.getElementById('footer-version-tag');
+                if (!versionEl) {
+                    versionEl = document.createElement('p');
+                    versionEl.id = 'footer-version-tag';
+                    versionEl.style.fontSize = '12px';
+                    versionEl.style.color = 'var(--text-muted)';
+                    versionEl.style.marginTop = '4px';
+                    versionEl.style.opacity = '0.85';
+                    footer.appendChild(versionEl);
+                }
+                versionEl.innerText = data.formattedText;
+            }
+        }
+    } catch (err) {
+        console.error("Fehler beim Laden der Version:", err);
+    }
+}
+
 document.addEventListener('click', function(event) {
     const root = document.getElementById('user-menu-root');
     const dropdown = document.getElementById('profileDropdown');
@@ -225,6 +252,7 @@ document.addEventListener('click', function(event) {
 document.addEventListener('DOMContentLoaded', () => {
     renderUserMenu();
     initCookieBanner();
+    loadWebsiteVersion();
 });
 
 document.addEventListener('DOMContentLoaded', () => {

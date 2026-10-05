@@ -42,7 +42,6 @@ window.showAlert = function(message, title = "Hinweis") {
                 opacity: 1;
             }
 
-            /* Light Mode (Standard) */
             .custom-alert-box {
                 background: #ffffff;
                 padding: 34px 29px 24px 29px;
@@ -89,7 +88,6 @@ window.showAlert = function(message, title = "Hinweis") {
                 background-color: #960505;
             }
 
-            /* Dark Mode Übersteuerung */
             html[data-theme="dark"] .custom-alert-box {
                 background: #1e293b;
                 border: 1px solid #334155;
