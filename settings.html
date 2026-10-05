@@ -129,6 +129,21 @@
             min-width: 40px;
         }
 
+        .btn-back {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #d40202;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 14px;
+            transition: color 0.2s;
+        }
+
+        .btn-back:hover {
+            color: #960505;
+            text-decoration: underline;
+        }
+
         body, .settings-card, .modal-card, h1, h2, h3, span, label, input, button {
             transition: background-color var(--transition-speed) ease,
                         color var(--transition-speed) ease,
@@ -420,7 +435,23 @@
     </style>
 </head>
 <body class="preload">
-
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="index" class="btn-back">&larr; Zurück zur Startseite</a>            
+            <ul class="nav-links">
+                <li><a class="nav-link active" href="index">Home</a></li>
+                <li><a class="nav-link" href="shop">Shop</a></li>
+                <li><a class="nav-link" href="about">Über mich</a></li>
+                <li><a class="nav-link" href="contact">Kontakt</a></li>
+                <li><a class="nav-link" href="impressum">Impressum</a></li>
+            </ul>
+            <div class="cart-icon" onclick="toggleCart()">
+                <i class="fa-solid fa-cart-shopping"></i> <span id="cart-count">0</span>
+            </div>
+            <div id="user-menu-root" class="user-menu-container"></div>
+        </div>
+    </nav>
+    
     <div class="settings-container">
         <h1>Einstellungen</h1>
         
