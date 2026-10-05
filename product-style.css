@@ -14,7 +14,8 @@ body {
     --light-color: #d40202;   
     --text-main: #0f172a;
     --text-muted: #64748b;    
-    --border-color: #e2e8f0;  
+    --border-color: #e2e8f0;
+    --btn-buy: #cccccc;
     --shadow-sm: 0 2px 4px rgba(0,0,0,0.02);
     --shadow-md: 0 10px 25px rgba(15, 23, 42, 0.08);
     --scrollbar-thumb: #cbd5e1;      
