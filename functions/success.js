@@ -16,7 +16,8 @@ export async function onRequestGet(context) {
       return new Response("Die Zahlung wurde noch nicht abgeschlossen.", { status: 400 });
     }
 
-    const kundeName = paymentIntent.shipping?.name || '';
+    const kundeName = paymentIntent.metadata?.customer_name || paymentIntent.shipping?.name || '';
+    const kundeEmail = paymentIntent.metadata?.customer_email || paymentIntent.receipt_email || paymentIntent.customer_details?.email || 'Keine E-Mail';
     const begruessungText = kundeName ? `Danke, ${kundeName}!` : "Danke für deine Bestellung!";
     const gesamtBetrag = (paymentIntent.amount / 100).toFixed(2);
     const waehrung = paymentIntent.currency.toUpperCase();
@@ -54,9 +55,9 @@ export async function onRequestGet(context) {
     if (!existingOrder) {
         const orderId = "ORD-" + Date.now();
         const shipping = paymentIntent.shipping;
-        const addressStr = shipping?.address 
+        const addressStr = paymentIntent.metadata?.shipping_address || (shipping?.address 
             ? `${shipping.address.line1 || ''}, ${shipping.address.postal_code || ''} ${shipping.address.city || ''}, ${shipping.address.country || ''}`
-            : 'Keine Adresse';
+            : 'Keine Adresse');
 
         await context.env.DB.prepare(`
             INSERT INTO orders (id, payment_intent_id, customer_name, customer_email, shipping_address, total_amount, discount_amount, promo_code, status)
@@ -64,8 +65,8 @@ export async function onRequestGet(context) {
         `).bind(
             orderId,
             paymentIntentId,
-            shipping?.name || 'Unbekannt',
-            paymentIntent.receipt_email || paymentIntent.customer_details?.email || 'Keine E-Mail',
+            kundeName || 'Unbekannt',
+            kundeEmail,
             addressStr,
             parseFloat(gesamtBetrag),
             rabattWert,
@@ -84,13 +85,13 @@ export async function onRequestGet(context) {
                 (item.price / 100)
             ).run();
         }
-    }
 
-    for (const item of items) {
-        if (item.id && item.quantity) {
-            await context.env.DB.prepare(
-                "UPDATE inventory SET stock = stock - ? WHERE id = ?"
-            ).bind(item.quantity, item.id).run();
+        for (const item of items) {
+            if (item.id && item.quantity) {
+                await context.env.DB.prepare(
+                    "UPDATE product_variants SET stock = stock - ? WHERE id = ?"
+                ).bind(item.quantity, item.id).run();
+            }
         }
     }
 
