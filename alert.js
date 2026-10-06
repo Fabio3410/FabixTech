@@ -116,6 +116,7 @@ window.showAlert = function(message, title = "Hinweis") {
     document.getElementById('custom-alert-message').innerText = message;
 
     overlay.style.display = 'flex';
+    
     setTimeout(() => {
         overlay.classList.add('active');
     }, 10);

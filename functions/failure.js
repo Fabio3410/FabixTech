@@ -115,7 +115,7 @@ export async function onRequestGet(context) {
             <p>
                 Bitte entschuldige das Problem. Du kannst es gerne jederzeit noch einmal probieren!
             </p>
-            <a href="../index#shop" class="btn">Zurück zum Shop</a>
+            <a href="/shop" class="btn">Zurück zum Shop</a>
         </div>
     </body>
     </html>`;

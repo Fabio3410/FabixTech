@@ -28,12 +28,23 @@ async function checkAdminAuth(context) {
     return user && user.is_admin === 1;
 }
 
+const corsHeaders = {
+    'Content-Type': 'application/json',
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Methods': 'GET, POST, PUT, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization'
+};
+
+export async function onRequestOptions() {
+    return new Response(null, { headers: corsHeaders });
+}
+
 export async function onRequestGet(context) {
     const isAdmin = await checkAdminAuth(context);
     if (!isAdmin) {
         return new Response(JSON.stringify({ error: "Zugriff verweigert" }), { 
             status: 401,
-            headers: { 'Content-Type': 'application/json' }
+            headers: corsHeaders
         });
     }
 
@@ -49,16 +60,16 @@ export async function onRequestGet(context) {
     }
 
     return new Response(JSON.stringify(orders), {
-        headers: { 'Content-Type': 'application/json' }
+        headers: corsHeaders
     });
 }
 
-export async function onRequestPost(context) {
+async function handleUpdateOrder(context) {
     const isAdmin = await checkAdminAuth(context);
     if (!isAdmin) {
         return new Response(JSON.stringify({ error: "Zugriff verweigert" }), { 
             status: 401,
-            headers: { 'Content-Type': 'application/json' }
+            headers: corsHeaders
         });
     }
     
@@ -77,6 +88,14 @@ export async function onRequestPost(context) {
     }
 
     return new Response(JSON.stringify({ success: true }), {
-        headers: { 'Content-Type': 'application/json' }
+        headers: corsHeaders
     });
+}
+
+export async function onRequestPost(context) {
+    return handleUpdateOrder(context);
+}
+
+export async function onRequestPut(context) {
+    return handleUpdateOrder(context);
 }

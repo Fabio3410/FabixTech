@@ -66,5 +66,4 @@ async function renderShop() {
 }
 
 document.addEventListener('DOMContentLoaded', renderShop);
-
 document.addEventListener('DOMContentLoaded', renderShop);

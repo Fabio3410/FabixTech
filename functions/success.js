@@ -150,7 +150,7 @@ export async function onRequestGet(context) {
                 --text-main: #f8fafc;
                 --text-muted: #94a3b8;
                 --border-color: #334155;
-                --icon-bg: #064e3b;
+                --icon-bg: #068d0d;
             }
 
             body { 

@@ -1197,6 +1197,7 @@ html, body, .navbar, .tech-box, .material-card, footer {
         left: 15px;
         right: 15px;
         max-width: none;
+        opacity: 1;
     }
 }
 

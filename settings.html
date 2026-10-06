@@ -434,6 +434,21 @@
             background-color: var(--primary-hover);
         }
 
+        footer {
+            text-align: center;
+            padding: 3.6rem 2.4rem;
+            color: var(--text-muted);
+            font-size: 1.08rem;
+            border-top: 1.2px solid var(--border-color);
+            margin-top: 7.2rem;
+            background-color: var(--bg-card);
+            user-select: none;
+        }
+
+        html, body, .navbar, footer {
+            transition: background-color 0.4s ease, color 0.4s ease, border-color 0.4s ease, box-shadow 0.4s ease;
+        }
+
         @media (max-width: 480px) {
             .btn-group, .modal-buttons {
                 flex-direction: column;
@@ -514,7 +529,9 @@
             </div>
         </div>
     </div>
-
+    <footer>
+        <p>&copy; <span id="copyright"><script>document.getElementById('copyright').appendChild(document.createTextNode(new Date().getFullYear()))</script></span> Fabio3D. Alle Rechte vorbehalten.</p>
+    </footer>
     <script>
         window.addEventListener('load', () => {
             document.body.classList.remove('preload');

@@ -31,12 +31,13 @@
         <h2>Meine <span class="gradient-text">Bestellungen</span></h2>
         <div id="my-orders-container" style="margin-top: 24px;">Lade deine Bestellungen...</div>
     </main>
-
+    <footer>
+        <p>&copy; <span id="copyright"><script>document.getElementById('copyright').appendChild(document.createTextNode(new Date().getFullYear()))</script></span> Fabio3D. Alle Rechte vorbehalten.</p>
+    </footer>
     <script>
         document.addEventListener('DOMContentLoaded', async () => {
             const container = document.getElementById('my-orders-container');
             const token = localStorage.getItem('session_id') || (JSON.parse(localStorage.getItem('user') || '{}')).session_id;
-
             if (!token) {
                 container.innerHTML = '<p>Bitte <a href="login">melde dich an</a>, um deine Bestellungen zu sehen.</p>';
                 return;

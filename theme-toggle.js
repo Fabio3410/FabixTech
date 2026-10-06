@@ -11,7 +11,6 @@ function updateAllThemeIcons(theme) {
 function toggleDarkMode() {
     const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
     const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-    
     document.documentElement.setAttribute('data-theme', newTheme);
     if (document.body) {
         document.body.setAttribute('data-theme', newTheme);

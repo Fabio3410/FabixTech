@@ -1,2 +1,2 @@
 # Fabio3D
-The Project of my own 3D printing online-shop.
+Mein eigener 3D Druck Online-Shop!

@@ -398,7 +398,6 @@ window.decreaseQuantity = function(productId) {
 
 window.increaseQuantity = function(productId) {
     const item = cart.find(item => item.id === productId);
-
     if (item) {
         if (item.maxStock !== undefined && item.maxStock > 0 && item.quantity >= item.maxStock) {
             alert(`Es sind nur noch ${item.maxStock} Stück von dieser Variante auf Lager.`);

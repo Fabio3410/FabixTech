@@ -1,7 +1,7 @@
 {
   "name": "Fabio3D",
   "version": "1.0.0",
-  "description": "Teil des Shops auf Cloudflare Pages",
+  "description": "Teil des Shops auf Cloudflare",
   "main": "index.html",
   "dependencies": {
     "stripe": "^15.0.0"

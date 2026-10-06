@@ -23,7 +23,6 @@ export async function onRequestGet(context) {
     }
 
     const user = await env.DB.prepare("SELECT email FROM users WHERE session_id = ?").bind(sessionId).first();
-
     if (!user) {
         return new Response(JSON.stringify({ error: "Ungültige Session" }), { 
             status: 401, 

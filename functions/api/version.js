@@ -15,7 +15,6 @@ async function checkAdminAuth(context) {
     }
 
     if (!sessionId) return false;
-
     const user = await env.DB.prepare("SELECT is_admin FROM users WHERE session_id = ?").bind(sessionId).first();
     return user && user.is_admin === 1;
 }

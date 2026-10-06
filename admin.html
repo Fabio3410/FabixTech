@@ -165,11 +165,21 @@
     <div class="container">
         <div style="display: flex; gap: 10px; margin-bottom: 25px; border-bottom: 1px solid var(--border); padding-bottom: 12px;">
             <button id="btn-tab-orders" onclick="switchAdminTab('orders')" style="background: var(--primary);">Bestellungen</button>
+            <button id="btn-tab-stock" onclick="switchAdminTab('stock')" style="background: #334155;">Bestand</button>
             <button id="btn-tab-settings" onclick="switchAdminTab('settings')" style="background: #334155;">Verwalten</button>
         </div>
 
         <div id="tab-orders">
             <div id="orders-list"><p style="text-align:center; color: var(--text-muted);">Lade Bestellungen...</p></div>
+        </div>
+
+        <div id="tab-stock" style="display: none;">
+            <div class="order-card">
+                <h3 style="margin-top: 0; margin-bottom: 15px;">Lagerbestand verwalten</h3>
+                <div id="stock-manager-list">
+                    <p style="text-align:center; color: var(--text-muted);">Lade Bestände...</p>
+                </div>
+            </div>
         </div>
 
         <div id="tab-settings" style="display: none;">
@@ -257,6 +267,17 @@
             </div>
 
             <div class="order-card">
+                <h3 style="margin-top: 0; margin-bottom: 15px; color: #d40202;">Produkt löschen</h3>
+                <div class="form-group">
+                    <label>Produkttitel oder Base ID eingeben:*</label>
+                    <input type="text" id="delete-prod-title" placeholder="z. B. Gandalf The White Staff">
+                </div>
+                <button type="button" onclick="confirmAndDeleteByTitle()" style="background: #d40202; width: 100%;">
+                    <i class="fa-solid fa-trash"></i> Produkt suchen & löschen
+                </button>
+            </div>
+
+            <div class="order-card">
                 <h3 style="margin-top: 0; margin-bottom: 15px;">Website Version Einstellungen</h3>
             
                 <div style="margin-bottom: 15px;">
@@ -280,17 +301,6 @@
                     <strong>Vorschau:</strong> <span id="version-preview" style="color: var(--primary); font-weight: bold;">Version 1.0.0</span>
                 </div>
                 <button onclick="saveVersionSettings()" style="background: #d40202;">Version speichern</button>
-            </div>
-            
-            <div class="order-card" style="border-color: #fca5a5;">
-                <h3 style="margin-top: 0; margin-bottom: 15px; color: #d40202;">Produkt löschen</h3>
-                <div class="form-group">
-                    <label>Produkttitel oder Base ID eingeben:*</label>
-                    <input type="text" id="delete-prod-title" placeholder="z. B. Gandalf The White Staff">
-                </div>
-                <button type="button" onclick="confirmAndDeleteByTitle()" style="background: #d40202; width: 100%;">
-                    <i class="fa-solid fa-trash"></i> Produkt suchen & löschen
-                </button>
             </div>
         </div>
     </div>
@@ -379,19 +389,30 @@ async function updateVariantStock(variantId) {
 
 function switchAdminTab(tab) {
     const ordersTab = document.getElementById('tab-orders');
+    const stockTab = document.getElementById('tab-stock');
     const settingsTab = document.getElementById('tab-settings');
+
     const btnOrders = document.getElementById('btn-tab-orders');
+    const btnStock = document.getElementById('btn-tab-stock');
     const btnSettings = document.getElementById('btn-tab-settings');
+
+    ordersTab.style.display = 'none';
+    stockTab.style.display = 'none';
+    settingsTab.style.display = 'none';
+
+    btnOrders.style.background = '#334155';
+    btnStock.style.background = '#334155';
+    btnSettings.style.background = '#334155';
 
     if (tab === 'orders') {
         ordersTab.style.display = 'block';
-        settingsTab.style.display = 'none';
         btnOrders.style.background = 'var(--primary)';
-        btnSettings.style.background = '#334155';
-    } else {
-        ordersTab.style.display = 'none';
+    } else if (tab === 'stock') {
+        stockTab.style.display = 'block';
+        btnStock.style.background = 'var(--primary)';
+        loadStockManager();
+    } else if (tab === 'settings') {
         settingsTab.style.display = 'block';
-        btnOrders.style.background = '#334155';
         btnSettings.style.background = 'var(--primary)';
         loadVersionSettings();
     }
@@ -567,24 +588,56 @@ async function loadOrders() {
 
         orders.forEach(order => {
             const itemsHtml = (order.items || []).map(i => `
-                <li>
+                <li style="display:flex; justify-content:space-between; padding:4px 0;">
                     <span><strong>${i.quantity}x</strong> ${i.product_name} (${i.variant})</span>
                     <span>CHF ${Number(i.price).toFixed(2)}</span>
                 </li>
             `).join('');
 
+            const currentStatus = order.status || 'Offen';
+
             container.innerHTML += `
                 <div class="order-card">
-                    <div style="display:flex; justify-content:space-between; margin-bottom:15px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
                         <strong>Bestellung #${order.id}</strong>
-                        <span>${order.status || 'Offen'}</span>
+                        <select onchange="updateOrderStatus('${order.id}', this.value)" style="padding:6px 10px; border-radius:6px; border:1px solid var(--border); background:var(--bg-body); color:var(--text-main); font-weight:bold; cursor:pointer;">
+                            <option value="Offen" ${currentStatus === 'Offen' ? 'selected' : ''}>Offen</option>
+                            <option value="In Bearbeitung" ${currentStatus === 'In Bearbeitung' ? 'selected' : ''}>In Bearbeitung</option>
+                            <option value="Versendet" ${currentStatus === 'Versendet' ? 'selected' : ''}>Versendet</option>
+                            <option value="Zugestellt" ${currentStatus === 'Zugestellt' ? 'selected' : ''}>Zugestellt</option>
+                            <option value="Storniert" ${currentStatus === 'Storniert' ? 'selected' : ''}>Storniert</option>
+                        </select>
                     </div>
-                    <ul style="background:var(--bg-body); padding:12px; border-radius:6px; list-style:none;">${itemsHtml}</ul>
+                    <ul style="background:var(--bg-body); padding:12px; border-radius:6px; list-style:none; margin:0;">${itemsHtml}</ul>
                 </div>
             `;
         });
     } catch (err) {
         container.innerHTML = '<p style="text-align:center; color: var(--text-muted);">Verbindungsfehler zum Server.</p>';
+    }
+}
+
+async function updateOrderStatus(orderId, newStatus) {
+    const token = getSessionToken();
+    const headers = { 'Content-Type': 'application/json' };
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+
+    try {
+        const res = await fetch('/api/orders', {
+            method: 'PUT',
+            headers: headers,
+            body: JSON.stringify({ orderId, status: newStatus })
+        });
+
+        if (res.ok) {
+            alert(`Status für Bestellung #${orderId} erfolgreich auf "${newStatus}" geändert.`);
+        } else {
+            const err = await res.json();
+            alert("Fehler beim Aktualisieren: " + (err.message || err.error || "Unbekannter Fehler"));
+        }
+    } catch (e) {
+        console.error("Fehler:", e);
+        alert("Verbindungsfehler zum Server.");
     }
 }
 

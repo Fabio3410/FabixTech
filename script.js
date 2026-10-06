@@ -57,7 +57,6 @@ document.addEventListener('click', (event) => {
 function updatePrice(button) {
     const card = button.closest('.product-card, .product-card-detail-view');
     const newPrice = button.getAttribute('data-price');
-    
     if (!card || !newPrice) return;
     const priceElement = card.querySelector('.price');
     if (priceElement) {

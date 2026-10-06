@@ -152,10 +152,24 @@
         .toggle-text a:hover {
             color: var(--primary-hover);
         }
+
+        footer {
+            text-align: center;
+            padding: 3.6rem 2.4rem;
+            color: var(--text-muted);
+            font-size: 1.08rem;
+            border-top: 1.2px solid var(--border-color);
+            margin-top: 7.2rem;
+            background-color: var(--bg-card);
+            user-select: none;
+        }
+
+        html, body, .navbar, footer {
+            transition: background-color 0.4s ease, color 0.4s ease, border-color 0.4s ease, box-shadow 0.4s ease;
+        }
     </style>
 </head>
 <body>
-
 <div class="auth-card">
     <h2 id="formTitle">Willkommen zurück</h2>
     <p class="subtitle" id="formSubtitle">Logge dich in dein Konto ein.</p>
@@ -179,6 +193,9 @@
         Noch kein Konto? <a href="register">Registrieren</a>
     </p>
 </div>
+<footer>
+    <p>&copy; <span id="copyright"><script>document.getElementById('copyright').appendChild(document.createTextNode(new Date().getFullYear()))</script></span> Fabio3D. Alle Rechte vorbehalten.</p>
+</footer>
 <script>
 document.getElementById('authForm').addEventListener('submit', async function(e) {
     e.preventDefault();

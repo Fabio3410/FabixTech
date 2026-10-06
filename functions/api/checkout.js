@@ -1,7 +1,6 @@
 import Stripe from 'stripe';
 
 const PROMO_CODES = {
-    'RABATT10': { type: 'percent', value: 10 }, // 10% Rabatt
     'SPARE5': { type: 'fixed', value: 500 },    // 5 Franken Rabatt
     'VIP20': { type: 'percent', value: 20 }     // 20% Rabatt
 };

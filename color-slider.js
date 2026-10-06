@@ -18,7 +18,6 @@ function checkSliderArrows() {
         const rightArrow = container.querySelector('.nav-arrow.right');
         
         if (!track || !leftArrow || !rightArrow) return;
-
         const buttonCount = track.querySelectorAll('.variant-btn').length;
         
         if (buttonCount <= 1) {

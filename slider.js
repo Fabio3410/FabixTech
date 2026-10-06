@@ -94,7 +94,6 @@ function syncImagesWithVariant(variantBtn) {
     const card = variantBtn.closest('.product-card, .product-card-detail-view');
     const imgElement = card.querySelector('.product-img');
     const variantImagesData = variantBtn.getAttribute('data-variant-images');
-
     if (imgElement && variantImagesData) {
         imgElement.setAttribute('data-images', variantImagesData);
         const images = variantImagesData.split(',');

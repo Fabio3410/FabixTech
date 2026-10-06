@@ -12,7 +12,6 @@ export async function onRequestPost(context) {
         console.error("Webhook Signatur-Fehler:", err.message);
         return new Response(`Webhook Error: ${err.message}`, { status: 400 });
     }
-
     if (event.type === 'checkout.session.completed') {
         const session = event.data.object;
         const metadata = session.metadata || {};

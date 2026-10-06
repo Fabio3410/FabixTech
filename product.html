@@ -109,7 +109,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     try {
         const res = await fetch('/api/products');
         const productsDB = await res.json();
-        
         const product = productsDB.find(p => p.baseId === productId);
         
         if (!product) {

@@ -5,7 +5,6 @@ export async function onRequestPost(context) {
 
     try {
         const body = await request.json();
-        
         const recipient = body.recipient;
         const subject = body.subject ? body.subject : "Nachricht von Fabio3D";
         const message = body.message ? body.message : "Hier ist dein Sicherheitscode:";

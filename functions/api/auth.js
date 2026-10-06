@@ -173,7 +173,7 @@ export async function onRequestPost(context) {
             .bind(generatedCode, email).run();
 
         try {
-            await sendCodeEmail(env, email, "Dein Passwort-Reset-Code", generatedCode, "Dein Verifizierungscode zum Zurücksetzen des Passworts lautet:");
+            await sendCodeEmail(env, email, "Dein Passwort-Reset-Code", generatedCode, "Dein Verifizierungscode lautet:");
             return new Response(JSON.stringify({ status: 'success', message: 'Code gesendet.' }));
         } catch (err) {
             return new Response(JSON.stringify({ status: 'error', message: 'Fehler beim Mail-Versand: ' + err.message }), { status: 500 });

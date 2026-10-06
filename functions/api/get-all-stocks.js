@@ -1,7 +1,7 @@
 export async function onRequestGet(context) {
     try {
         const { results } = await context.env.DB.prepare(
-            "SELECT id, stock FROM inventory"
+            "SELECT id, stock FROM product_variants"
         ).all();
 
         return new Response(JSON.stringify(results), {
