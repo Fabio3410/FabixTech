@@ -24,12 +24,7 @@
             --primary: #d40202;
             --border: #e2e8f0;
             --border-color: #e2e8f0;
-            --light-color: #d40202;
             --shadow-md: 0 4px 12px rgba(0,0,0,0.1);
-            --badge-offen-bg: #fef2f2;
-            --badge-offen-color: #dc2626;
-            --badge-versendet-bg: #f0fdf4;
-            --badge-versendet-color: #16a34a;
         }
 
         html[data-theme="dark"] {
@@ -38,71 +33,7 @@
             --text-main: #f8fafc;
             --text-muted: #94a3b8;
             --border: #334155;
-            --badge-offen-bg: #450a0a;
-            --badge-offen-color: #fca5a5;
-            --badge-versendet-bg: #064e3b;
-            --badge-versendet-color: #6ee7b7;
-        }
-
-        .cookie-banner {
-            position: fixed;
-            bottom: 25px;
-            right: 25px;
-            max-width: 400px;
-            background-color: var(--bg-card);
-            color: var(--text-main);
-            border: 1.2px solid var(--border-color);
-            border-radius: 14px;
-            padding: 1.5rem;
-            box-shadow: var(--shadow-md);
-            z-index: 9999;
-            transition: opacity 0.3s ease, 
-                        transform 0.3s ease, 
-                        background-color 0.4s ease, 
-                        border-color 0.4s ease, 
-                        color 0.4s ease;
-        }
-
-        .cookie-banner.hidden {
-            opacity: 0;
-            pointer-events: none;
-            transform: translateY(20px);
-        }
-
-        .cookie-content h3 {
-            margin: 0 0 0.5rem 0;
-            font-size: 1.2rem;
-            font-weight: 700;
-            color: var(--text-main);
-        }
-
-        .cookie-content p {
-            font-size: 0.95rem;
-            color: var(--text-muted);
-            margin: 0 0 1.2rem 0;
-            line-height: 1.5;
-        }
-
-        .cookie-buttons {
-            display: flex;
-            justify-content: flex-end;
-        }
-
-        .btn-cookie {
-            background-color: var(--light-color);
-            color: #ffffff;
-            border: none;
-            padding: 0.6rem 1.2rem;
-            border-radius: 7px;
-            font-weight: 600;
-            cursor: pointer;
-            font-size: 0.95rem;
-            transition: transform 0.2s ease, opacity 0.2s ease;
-        }
-
-        .btn-cookie:hover {
-            opacity: 0.9;
-            transform: scale(1.02);
+            --border-color: #334155;
         }
 
         * { 
@@ -115,27 +46,6 @@
             color: var(--text-main); 
             margin: 0; 
             padding-top: 85px; 
-            transition: background-color 0.3s, color 0.3s; 
-        }
-
-        ::-webkit-scrollbar {
-            width: 8px; 
-            height: 8px;
-        }
-
-        ::-webkit-scrollbar-track {
-            background: var(--scrollbar-track);
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background-color: var(--scrollbar-thumb);
-            border-radius: 10px;
-            border: 2px solid transparent;
-            background-clip: content-box;
-        }
-
-        ::-webkit-scrollbar-thumb:hover {
-            background-color: var(--scrollbar-thumb-hover);
         }
 
         .navbar {
@@ -146,7 +56,6 @@
             background-color: var(--bg-card);
             border-bottom: 1.2px solid var(--border-color);
             z-index: 1000;
-            box-shadow: var(--shadow-sm);
         }
 
         .nav-container {
@@ -164,44 +73,6 @@
             font-size: 1.8rem;
             color: var(--text-main);
             text-decoration: none;
-            letter-spacing: 1.2px;
-            cursor: pointer;
-            display: inline-block;
-            min-width: 120px;
-        }
-
-        .logo span {
-            color: var(--dark-color);
-        }
-
-        .nav-links {
-            display: flex;
-            list-style: none;
-            gap: 2.4rem;
-            opacity: 0;
-            pointer-events: none;
-        }
-
-        .nav-link {
-            color: var(--text-muted);
-            text-decoration: none;
-            font-weight: 700;
-            font-size: 21px;
-            transition: color 0.3s;
-            opacity: 0;
-            pointer-events: none;
-        }
-
-        .cart-icon {
-            background: var(--bg-card);
-            padding: 0.6rem 1.2rem;
-            border-radius: 24px;
-            border: 1.2px solid var(--border-color);
-            transition: all 0.2s;
-            font-weight: 600;
-            min-width: 40px;
-            opacity: 0;
-            pointer-events: none;
         }
 
         .container {
@@ -212,7 +83,8 @@
 
         button { 
             background: var(--primary); 
-            color: white; border: none; 
+            color: white; 
+            border: none; 
             padding: 12px 20px; 
             border-radius: 8px; 
             font-weight: 600; 
@@ -221,165 +93,73 @@
             transition: opacity 0.2s; 
         }
 
-        button:hover {
-            opacity: 0.9;
-        }
+        button:hover { opacity: 0.9; }
 
         .order-card { 
             background: var(--bg-card); 
             border-radius: 12px; 
             border: 1px solid var(--border); 
             padding: 24px; 
-            margin-bottom: 20px; 
+            margin-bottom: 25px; 
             box-shadow: 0 2px 8px rgba(0,0,0,0.02); 
         }
 
-        .order-header {
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            border-bottom: 1px solid var(--border); 
-            padding-bottom: 16px; 
-            margin-bottom: 16px; 
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
         }
 
-        .order-title {
-            font-size: 18px;
-            font-weight: 700;
+        @media (max-width: 600px) {
+            .form-grid { grid-template-columns: 1fr; }
         }
 
-        .badge { 
-            padding: 6px 12px; 
-            border-radius: 20px; 
-            font-size: 12px; 
-            font-weight: 700; 
-            text-transform: uppercase; 
-            letter-spacing: 0.5px; 
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            margin-bottom: 12px;
         }
 
-        .badge-offen { 
-            background: var(--badge-offen-bg);
-            color: var(--badge-offen-color);
+        .form-group label {
+            font-size: 13px;
+            font-weight: bold;
+            color: var(--text-main);
         }
 
-        .badge-versendet { 
-            background: var(--badge-versendet-bg); 
-            color: var(--badge-versendet-color); 
-        }
-
-        .order-grid { 
-            display: grid; 
-            grid-template-columns: 1fr 1fr; 
-            gap: 20px; 
-            margin-bottom: 20px; 
-        }
-
-        @media (max-width: 600px) { 
-            .order-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        .info-block h4 { 
-            margin: 0 0 6px 0; 
-            font-size: 12px; 
-            text-transform: uppercase; 
-            color: var(--text-muted); 
-        }
-
-        .info-block p { 
-            margin: 0; 
-            font-size: 14px; 
-            line-height: 1.5; 
-            font-weight: 500;
-        }
-
-        .items-list { 
-            background: var(--bg-body); 
-            border-radius: 8px; 
-            padding: 16px; 
-            list-style: none; 
-            margin: 0 0 20px 0; 
-        }
-
-        .items-list li { 
-            display: flex; 
-            justify-content: space-between; 
-            padding: 6px 0; 
+        .form-group input, .form-group textarea, .form-group select {
+            padding: 10px;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+            background: var(--bg-body);
+            color: var(--text-main);
             font-size: 14px;
-            border-bottom: 1px dashed var(--border); 
         }
 
-        .items-list li:last-child { 
-            border-bottom: none; 
+        .variant-box {
+            background: var(--bg-body);
+            border: 1px dashed var(--border);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            position: relative;
         }
 
-        .order-footer { 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-        }
-
-        .total-price { 
-            font-size: 18px; 
-            font-weight: 700; 
-        }
-
-        .btn-shipped {
-            background: #16a34a;
-        }
-
-        @media (max-width: 480px) {
-            .cookie-banner {
-                bottom: 15px;
-                left: 15px;
-                right: 15px;
-                max-width: none;
-            }
-        }
-
-        @supports not (scrollbar-gutter: stable) {
-            html {
-                overflow-y: scroll;
-            }
-        }
-
-        @media (max-width: 1024px) {
-            html {
-                font-size: 85%;
-            }
-
-            .nav-container {
-                padding: 0 1.2rem;
-            }
-
-            .nav-links { 
-                display: none;
-            }
-        }
-
-        @media (max-width: 400px) {
-            .logo {
-                min-width: auto;
-                font-size: 1.5rem;
-            }
+        .btn-remove-variant {
+            background: #dc2626;
+            padding: 4px 10px;
+            font-size: 12px;
+            position: absolute;
+            top: 10px;
+            right: 10px;
         }
     </style>
 </head>
 <body>
     <nav class="navbar">
         <div class="nav-container">
-            <a href="index" class="logo">FABIO<span class="gradient-text">3D</span></a>
-            <ul class="nav-links">
-                <li><a class="nav-link active" href="index">Home</a></li>
-                <li><a class="nav-link" href="shop">Shop</a></li>
-                <li><a class="nav-link" href="about">Über mich</a></li>
-                <li><a class="nav-link" href="contact">Kontakt</a></li>
-                <li><a class="nav-link" href="impressum">Impressum</a></li>
-            </ul>
-            <div class="cart-icon" onclick="toggleCart()">
-                <i class="fa-solid fa-cart-shopping"></i> <span id="cart-count">0</span>
-            </div>
+            <a href="index" class="logo">FABIO<span style="color:var(--primary);">3D</span></a>
+            <div id="user-menu-root"></div>
         </div>
     </nav>
 
@@ -388,10 +168,79 @@
             <button id="btn-tab-orders" onclick="switchAdminTab('orders')" style="background: var(--primary);">Bestellungen</button>
             <button id="btn-tab-settings" onclick="switchAdminTab('settings')" style="background: #334155;">Verwalten</button>
         </div>
+
         <div id="tab-orders">
             <div id="orders-list"><p style="text-align:center; color: var(--text-muted);">Lade Bestellungen...</p></div>
         </div>
         <div id="tab-settings" style="display: none;">
+            
+            <div class="order-card">
+                <h3 style="margin-top: 0; margin-bottom: 15px;">Neues Produkt erstellen</h3>
+                <form id="create-product-form" onsubmit="createNewProduct(event)">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Base ID (z. B. gandalf-staff)*</label>
+                            <input type="text" id="prod-base-id" required placeholder="gandalf-staff">
+                        </div>
+                        <div class="form-group">
+                            <label>Titel*</label>
+                            <input type="text" id="prod-title" required placeholder="Gandalf The White Staff">
+                        </div>
+                    </div>
+
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Kategorie*</label>
+                            <input type="text" id="prod-category" required placeholder="Deko / Spielzeug">
+                        </div>
+                        <div class="form-group">
+                            <label>Ersteller (Creator)</label>
+                            <input type="text" id="prod-creator" placeholder="sarahperdue5">
+                        </div>
+                    </div>
+
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Link zum Ersteller / Modell</label>
+                            <input type="url" id="prod-link" placeholder="https://www.thingiverse.com/...">
+                        </div>
+                        <div class="form-group">
+                            <label>Material</label>
+                            <input type="text" id="prod-material" placeholder="PLA / PETG">
+                        </div>
+                    </div>
+
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Qualität</label>
+                            <input type="text" id="prod-quality" placeholder="0.16mm">
+                        </div>
+                        <div class="form-group">
+                            <label>Infill</label>
+                            <input type="text" id="prod-infill" placeholder="15%">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Ausführliche Beschreibung</label>
+                        <textarea id="prod-long-desc" rows="3" placeholder="Produktbeschreibung eingeben..."></textarea>
+                    </div>
+
+                    <h4 style="margin: 20px 0 10px 0;">Varianten</h4>
+                    <div id="variants-container"></div>
+
+                    <button type="button" onclick="addVariantField()" style="background: #334155; margin-bottom: 20px;">
+                        + Weitere Variante hinzufügen
+                    </button>
+
+                    <hr style="border: 0; border-top: 1px solid var(--border); margin-bottom: 20px;">
+
+                    <button type="submit" style="background: #d40202; width: 100%; font-size: 16px;">
+                        <i class="fa-solid fa-plus"></i> Produkt in D1 speichern
+                    </button>
+                </form>
+            </div>
+
             <div class="order-card">
                 <h3 style="margin-top: 0; margin-bottom: 15px;">Website Version Einstellungen</h3>
             
@@ -417,10 +266,15 @@
                 </div>
                 <button onclick="saveVersionSettings()" style="background: #d40202;">Version speichern</button>
             </div>
+
         </div>
     </div>
+
 <script>
-document.addEventListener('DOMContentLoaded', loadOrders);
+document.addEventListener('DOMContentLoaded', () => {
+    loadOrders();
+    addVariantField();
+});
 
 function switchAdminTab(tab) {
     const ordersTab = document.getElementById('tab-orders');
@@ -442,12 +296,116 @@ function switchAdminTab(tab) {
     }
 }
 
+let variantCount = 0;
+function addVariantField() {
+    variantCount++;
+    const container = document.getElementById('variants-container');
+    const div = document.createElement('div');
+    div.className = 'variant-box';
+    div.id = `variant-box-${variantCount}`;
+    
+    div.innerHTML = `
+        <button type="button" class="btn-remove-variant" onclick="removeVariantField(${variantCount})">Entfernen</button>
+        <div class="form-grid">
+            <div class="form-group">
+                <label>Varianten ID*</label>
+                <input type="text" class="var-id" required placeholder="gandalf_staff_mit_beleuchtung">
+            </div>
+            <div class="form-group">
+                <label>Varianten Name*</label>
+                <input type="text" class="var-name" required placeholder="Mit Beleuchtung (3 LEDs)">
+            </div>
+        </div>
+        <div class="form-grid">
+            <div class="form-group">
+                <label>Preis (CHF)*</label>
+                <input type="number" step="0.05" class="var-price" required placeholder="39.95">
+            </div>
+            <div class="form-group">
+                <label>Bilder (Kommagetrennt)*</label>
+                <input type="text" class="var-images" required placeholder="images/Gandalf-1.png, images/Gandalf-2.png">
+            </div>
+        </div>
+    `;
+    container.appendChild(div);
+}
+
+function removeVariantField(id) {
+    const box = document.getElementById(`variant-box-${id}`);
+    if (box) box.remove();
+}
+
+async function createNewProduct(event) {
+    event.preventDefault();
+
+    const variants = [];
+    document.querySelectorAll('.variant-box').forEach(box => {
+        const id = box.querySelector('.var-id').value.trim();
+        const name = box.querySelector('.var-name').value.trim();
+        const price = parseFloat(box.querySelector('.var-price').value);
+        const imagesRaw = box.querySelector('.var-images').value.trim();
+        
+        const images = imagesRaw.split(',').map(img => img.trim()).filter(img => img.length > 0);
+
+        if (id && name && !isNaN(price)) {
+            variants.push({ id, name, price, images });
+        }
+    });
+
+    if (variants.length === 0) {
+        alert("Bitte erstelle mindestens eine gültige Variante!");
+        return;
+    }
+
+    const payload = {
+        baseId: document.getElementById('prod-base-id').value.trim(),
+        title: document.getElementById('prod-title').value.trim(),
+        category: document.getElementById('prod-category').value.trim(),
+        creator: document.getElementById('prod-creator').value.trim(),
+        link: document.getElementById('prod-link').value.trim(),
+        material: document.getElementById('prod-material').value.trim(),
+        quality: document.getElementById('prod-quality').value.trim(),
+        infill: document.getElementById('prod-infill').value.trim(),
+        longDescription: document.getElementById('prod-long-desc').value.trim(),
+        variants: variants
+    };
+
+    const token = getSessionToken();
+    const headers = { 'Content-Type': 'application/json' };
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+
+    try {
+        const res = await fetch('https://fabio3d-backend.faselfabio.workers.dev/api/products', {
+            method: 'POST',
+            headers: headers,
+            body: JSON.stringify(payload)
+        });
+
+        if (res.ok) {
+            alert("Produkt erfolgreich in D1 erstellt!");
+            document.getElementById('create-product-form').reset();
+            document.getElementById('variants-container').innerHTML = '';
+            addVariantField();
+        } else {
+            const err = await res.json();
+            alert("Fehler beim Speichern: " + (err.message || "Unbekannter Fehler"));
+        }
+    } catch (e) {
+        console.error("Fehler:", e);
+        alert("Verbindungsfehler zum Server.");
+    }
+}
+
+function getSessionToken() {
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    return user.session_id || localStorage.getItem('session_id') || '';
+}
+
 async function loadVersionSettings() {
     try {
         const res = await fetch('/api/version');
         if (!res.ok) return;
         const data = await res.json();
-        
         document.getElementById('version-num-input').value = data.versionNumber || '1.0.0';
         document.getElementById('version-stage-select').value = data.versionStage || '';
         updateVersionPreview();
@@ -479,17 +437,8 @@ async function saveVersionSettings() {
         body: JSON.stringify({ versionNumber, versionStage })
     });
 
-    if (res.ok) {
-        alert('Website-Version erfolgreich aktualisiert!');
-        if (typeof loadWebsiteVersion === 'function') loadWebsiteVersion();
-    } else {
-        alert('Fehler beim Speichern der Version.');
-    }
-}
-
-function getSessionToken() {
-    const user = JSON.parse(localStorage.getItem('user') || '{}');
-    return user.session_id || localStorage.getItem('session_id') || '';
+    if (res.ok) alert('Website-Version erfolgreich aktualisiert!');
+    else alert('Fehler beim Speichern der Version.');
 }
 
 async function loadOrders() {
@@ -497,25 +446,15 @@ async function loadOrders() {
     try {
         const token = getSessionToken();
         const headers = { 'Content-Type': 'application/json' };
-        
-        if (token) {
-            headers['Authorization'] = `Bearer ${token}`;
-        }
+        if (token) headers['Authorization'] = `Bearer ${token}`;
 
-        const res = await fetch('/api/orders', {
-            method: 'GET',
-            credentials: 'include',
-            headers: headers
-        });
-
+        const res = await fetch('/api/orders', { method: 'GET', credentials: 'include', headers });
         if (res.status === 401 || res.status === 403) {
             window.location.href = '/';
             return;
         }
 
-        if (!res.ok) {
-            throw new Error(`Server-Status ${res.status}`);
-        }
+        if (!res.ok) throw new Error(`Server-Status ${res.status}`);
 
         const orders = await res.json();
         container.innerHTML = '';
@@ -532,100 +471,19 @@ async function loadOrders() {
                     <span>CHF ${Number(i.price).toFixed(2)}</span>
                 </li>
             `).join('');
-            
-            const isShipped = order.status === 'versendet';
 
             container.innerHTML += `
                 <div class="order-card">
-                    <div class="order-header">
-                        <span class="order-title">Bestellung #${order.id}</span>
-                        <span class="badge" style="background-color: #f1f5f9; color: #0f172a; border: 1px solid #cbd5e1;">${order.status || 'Offen'}</span>
+                    <div style="display:flex; justify-content:space-between; margin-bottom:15px;">
+                        <strong>Bestellung #${order.id}</strong>
+                        <span>${order.status || 'Offen'}</span>
                     </div>
-
-                    <div class="order-grid">
-                        <div class="info-block">
-                            <h4>Kunde</h4>
-                            <p>${order.customer_name}<br><small style="color: var(--text-muted);">${order.customer_email}</small></p>
-                        </div>
-                        <div class="info-block">
-                            <h4>Lieferadresse</h4>
-                            <p>${order.shipping_address}</p>
-                        </div>
-                    </div>
-
-                    <ul class="items-list">
-                        ${itemsHtml}
-                    </ul>
-
-                    <div class="order-footer">
-                        <div>
-                            <span class="total-price">Gesamt: CHF ${Number(order.total_amount).toFixed(2)}</span>
-                            ${order.discount_amount > 0 ? `<br><small style="color: #16a34a;">(inkl. Rabatt: CHF ${Number(order.discount_amount).toFixed(2)})</small>` : ''}
-                        </div>
-            
-                        <div>
-                            <select onchange="updateOrderStatus('${order.id}', this.value)" style="padding: 8px; border-radius: 6px; border: 1px solid var(--border); background: var(--bg-card); color: var(--text-main); font-weight: 600; cursor: pointer;">
-                                <option value="Offen" ${order.status === 'Offen' ? 'selected' : ''}>Offen</option>
-                                <option value="In Bearbeitung" ${order.status === 'In Bearbeitung' ? 'selected' : ''}>In Bearbeitung</option>
-                                <option value="Versendet" ${order.status === 'Versendet' ? 'selected' : ''}>Versendet</option>
-                                <option value="Zugestellt" ${order.status === 'Zugestellt' ? 'selected' : ''}>Zugestellt</option>
-                                <option value="Abgebrochen" ${order.status === 'Abgebrochen' ? 'selected' : ''}>Abgebrochen</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div style="margin-top: 15px; padding-top: 15px; border-top: 1px dashed var(--border);">
-                        <label style="font-size: 12px; font-weight: bold; text-transform: uppercase; color: var(--text-muted); display: block; margin-bottom: 6px;">Post Sendungsnummer (Tracking-Nr.):</label>
-                        <div style="display: flex; gap: 8px;">
-                            <input type="text" id="tracking-${order.id}" value="${order.tracking_number || ''}" placeholder="z. B. 99.00.123456.12345678" style="flex: 1; padding: 8px; border-radius: 6px; border: 1px solid var(--border); background: var(--bg-card); color: var(--text-main);">
-                            <button onclick="saveTracking('${order.id}')" style="background: #334155; padding: 8px 14px;">Speichern</button>
-                        </div>
-                    </div>
+                    <ul style="background:var(--bg-body); padding:12px; border-radius:6px; list-style:none;">${itemsHtml}</ul>
                 </div>
             `;
         });
     } catch (err) {
-        console.error("Fehler beim Laden der Bestellungen:", err);
-        container.innerHTML = 
-            '<p style="text-align:center; color: var(--text-muted);">Verbindungsfehler zum Server.</p>';
-    }
-}
-
-async function updateOrderStatus(orderId, newStatus) {
-    const token = getSessionToken();
-    const headers = { 'Content-Type': 'application/json' };
-    if (token) headers['Authorization'] = `Bearer ${token}`;
-
-    const res = await fetch('/api/orders', {
-        method: 'POST',
-        credentials: 'include',
-        headers: headers,
-        body: JSON.stringify({ orderId, status: newStatus })
-    });
-
-    if (res.ok) {
-        loadOrders(); 
-    } else {
-        alert('Status konnte nicht aktualisiert werden.');
-    }
-}
-
-async function saveTracking(orderId) {
-    const trackingNumber = document.getElementById(`tracking-${orderId}`).value.trim();
-    const token = getSessionToken();
-    const headers = { 'Content-Type': 'application/json' };
-    if (token) headers['Authorization'] = `Bearer ${token}`;
-
-    const res = await fetch('/api/orders', {
-        method: 'POST',
-        credentials: 'include',
-        headers: headers,
-        body: JSON.stringify({ orderId, trackingNumber })
-    });
-
-    if (res.ok) {
-        alert('Sendungsnummer gespeichert!');
-    } else {
-        alert('Fehler beim Speichern.');
+        container.innerHTML = '<p style="text-align:center; color: var(--text-muted);">Verbindungsfehler zum Server.</p>';
     }
 }
 </script>
