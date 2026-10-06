@@ -4,18 +4,38 @@ export async function onRequestGet({ env }) {
         'Access-Control-Allow-Origin': '*'
     };
 
+    if (!env.DB) {
+        return new Response(JSON.stringify({ error: "D1 Database Binding 'DB' ist nicht konfiguriert." }), { status: 500, headers: corsHeaders });
+    }
+
     try {
-        const prodCount = await env.DB.prepare("SELECT COUNT(*) as count FROM products").first();
-        const orderStats = await env.DB.prepare("SELECT COUNT(*) as totalOrders, SUM(total_price) as revenue FROM orders").first();
-        const pendingRequests = await env.DB.prepare("SELECT COUNT(*) as count FROM custom_requests WHERE status = 'Offen'").first();
+        let productsCount = 0;
+        let totalOrders = 0;
+        let revenue = 0;
+
+        try {
+            const res = await env.DB.prepare("SELECT COUNT(*) as count FROM products").first();
+            if (res) productsCount = res.count;
+        } catch (e) {
+            console.warn("Tabelle 'products' konnte nicht abgefragt werden:", e.message);
+        }
+
+        try {
+            const res = await env.DB.prepare("SELECT COUNT(*) as totalOrders, SUM(total_price) as revenue FROM orders").first();
+            if (res) {
+                totalOrders = res.totalOrders || 0;
+                revenue = res.revenue || 0;
+            }
+        } catch (e) {
+            console.warn("Tabelle 'orders' existiert noch nicht.");
+        }
 
         return new Response(JSON.stringify({
-            productsCount: prodCount ? prodCount.count : 0,
-            totalOrders: orderStats ? orderStats.totalOrders : 0,
-            revenue: orderStats && orderStats.revenue ? orderStats.revenue : 0,
-            pendingRequests: pendingRequests ? pendingRequests.count : 0
+            productsCount,
+            totalOrders,
+            revenue
         }), { headers: corsHeaders });
-    
+
     } catch (err) {
         return new Response(JSON.stringify({ error: err.message }), { status: 500, headers: corsHeaders });
     }
