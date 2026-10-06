@@ -107,7 +107,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const productId = urlParams.get('id');
     
     try {
-        const res = await fetch('https://fabio3d-backend.faselfabio.workers.dev/api/products');
+        const res = await fetch('/api/products');
         const productsDB = await res.json();
         
         const product = productsDB.find(p => p.baseId === productId);

@@ -171,8 +171,24 @@
         <div id="tab-orders">
             <div id="orders-list"><p style="text-align:center; color: var(--text-muted);">Lade Bestellungen...</p></div>
         </div>
+
         <div id="tab-settings" style="display: none;">
-            
+
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 25px;">
+                <div class="order-card" style="margin-bottom:0; text-align:center;">
+                    <span style="font-size:12px; color:var(--text-muted); font-weight:bold;">GESAMTEINNAHMEN</span>
+                    <h2 id="stat-revenue" style="margin: 5px 0 0 0; color:var(--primary);">CHF 0.00</h2>
+                </div>
+                <div class="order-card" style="margin-bottom:0; text-align:center;">
+                    <span style="font-size:12px; color:var(--text-muted); font-weight:bold;">BESTELLUNGEN</span>
+                    <h2 id="stat-orders" style="margin: 5px 0 0 0;">0</h2>
+                </div>
+                <div class="order-card" style="margin-bottom:0; text-align:center;">
+                    <span style="font-size:12px; color:var(--text-muted); font-weight:bold;">PRODUKTE</span>
+                    <h2 id="stat-products" style="margin: 5px 0 0 0;">0</h2>
+                </div>
+            </div>
+
             <div class="order-card">
                 <h3 style="margin-top: 0; margin-bottom: 15px;">Neues Produkt erstellen</h3>
                 <form id="create-product-form" onsubmit="createNewProduct(event)">
@@ -265,7 +281,17 @@
                 </div>
                 <button onclick="saveVersionSettings()" style="background: #d40202;">Version speichern</button>
             </div>
-
+            
+            <div class="order-card" style="border-color: #fca5a5;">
+                <h3 style="margin-top: 0; margin-bottom: 15px; color: #d40202;">Produkt löschen</h3>
+                <div class="form-group">
+                    <label>Produkttitel oder Base ID eingeben:*</label>
+                    <input type="text" id="delete-prod-title" placeholder="z. B. Gandalf The White Staff">
+                </div>
+                <button type="button" onclick="confirmAndDeleteByTitle()" style="background: #d40202; width: 100%;">
+                    <i class="fa-solid fa-trash"></i> Produkt suchen & löschen
+                </button>
+            </div>
         </div>
     </div>
 
@@ -273,7 +299,83 @@
 document.addEventListener('DOMContentLoaded', () => {
     loadOrders();
     addVariantField();
+    loadDashboardStats();
+    loadStockManager();
 });
+
+async function loadDashboardStats() {
+    try {
+        const res = await fetch('/api/stats');
+        if (!res.ok) return;
+        const data = await res.json();
+
+        document.getElementById('stat-revenue').innerText = `CHF ${Number(data.revenue || 0).toFixed(2)}`;
+        document.getElementById('stat-orders').innerText = data.totalOrders || 0;
+        document.getElementById('stat-products').innerText = data.productsCount || 0;
+    } catch (e) {
+        console.error("Fehler beim Laden der Statistiken:", e);
+    }
+}
+
+async function loadStockManager() {
+    const container = document.getElementById('stock-manager-list');
+    try {
+        const res = await fetch('/api/products');
+        const products = await res.json();
+
+        let html = `<table style="width:100%; border-collapse:collapse; font-size:14px;">
+            <thead>
+                <tr style="border-bottom:2px solid var(--border); text-align:left;">
+                    <th style="padding:8px;">Variante</th>
+                    <th style="padding:8px;">Produkt</th>
+                    <th style="padding:8px;">Bestand</th>
+                    <th style="padding:8px;">Aktion</th>
+                </tr>
+            </thead>
+            <tbody>`;
+
+        products.forEach(p => {
+            p.variants.forEach(v => {
+                html += `
+                    <tr style="border-bottom:1px solid var(--border);">
+                        <td style="padding:8px;"><strong>${v.name}</strong><br><small style="color:var(--text-muted);">${v.id}</small></td>
+                        <td style="padding:8px;">${p.title}</td>
+                        <td style="padding:8px;">
+                            <input type="number" id="stock-input-${v.id}" value="${v.stock || 0}" style="width:70px; padding:6px; border-radius:4px; border:1px solid var(--border);">
+                        </td>
+                        <td style="padding:8px;">
+                            <button onclick="updateVariantStock('${v.id}')" style="padding:6px 12px; font-size:12px;">Speichern</button>
+                        </td>
+                    </tr>`;
+            });
+        });
+
+        html += `</tbody></table>`;
+        container.innerHTML = html;
+    } catch (e) {
+        container.innerHTML = '<p style="color:var(--text-muted);">Fehler beim Laden der Bestände.</p>';
+    }
+}
+
+async function updateVariantStock(variantId) {
+    const newStock = document.getElementById(`stock-input-${variantId}`).value;
+
+    try {
+        const res = await fetch('/api/stock', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ variantId, stock: newStock })
+        });
+
+        if (res.ok) {
+            alert("Lagerbestand aktualisiert!");
+        } else {
+            alert("Fehler beim Speichern.");
+        }
+    } catch (e) {
+        alert("Verbindungsfehler.");
+    }
+}
 
 function switchAdminTab(tab) {
     const ordersTab = document.getElementById('tab-orders');
@@ -374,7 +476,7 @@ async function createNewProduct(event) {
     if (token) headers['Authorization'] = `Bearer ${token}`;
 
     try {
-        const res = await fetch('https://fabio3d-backend.faselfabio.workers.dev/api/products', {
+        const res = await fetch('/api/products', {
             method: 'POST',
             headers: headers,
             body: JSON.stringify(payload)
@@ -483,6 +585,55 @@ async function loadOrders() {
         });
     } catch (err) {
         container.innerHTML = '<p style="text-align:center; color: var(--text-muted);">Verbindungsfehler zum Server.</p>';
+    }
+}
+
+async function confirmAndDeleteByTitle() {
+    const titleInput = document.getElementById('delete-prod-title').value.trim();
+    
+    if (!titleInput) {
+        alert("Bitte gib einen Produkttitel oder eine Base ID ein!");
+        return;
+    }
+
+    try {
+        const res = await fetch('/api/products');
+        if (!res.ok) throw new Error("Produkte konnten nicht geladen werden.");
+        
+        const products = await res.json();
+        
+        const product = products.find(p => 
+            p.title.toLowerCase() === titleInput.toLowerCase() || 
+            p.baseId.toLowerCase() === titleInput.toLowerCase()
+        );
+
+        if (!product) {
+            alert(`Kein Produkt mit dem Namen "${titleInput}" gefunden.`);
+            return;
+        }
+
+        const confirmed = confirm(`Möchtest du das Produkt "${product.title}" (ID: ${product.baseId}) wirklich löschen?`);
+        if (!confirmed) return;
+
+        const token = getSessionToken();
+        const headers = { 'Content-Type': 'application/json' };
+        if (token) headers['Authorization'] = `Bearer ${token}`;
+
+        const deleteRes = await fetch(`/api/products?id=${product.baseId}`, {
+            method: 'DELETE',
+            headers: headers
+        });
+
+        if (deleteRes.ok) {
+            alert(`Das Produkt "${product.title}" wurde erfolgreich gelöscht!`);
+            document.getElementById('delete-prod-title').value = '';
+        } else {
+            const err = await deleteRes.json();
+            alert("Fehler beim Löschen: " + (err.error || err.message || "Unbekannter Fehler"));
+        }
+    } catch (err) {
+        console.error("Fehler beim Löschen:", err);
+        alert("Verbindungsfehler zum Server.");
     }
 }
 </script>

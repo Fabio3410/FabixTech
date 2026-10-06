@@ -27,6 +27,26 @@
     <link rel="manifest" href="favicon/site.webmanifest"/>
     <script src="/alert.js"></script>
     <style>
+        :root {
+            --bg-body: #f8fafc;
+            --bg-card: #ffffff;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --primary: #d40202;
+            --border: #e2e8f0;
+            --border-color: #e2e8f0;
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        html[data-theme="dark"] {
+            --bg-body: #0f172a;
+            --bg-card: #1e293b;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --border: #334155;
+            --border-color: #334155;
+        }
+
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             line-height: 1.6;
@@ -154,7 +174,7 @@
     <h1>Datenschutzerklärung</h1>
     <p><i>Stand: Juli 2026</i></p>
     
-    <h2 style="color: black;">Der Schutz deiner Privatsphäre ist mir ein grosses Anliegen. Mit dieser Datenschutzerklärung informiere ich dich darüber, welche personenbezogenen Daten ich erhebe, wenn du meine Website <strong>Fabio3D</strong> besuchst, mein Kontaktformular nutzt oder in meinem Online-Shop bestellst, und was mit diesen Daten geschieht.</h2>
+    <h2 style="color: var(--text-main);">Der Schutz deiner Privatsphäre ist mir ein grosses Anliegen. Mit dieser Datenschutzerklärung informiere ich dich darüber, welche personenbezogenen Daten ich erhebe, wenn du meine Website <strong>Fabio3D</strong> besuchst, mein Kontaktformular nutzt oder in meinem Online-Shop bestellst, und was mit diesen Daten geschieht.</h2>
     <h3>Diese Datenschutzerklärung basiert auf dem Schweizer Datenschutzgesetz (DSG). Da ich für einige technische Funktionen Dienstleister aus den USA nutze, lege ich grossen Wert auf Transparenz bei der Datenübermittlung ins Ausland.</h3>
     
     <h2>1. Wer ist für die Datenverarbeitung verantwortlich?</h2>

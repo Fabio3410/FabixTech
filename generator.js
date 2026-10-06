@@ -3,7 +3,7 @@ async function renderShop() {
     if (!grid) return;
     
     try {
-        const res = await fetch('https://fabio3d-backend.faselfabio.workers.dev/api/products');
+        const res = await fetch('/api/products');
         const productsDB = await res.json();
 
         if (!productsDB || productsDB.length === 0) {
