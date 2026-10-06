@@ -5,10 +5,33 @@ const PROMO_CODES = {
     'VIP20': { type: 'percent', value: 20 }     // 20% Rabatt
 };
 
+function parseCookie(cookieString, key) {
+    if (!cookieString) return null;
+    const match = cookieString.match(new RegExp('(^| )' + key + '=([^;]+)'));
+    return match ? match[2] : null;
+}
+
 export async function onRequestPost(context) {
     try {
         const stripe = new Stripe(context.env.STRIPE_SECRET_KEY);
         const { cart, promoCode, shippingAddress } = await context.request.json();
+        const cookieHeader = context.request.headers.get('Cookie') || '';
+        const authHeader = context.request.headers.get('Authorization') || '';
+
+        let sessionId = parseCookie(cookieHeader, 'session_id');
+        if (!sessionId && authHeader.startsWith('Bearer ')) {
+            sessionId = authHeader.substring(7).trim();
+        }
+
+        let customerEmail = shippingAddress?.email || '';
+        if (sessionId) {
+            const user = await context.env.DB.prepare("SELECT email FROM users WHERE session_id = ?").bind(sessionId).first();
+            if (user && user.email) {
+                customerEmail = user.email;
+            }
+        }
+
+        // 2. Lagerbestand prüfen
         for (const item of cart) {
             const variantId = item.id;
             const kundenMenge = item.quantity;
@@ -72,7 +95,7 @@ export async function onRequestPost(context) {
             promoCode: angewendeterCode || 'Keiner',
             rabatt: `${(rabattRappen / 100).toFixed(2)} CHF`,
             customer_name: shippingAddress?.name || '',
-            customer_email: shippingAddress?.email || '',
+            customer_email: customerEmail,
             shipping_address: formattedAddress
         };
 

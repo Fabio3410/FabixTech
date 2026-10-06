@@ -171,9 +171,13 @@ async function initCheckoutPage(promoCode = null) {
     }));
 
     try {
+        const token = localStorage.getItem('session_id') || (JSON.parse(localStorage.getItem('user') || '{}')).session_id;
+        const headers = { 'Content-Type': 'application/json' };
+        if (token) headers['Authorization'] = `Bearer ${token}`;
+
         const response = await fetch('/api/checkout', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: headers,
             body: JSON.stringify({ cart: formattedCart, promoCode }),
         });
 
