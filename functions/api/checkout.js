@@ -9,21 +9,21 @@ export async function onRequestPost(context) {
     try {
         const stripe = new Stripe(context.env.STRIPE_SECRET_KEY);
         const { cart, promoCode, shippingAddress } = await context.request.json();
-        
         for (const item of cart) {
-            const productId = item.id;
+            const variantId = item.id;
             const kundenMenge = item.quantity;
 
-            if (!productId) continue;
+            if (!variantId) continue;
+
             const result = await context.env.DB.prepare(
-                "SELECT stock FROM inventory WHERE id = ?"
-            ).bind(productId).first();
+                "SELECT stock FROM product_variants WHERE id = ?"
+            ).bind(variantId).first();
             
             const aktuellerBestand = result ? parseInt(result.stock) : 0;
 
             if (aktuellerBestand < kundenMenge) {
                 return new Response(JSON.stringify({ 
-                    error: `Das Produkt "${item.name}" ist leider nicht mehr in deiner ausgewählten Anzahl verfügbar.` 
+                    error: `Das Produkt "${item.name}" (${item.farbe || 'Standard'}) ist leider nicht mehr in deiner ausgewählten Anzahl verfügbar.` 
                 }), { 
                     status: 400,
                     headers: { 'Content-Type': 'application/json' }
