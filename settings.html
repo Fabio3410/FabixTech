@@ -117,8 +117,8 @@
             text-decoration: none;
             letter-spacing: 1.2px;
             cursor: pointer;
-            display: inline-block;
-            min-width: 120px;
+            display: flex;
+            align-items: center;
         }
 
         .logo span {
@@ -481,10 +481,12 @@
                 <li><a class="nav-link" href="contact">Kontakt</a></li>
                 <li><a class="nav-link" href="impressum">Impressum</a></li>
             </ul>
-            <div class="cart-icon" onclick="toggleCart()">
-                <i class="fa-solid fa-cart-shopping"></i> <span id="cart-count">0</span>
+            <div style="display: flex; align-items: center; gap: 1.2rem;">
+                <div class="cart-icon" onclick="toggleCart()">
+                    <i class="fa-solid fa-cart-shopping"></i> <span id="cart-count">0</span>
+                </div>
+                <div id="user-menu-root" class="user-menu-container"></div>
             </div>
-            <div id="user-menu-root" class="user-menu-container"></div>
         </div>
     </nav>
     

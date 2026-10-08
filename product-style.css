@@ -128,8 +128,11 @@ html, #cart-items-container {
     font-weight: 700;
     font-size: 21px;
     transition: color 0.3s;
-    opacity: 0;
-    pointer-events: none;
+    cursor: pointer;
+}
+
+.nav-link:hover, .nav-link.active {
+    color: var(--light-color);
 }
 
 .cart-icon {
@@ -149,8 +152,19 @@ html, #cart-items-container {
 }
 
 .user-menu-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    height: 40px;
     opacity: 0;
-    pointer-events: none;
+    pointer-events: 0;
+}
+
+.gradient-text {
+    background: var(--light-color);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
 }
 
 .cart-icon, .user-menu-container {

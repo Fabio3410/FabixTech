@@ -105,8 +105,8 @@ html, #cart-items-container {
     text-decoration: none;
     letter-spacing: 1.2px;
     cursor: pointer;
-    display: inline-block;
-    min-width: 120px;
+    display: flex;
+    align-items: center;
 }
 
 .logo span {
