@@ -36,8 +36,10 @@
             --border-color: #334155;
         }
 
-        * { 
-            box-sizing: border-box; 
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
 
         body { 
@@ -238,7 +240,7 @@
         }
 
         .btn-remove-variant {
-            background: #dc2626;
+            background: #d40202;
             padding: 4px 10px;
             font-size: 12px;
             position: absolute;
@@ -273,6 +275,13 @@
         </div>
 
         <div id="tab-orders">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h3 style="margin: 0;">Bestellübersicht</h3>
+                <select id="order-view-filter" onchange="loadOrders()" style="padding: 8px 12px; border-radius: 6px; border: 1px solid var(--border); background: var(--bg-card); color: var(--text-main); font-weight: 600;">
+                    <option value="active" selected>Aktuell & letzte 30 Tage</option>
+                    <option value="all">Alle Bestellungen (Archiv)</option>
+                </select>
+            </div>
             <div id="orders-list"><p style="text-align:center; color: var(--text-muted);">Lade Bestellungen...</p></div>
         </div>
 
@@ -370,7 +379,7 @@
             </div>
 
             <div class="order-card">
-                <h3 style="margin-top: 0; margin-bottom: 15px; color: #d40202;">Produkt löschen</h3>
+                <h3 style="margin-top: 0; margin-bottom: 15px; color: var(--text-main);">Produkt löschen</h3>
                 <div class="form-group">
                     <label>Produkttitel oder Base ID eingeben:*</label>
                     <input type="text" id="delete-prod-title" placeholder="z. B. Gandalf The White Staff">
@@ -668,6 +677,8 @@ async function saveVersionSettings() {
 
 async function loadOrders() {
     const container = document.getElementById('orders-list');
+    const filterValue = document.getElementById('order-view-filter')?.value || 'active';
+
     try {
         const token = getSessionToken();
         const headers = { 'Content-Type': 'application/json' };
@@ -689,16 +700,46 @@ async function loadOrders() {
             return;
         }
 
-        orders.forEach(order => {
-            const itemsHtml = (order.items || []).map(i => `
-                <li style="display:flex; justify-content:space-between; padding:4px 0;">
-                    <span><strong>${i.quantity}x</strong> ${i.product_name} (${i.variant})</span>
-                    <span>CHF ${Number(i.price).toFixed(2)}</span>
-                </li>
-            `).join('');
+        const now = new Date();
+        const thirtyDaysInMs = 30 * 24 * 60 * 60 * 1000;
+        const filteredOrders = orders.filter(order => {
+            if (filterValue === 'all') return true;
+
+            const orderDate = new Date(order.created_at || Date.now());
+            const isOlderThan30Days = (now - orderDate) > thirtyDaysInMs;
+            const isCompleted = ['Versendet', 'Zugestellt', 'Storniert'].includes(order.status);
+
+            if (isCompleted && isOlderThan30Days) {
+                return false;
+            }
+            return true;
+        });
+
+        if (filteredOrders.length === 0) {
+            container.innerHTML = '<p style="text-align:center; color: var(--text-muted);">Keine aktiven Bestellungen in den letzten 30 Tagen.</p>';
+            return;
+        }
+
+        filteredOrders.forEach(order => {
+            let subtotal = 0;
+            
+            const itemsHtml = (order.items || []).map(i => {
+                const itemTotal = Number(i.quantity) * Number(i.price);
+                subtotal += itemTotal;
+                return `
+                    <li style="display:flex; justify-content:space-between; padding:4px 0;">
+                        <span><strong>${i.quantity}x</strong> ${i.product_name} (${i.variant})</span>
+                        <span>CHF ${itemTotal.toFixed(2)}</span>
+                    </li>
+                `;
+            }).join('');
 
             const currentStatus = order.status || 'Offen';
             const formattedDate = order.created_at ? new Date(order.created_at).toLocaleString('de-CH') : '';
+            const totalAmount = Number(order.total_amount || 0);
+            
+            let discount = subtotal - totalAmount;
+            if (discount < 0) discount = 0;
 
             container.innerHTML += `
                 <div class="order-card">
@@ -719,12 +760,27 @@ async function loadOrders() {
                     <div style="background:var(--bg-body); padding:12px; border-radius:6px; margin-bottom:12px; font-size:13px; line-height:1.6;">
                         <div><strong>Kunde:</strong> ${order.customer_name || 'Kein Name'} (${order.customer_email || 'Keine E-Mail'})</div>
                         <div><strong>Adresse:</strong> ${order.shipping_address || 'Keine Adresse angegeben'}</div>
-                        ${order.promo_code ? `<div><strong>Aktionscode:</strong> ${order.promo_code}</div>` : ''}
-                        <div><strong>Total:</strong> <span style="color:var(--primary); font-weight:bold;">CHF ${Number(order.total_amount || 0).toFixed(2)}</span></div>
                     </div>
 
                     <ul style="background:var(--bg-body); padding:12px; border-radius:6px; list-style:none; margin:0;">
                         ${itemsHtml}
+                        
+                        <div style="border-top:1px solid var(--border); margin-top:8px; padding-top:8px;">
+                            <li style="display:flex; justify-content:space-between; padding:2px 0;">
+                                <span>Zwischensumme:</span>
+                                <span>CHF ${subtotal.toFixed(2)}</span>
+                            </li>
+                            ${order.promo_code ? `
+                            <li style="display:flex; justify-content:space-between; padding:2px 0; color:var(--primary);">
+                                <span>Aktionscode (${order.promo_code}):</span>
+                                <span>- CHF ${discount.toFixed(2)}</span>
+                            </li>
+                            ` : ''}
+                            <li style="display:flex; justify-content:space-between; padding:4px 0; margin-top:4px; font-size:15px;">
+                                <span><strong>Gesamttotal:</strong></span>
+                                <span style="color:var(--primary); font-weight:bold;">CHF ${totalAmount.toFixed(2)}</span>
+                            </li>
+                        </div>
                     </ul>
                 </div>
             `;

@@ -21,13 +21,26 @@ export async function onRequestGet({ env }) {
         }
 
         try {
-            const res = await env.DB.prepare("SELECT COUNT(*) as totalOrders, SUM(total_price) as revenue FROM orders").first();
+            const res = await env.DB.prepare(
+                "SELECT COUNT(*) as totalOrders, COALESCE(SUM(total_amount), 0) as revenue FROM orders WHERE status != 'Storniert'"
+            ).first();
+            
             if (res) {
                 totalOrders = res.totalOrders || 0;
                 revenue = res.revenue || 0;
             }
         } catch (e) {
-            console.warn("Tabelle 'orders' existiert noch nicht.");
+            try {
+                const res = await env.DB.prepare(
+                    "SELECT COUNT(*) as totalOrders, COALESCE(SUM(total_amount), 0) as revenue FROM orders"
+                ).first();
+                if (res) {
+                    totalOrders = res.totalOrders || 0;
+                    revenue = res.revenue || 0;
+                }
+            } catch (err2) {
+                console.warn("Fehler beim Abfragen der Bestellungen:", err2.message);
+            }
         }
 
         return new Response(JSON.stringify({
