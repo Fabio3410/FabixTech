@@ -48,6 +48,47 @@
             padding-top: 85px; 
         }
 
+
+        html[data-theme="dark"] img.dark-invert {
+            filter: brightness(0) invert(1);
+        }
+
+        html {
+            scroll-behavior: smooth;
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            overflow-x: hidden !important;
+            max-width: 100%;
+            user-select: none;
+            scrollbar-gutter: stable;
+        }
+
+        html, #cart-items-container {
+            scrollbar-width: thin;
+            scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px; 
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--scrollbar-track);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background-color: var(--scrollbar-thumb);
+            border-radius: 10px;
+            border: 2px solid transparent;
+            background-clip: content-box;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background-color: var(--scrollbar-thumb-hover);
+        }
+
         .navbar {
             position: fixed;
             top: 0;
@@ -56,6 +97,7 @@
             background-color: var(--bg-card);
             border-bottom: 1.2px solid var(--border-color);
             z-index: 1000;
+            box-shadow: var(--shadow-sm);
         }
 
         .nav-container {
@@ -73,6 +115,50 @@
             font-size: 1.8rem;
             color: var(--text-main);
             text-decoration: none;
+            letter-spacing: 1.2px;
+            cursor: pointer;
+            display: inline-block;
+            min-width: 120px;
+        }
+
+        .logo span {
+            color: var(--dark-color);
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 2.4rem;
+        }
+
+        .nav-link {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 21px;
+            transition: color 0.3s;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .cart-icon {
+            cursor: pointer;
+            background: var(--bg-card);
+            padding: 0.6rem 1.2rem;
+            border-radius: 24px;
+            border: 1.2px solid var(--border-color);
+            transition: all 0.2s;
+            font-weight: 600;
+            min-width: 40px;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .gradient-text {
+            background: var(--light-color);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
 
         .container {
@@ -158,7 +244,18 @@
 <body>
     <nav class="navbar">
         <div class="nav-container">
-            <a href="index" class="logo">FABIO<span style="color:var(--primary);">3D</span></a>
+            <a href="index" class="logo">FABIO<span class="gradient-text">3D</span></a>
+            <ul class="nav-links">
+                <li><a class="nav-link active" href="index">Home</a></li>
+                <li><a class="nav-link" href="shop">Shop</a></li>
+                <li><a class="nav-link" href="about">Über mich</a></li>
+                <li><a class="nav-link" href="contact">Kontakt</a></li>
+                <li><a class="nav-link" href="impressum">Impressum</a></li>
+            </ul>
+            <div class="cart-icon" onclick="toggleCart()">
+                <i class="fa-solid fa-cart-shopping"></i> <span id="cart-count">0</span>
+            </div>
+            <div id="user-menu-root" class="user-menu-container"></div>
         </div>
     </nav>
 
@@ -595,11 +692,15 @@ async function loadOrders() {
             `).join('');
 
             const currentStatus = order.status || 'Offen';
+            const formattedDate = order.created_at ? new Date(order.created_at).toLocaleString('de-CH') : '';
 
             container.innerHTML += `
                 <div class="order-card">
-                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-                        <strong>Bestellung #${order.id}</strong>
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                        <div>
+                            <strong style="font-size:16px;">Bestellung #${order.id}</strong>
+                            ${formattedDate ? `<div style="font-size:12px; color:var(--text-muted); margin-top:2px;">${formattedDate}</div>` : ''}
+                        </div>
                         <select onchange="updateOrderStatus('${order.id}', this.value)" style="padding:6px 10px; border-radius:6px; border:1px solid var(--border); background:var(--bg-body); color:var(--text-main); font-weight:bold; cursor:pointer;">
                             <option value="Offen" ${currentStatus === 'Offen' ? 'selected' : ''}>Offen</option>
                             <option value="In Bearbeitung" ${currentStatus === 'In Bearbeitung' ? 'selected' : ''}>In Bearbeitung</option>
@@ -608,7 +709,17 @@ async function loadOrders() {
                             <option value="Storniert" ${currentStatus === 'Storniert' ? 'selected' : ''}>Storniert</option>
                         </select>
                     </div>
-                    <ul style="background:var(--bg-body); padding:12px; border-radius:6px; list-style:none; margin:0;">${itemsHtml}</ul>
+
+                    <div style="background:var(--bg-body); padding:12px; border-radius:6px; margin-bottom:12px; font-size:13px; line-height:1.6;">
+                        <div><strong>Kunde:</strong> ${order.customer_name || 'Kein Name'} (${order.customer_email || 'Keine E-Mail'})</div>
+                        <div><strong>Adresse:</strong> ${order.shipping_address || 'Keine Adresse angegeben'}</div>
+                        ${order.promo_code ? `<div><strong>Aktionscode:</strong> ${order.promo_code}</div>` : ''}
+                        <div><strong>Total:</strong> <span style="color:var(--primary); font-weight:bold;">CHF ${Number(order.total_amount || 0).toFixed(2)}</span></div>
+                    </div>
+
+                    <ul style="background:var(--bg-body); padding:12px; border-radius:6px; list-style:none; margin:0;">
+                        ${itemsHtml}
+                    </ul>
                 </div>
             `;
         });

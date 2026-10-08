@@ -335,6 +335,7 @@ html, #cart-items-container {
 .gradient-text {
     background: var(--light-color);
     -webkit-background-clip: text;
+    background-clip: text;
     -webkit-text-fill-color: transparent;
 }
 
