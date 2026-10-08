@@ -45,12 +45,24 @@
             --scrollbar-track: transparent;
         }
 
-        html {
-            padding-top: 85px;
-        }
-
         .preload * {
             transition: none !important;
+        }
+
+        html[data-theme="dark"] img.dark-invert {
+            filter: brightness(0) invert(1);
+        }
+
+        html {
+            padding: 85px;
+            scroll-behavior: smooth;
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            overflow-x: hidden !important;
+            max-width: 100%;
+            user-select: none;
+            scrollbar-gutter: stable;
         }
 
         html, #cart-items-container {
@@ -99,36 +111,6 @@
             align-items: center;
         }
 
-        .nav-links {
-            display: flex;
-            list-style: none;
-            gap: 2.4rem;
-            opacity: 0;
-            pointer-events: none;
-        }
-
-        .nav-link {
-            color: var(--text-muted);
-            text-decoration: none;
-            font-weight: 700;
-            font-size: 21px;
-            transition: color 0.3s;
-            opacity: 0;
-            pointer-events: none;
-        }
-
-        .cart-icon {
-            opacity: 0;
-            pointer-events: none;
-            background: var(--bg-card);
-            padding: 0.6rem 1.2rem;
-            border-radius: 24px;
-            border: 1.2px solid var(--border-color);
-            transition: all 0.2s;
-            font-weight: 600;
-            min-width: 40px;
-        }
-
         .logo {
             font-weight: 800;
             font-size: 1.8rem;
@@ -144,11 +126,44 @@
             color: var(--dark-color);
         }
 
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 2.4rem;
+        }
+
+        .nav-link {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 21px;
+            transition: color 0.3s;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .cart-icon {
+            cursor: pointer;
+            background: var(--bg-card);
+            padding: 0.6rem 1.2rem;
+            border-radius: 24px;
+            border: 1.2px solid var(--border-color);
+            transition: all 0.2s;
+            font-weight: 600;
+            min-width: 40px;
+            opacity: 0;
+            pointer-events: none;
+        }
+
         .gradient-text {
             background: var(--primary);
             -webkit-background-clip: text;
-            background-clip: text;
             -webkit-text-fill-color: transparent;
+        }
+
+        .user-menu-container {
+            opacity: 0;
+            pointer-events: none;
         }
 
         body, .settings-card, .modal-card, h1, h2, h3, span, label, input, button {

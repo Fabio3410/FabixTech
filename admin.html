@@ -155,10 +155,14 @@
         }
 
         .gradient-text {
-            background: var(--light-color);
+            background: var(--primary);
             -webkit-background-clip: text;
-            background-clip: text;
             -webkit-text-fill-color: transparent;
+        }
+
+        .user-menu-container {
+            opacity: 0;
+            pointer-events: none;
         }
 
         .container {
@@ -179,7 +183,9 @@
             transition: opacity 0.2s; 
         }
 
-        button:hover { opacity: 0.9; }
+        button:hover {
+            opacity: 0.9;
+        }
 
         .order-card { 
             background: var(--bg-card); 
