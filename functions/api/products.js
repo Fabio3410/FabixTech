@@ -50,11 +50,9 @@ export async function onRequestGet({ env }) {
 
 export async function onRequestPost({ request, env }) {
     try {
-        const url = new URL(request.url);
         const data = await request.json();
 
-        // Endpunkt für die Drag-and-Drop Sortierung
-        if (url.pathname.endsWith('/reorder')) {
+        if (data.action === 'reorder') {
             if (!data.orderedIds || !Array.isArray(data.orderedIds)) {
                 return new Response(JSON.stringify({ error: "orderedIds muss ein Array sein" }), { status: 400, headers: corsHeaders });
             }
@@ -71,7 +69,6 @@ export async function onRequestPost({ request, env }) {
             });
         }
 
-        // Neues Produkt erstellen
         await env.DB.prepare(`
             INSERT INTO products (base_id, title, category, creator, link, material, quality, infill, long_description, sort_order)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 999)

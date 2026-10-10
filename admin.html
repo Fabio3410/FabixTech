@@ -92,7 +92,7 @@
             color: #d40202;
             text-decoration: none;
             font-weight: bold;
-            font-size: 22px;
+            font-size: 20px;
             transition: color 0.2s;
         }
 
@@ -513,18 +513,20 @@ async function saveProductOrder() {
     if (token) headers['Authorization'] = `Bearer ${token}`;
 
     try {
-        const res = await fetch('/api/products/reorder', {
+        const res = await fetch('/api/products', {
             method: 'POST',
             headers: headers,
-            body: JSON.stringify({ orderedIds })
+            body: JSON.stringify({ action: 'reorder', orderedIds })
         });
+
+        const text = await res.text();
+        const data = text ? JSON.parse(text) : {};
 
         if (res.ok) {
             alert("Produkt-Reihenfolge erfolgreich gespeichert!");
             loadProductSortList();
         } else {
-            const err = await res.json();
-            alert("Fehler beim Speichern: " + (err.message || "Unbekannter Fehler"));
+            alert("Fehler beim Speichern: " + (data.message || "Unbekannter Fehler"));
         }
     } catch (e) {
         console.error("Fehler:", e);
