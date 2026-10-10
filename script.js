@@ -108,6 +108,7 @@ async function fetchAllStocks() {
 function updateMainButtonStock(produktKarte) {
     const activeVariantBtn = produktKarte.querySelector('.variant-btn.active');
     const cartButton = produktKarte.querySelector('.btn-buy');
+    const alertBox = document.getElementById('stock-alert-box');
     
     if (!activeVariantBtn || !cartButton) return;
     const stockAttr = activeVariantBtn.getAttribute('data-stock') || activeVariantBtn.getAttribute('data-max-stock') || "0";
@@ -117,10 +118,12 @@ function updateMainButtonStock(produktKarte) {
         cartButton.disabled = true;
         cartButton.innerText = "Ausverkauft";
         cartButton.removeAttribute('data-max-stock');
+        if (alertBox) alertBox.style.display = 'block';
     } else {
         cartButton.disabled = false;
         cartButton.innerText = "In den Warenkorb";
         cartButton.setAttribute('data-max-stock', aktuellerBestand);
+        if (alertBox) alertBox.style.display = 'none';
     }
 }
 

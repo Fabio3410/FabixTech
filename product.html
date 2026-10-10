@@ -149,6 +149,15 @@ document.addEventListener('DOMContentLoaded', async () => {
                         ${variantsHtml}
                     </div>
                 </div>
+            
+                <div id="stock-alert-box" style="display: none; background: var(--bg-dark); border: 1px dashed var(--border-color); padding: 16px; border-radius: 8px; margin: 12px 0 20px 0;">
+                    <p style="font-size: 14px; font-weight: 600; color: var(--text-main); margin: 0 0 8px 0;">Benachrichtigen, sobald wieder verfügbar:</p>
+                    <div style="display: flex; gap: 8px;">
+                        <input type="email" id="stock-alert-email" placeholder="deine.email@beispiel.ch" style="flex: 1; padding: 10px; border-radius: 6px; border: 1px solid var(--border-color); background: var(--bg-card); color: var(--text-main); font-size: 14px; outline: none;">
+                        <button type="button" onclick="subscribeStockAlert()" style="background: var(--light-color); color: #fff; border: none; padding: 10px 16px; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 14px;">Anmelden</button>
+                    </div>
+                    <div id="stock-alert-msg" style="font-size: 12px; margin-top: 6px; font-weight: 500;"></div>
+                </div>
             </div>
             <div class="product-footer">
                 <div class="price-block">

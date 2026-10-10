@@ -5,6 +5,91 @@ export async function onRequestPost(context) {
 
     try {
         const body = await request.json();
+        const senderEmail = "info@fabio3d.ch";
+
+        if (body.type === 'order_confirmation') {
+            const { recipient, customerName, orderId, items, subtotal, discount, promoCode, shipping, total } = body;
+
+            if (!recipient) {
+                return new Response(JSON.stringify({ error: "Empfänger fehlt" }), { status: 400, headers: { "Content-Type": "application/json" } });
+            }
+
+            const itemsHtml = (items || []).map(i => `
+                <tr>
+                    <td style="padding: 10px 0; border-bottom: 1px solid #e2e8f0; color: #1e293b; font-size: 14px;">
+                        <strong>${i.quantity}x</strong> ${i.name} <span style="color: #64748b; font-size: 12px;">(${i.farbe || i.variant || 'Standard'})</span>
+                    </td>
+                    <td style="padding: 10px 0; border-bottom: 1px solid #e2e8f0; text-align: right; color: #1e293b; font-size: 14px; font-weight: 600;">
+                        CHF ${(i.price / 100 * i.quantity).toFixed(2)}
+                    </td>
+                </tr>
+            `).join('');
+
+            const discountRow = discount > 0 ? `
+                <tr>
+                    <td style="padding: 8px 0; color: #16a34a; font-size: 14px;">Rabatt ${promoCode && promoCode !== 'Keiner' ? '(' + promoCode + ')' : ''}</td>
+                    <td style="padding: 8px 0; text-align: right; color: #16a34a; font-size: 14px; font-weight: 600;">- CHF ${Number(discount).toFixed(2)}</td>
+                </tr>
+            ` : '';
+
+            const htmlContent = `
+                <div style="font-family: 'Inter', Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 30px; border: 1px solid #e2e8f0; border-radius: 16px; background-color: #ffffff;">
+                    <div style="text-align: center; border-bottom: 2px solid #f1f5f9; padding-bottom: 20px; margin-bottom: 20px;">
+                        <h2 style="color: #1e293b; margin: 0; font-size: 24px; font-weight: 800;">FABIO<span style="color: #d40202;">3D</span></h2>
+                        <p style="color: #64748b; font-size: 14px; margin-top: 5px;">Vielen Dank für deine Bestellung!</p>
+                    </div>
+
+                    <p style="font-size: 15px; color: #334155;">Hallo <strong>${customerName || 'Kunde'}</strong>,</p>
+                    <p style="font-size: 14px; color: #475569; line-height: 1.5;">wir haben deine Bestellung <strong>#${orderId}</strong> erfolgreich erhalten und kümmern uns ab sofort um den 3D-Druck deiner Wunsch-Modelle.</p>
+
+                    <h3 style="font-size: 16px; color: #1e293b; margin-top: 25px; margin-bottom: 10px;">Bestellübersicht</h3>
+                    <table style="width: 100%; border-collapse: collapse; margin-bottom: 15px;">
+                        ${itemsHtml}
+                    </table>
+
+                    <table style="width: 100%; border-collapse: collapse; margin-bottom: 25px;">
+                        <tr>
+                            <td style="padding: 6px 0; color: #64748b; font-size: 14px;">Zwischensumme</td>
+                            <td style="padding: 6px 0; text-align: right; color: #334155; font-size: 14px;">CHF ${Number(subtotal).toFixed(2)}</td>
+                        </tr>
+                        ${discountRow}
+                        <tr>
+                            <td style="padding: 6px 0; color: #64748b; font-size: 14px;">Versandkosten</td>
+                            <td style="padding: 6px 0; text-align: right; color: #334155; font-size: 14px;">CHF ${Number(shipping).toFixed(2)}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 12px 0; border-top: 2px solid #e2e8f0; color: #1e293b; font-size: 16px; font-weight: bold;">Gesamttotal</td>
+                            <td style="padding: 12px 0; border-top: 2px solid #e2e8f0; text-align: right; color: #d40202; font-size: 18px; font-weight: 800;">CHF ${Number(total).toFixed(2)}</td>
+                        </tr>
+                    </table>
+
+                    <div style="background-color: #f8fafc; border-radius: 8px; padding: 15px; text-align: center; margin-bottom: 20px;">
+                        <p style="font-size: 13px; color: #64748b; margin: 0;">Du wirst per E-Mail benachrichtigt, sobald sich der Status deiner Bestellung ändert.</p>
+                    </div>
+
+                    <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 20px 0;">
+                    <p style="font-size: 12px; color: #94a3b8; text-align: center; margin: 0;">Fabio3D &bull; Hochwertiger 3D-Druck</p>
+                </div>
+            `;
+
+            const rawEmail = [
+                "From: Fabio3D <" + senderEmail + ">",
+                "To: " + recipient,
+                "Subject: Bestellbestätigung #" + orderId + " | Fabio3D",
+                "MIME-Version: 1.0",
+                "Content-Type: text/html; charset=utf-8",
+                "",
+                htmlContent
+            ].join("\r\n");
+
+            const emailMsg = new EmailMessage(senderEmail, recipient, rawEmail);
+            await env.SEB_EMAIL.send(emailMsg);
+
+            return new Response(JSON.stringify({ status: "success", message: "Bestellbestätigung gesendet" }), {
+                headers: { "Content-Type": "application/json" }
+            });
+        }
+
         const recipient = body.recipient;
         const subject = body.subject ? body.subject : "Nachricht von Fabio3D";
         const message = body.message ? body.message : "Hier ist dein Sicherheitscode:";
@@ -13,8 +98,6 @@ export async function onRequestPost(context) {
         if (!recipient) {
             return new Response(JSON.stringify({ error: "Empfänger fehlt" }), { status: 400 });
         }
-
-        const senderEmail = "info@fabio3d.ch";
 
         let codeBlock = "";
         if (code) {

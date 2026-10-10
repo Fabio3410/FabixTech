@@ -1,4 +1,5 @@
 import Stripe from 'stripe';
+import { EmailMessage } from "cloudflare:email";
 
 export async function onRequestGet(context) {
   const url = new URL(context.request.url);
@@ -52,8 +53,10 @@ export async function onRequestGet(context) {
         "SELECT id FROM orders WHERE payment_intent_id = ?"
     ).bind(paymentIntentId).first();
 
+    let orderId = "";
+
     if (!existingOrder) {
-        const orderId = "ORD-" + Date.now();
+        orderId = "ORD-" + Date.now();
         const shipping = paymentIntent.shipping;
         const addressStr = paymentIntent.metadata?.shipping_address || (shipping?.address 
             ? `${shipping.address.line1 || ''}, ${shipping.address.postal_code || ''} ${shipping.address.city || ''}, ${shipping.address.country || ''}`
@@ -91,6 +94,87 @@ export async function onRequestGet(context) {
                 await context.env.DB.prepare(
                     "UPDATE product_variants SET stock = stock - ? WHERE id = ?"
                 ).bind(item.quantity, item.id).run();
+            }
+        }
+
+        if (kundeEmail && kundeEmail !== 'Keine E-Mail') {
+            try {
+                const subtotal = items.reduce((sum, i) => sum + ((i.price * i.quantity) / 100), 0);
+                const shippingCost = 5.90;
+
+                const itemsEmailHtml = items.map(i => `
+                    <tr>
+                        <td style="padding: 10px 0; border-bottom: 1px solid #e2e8f0; color: #1e293b; font-size: 14px;">
+                            <strong>${i.quantity}x</strong> ${i.name} <span style="color: #64748b; font-size: 12px;">(${i.farbe || 'Standard'})</span>
+                        </td>
+                        <td style="padding: 10px 0; border-bottom: 1px solid #e2e8f0; text-align: right; color: #1e293b; font-size: 14px; font-weight: 600;">
+                            CHF ${((i.price * i.quantity) / 100).toFixed(2)}
+                        </td>
+                    </tr>
+                `).join('');
+
+                const discountEmailRow = rabattWert > 0 ? `
+                    <tr>
+                        <td style="padding: 8px 0; color: #16a34a; font-size: 14px;">Rabatt ${promoCode && promoCode !== 'Keiner' ? '(' + promoCode + ')' : ''}</td>
+                        <td style="padding: 8px 0; text-align: right; color: #16a34a; font-size: 14px; font-weight: 600;">- CHF ${rabattWert.toFixed(2)}</td>
+                    </tr>
+                ` : '';
+
+                const emailHtmlContent = `
+                    <div style="font-family: 'Inter', Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 30px; border: 1px solid #e2e8f0; border-radius: 16px; background-color: #ffffff;">
+                        <div style="text-align: center; border-bottom: 2px solid #f1f5f9; padding-bottom: 20px; margin-bottom: 20px;">
+                            <h2 style="color: #1e293b; margin: 0; font-size: 24px; font-weight: 800;">FABIO<span style="color: #d40202;">3D</span></h2>
+                            <p style="color: #64748b; font-size: 14px; margin-top: 5px;">Vielen Dank für deine Bestellung!</p>
+                        </div>
+
+                        <p style="font-size: 15px; color: #334155;">Hallo <strong>${kundeName || 'Kunde'}</strong>,</p>
+                        <p style="font-size: 14px; color: #475569; line-height: 1.5;">wir haben deine Bestellung <strong>#${orderId}</strong> erfolgreich erhalten und kümmern uns ab sofort um den 3D-Druck deiner Wunsch-Modelle.</p>
+
+                        <h3 style="font-size: 16px; color: #1e293b; margin-top: 25px; margin-bottom: 10px;">Bestellübersicht</h3>
+                        <table style="width: 100%; border-collapse: collapse; margin-bottom: 15px;">
+                            ${itemsEmailHtml}
+                        </table>
+
+                        <table style="width: 100%; border-collapse: collapse; margin-bottom: 25px;">
+                            <tr>
+                                <td style="padding: 6px 0; color: #64748b; font-size: 14px;">Zwischensumme</td>
+                                <td style="padding: 6px 0; text-align: right; color: #334155; font-size: 14px;">CHF ${subtotal.toFixed(2)}</td>
+                            </tr>
+                            ${discountEmailRow}
+                            <tr>
+                                <td style="padding: 6px 0; color: #64748b; font-size: 14px;">Versandkosten</td>
+                                <td style="padding: 6px 0; text-align: right; color: #334155; font-size: 14px;">CHF ${shippingCost.toFixed(2)}</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 12px 0; border-top: 2px solid #e2e8f0; color: #1e293b; font-size: 16px; font-weight: bold;">Gesamttotal</td>
+                                <td style="padding: 12px 0; border-top: 2px solid #e2e8f0; text-align: right; color: #d40202; font-size: 18px; font-weight: 800;">CHF ${gesamtBetrag} ${waehrung}</td>
+                            </tr>
+                        </table>
+
+                        <div style="background-color: #f8fafc; border-radius: 8px; padding: 15px; text-align: center; margin-bottom: 20px;">
+                            <p style="font-size: 13px; color: #64748b; margin: 0;">Du wirst per E-Mail benachrichtigt, sobald sich der Status deiner Bestellung ändert.</p>
+                        </div>
+
+                        <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 20px 0;">
+                        <p style="font-size: 12px; color: #94a3b8; text-align: center; margin: 0;">Fabio3D &bull; Hochwertiger 3D-Druck</p>
+                    </div>
+                `;
+
+                const senderEmail = "info@fabio3d.ch";
+                const rawEmail = [
+                    "From: Fabio3D <" + senderEmail + ">",
+                    "To: " + kundeEmail,
+                    "Subject: Bestellbestätigung | Fabio3D",
+                    "MIME-Version: 1.0",
+                    "Content-Type: text/html; charset=utf-8",
+                    "",
+                    emailHtmlContent
+                ].join("\r\n");
+
+                const emailMsg = new EmailMessage(senderEmail, kundeEmail, rawEmail);
+                await context.env.SEB_EMAIL.send(emailMsg);
+            } catch (emailErr) {
+                console.error("Fehler beim Senden der Bestellbestätigungs-E-Mail:", emailErr);
             }
         }
     }

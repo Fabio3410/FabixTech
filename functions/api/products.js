@@ -1,3 +1,5 @@
+import { EmailMessage } from "cloudflare:email";
+
 const corsHeaders = {
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
@@ -50,7 +52,27 @@ export async function onRequestGet({ env }) {
 
 export async function onRequestPost({ request, env }) {
     try {
+        const url = new URL(request.url);
         const data = await request.json();
+
+        if (data.action === 'subscribe_stock') {
+            const { variantId, email } = data;
+            if (!variantId || !email || !email.includes('@')) {
+                return new Response(JSON.stringify({ error: "Ungültige E-Mail-Adresse." }), { status: 400, headers: corsHeaders });
+            }
+
+            const existing = await env.DB.prepare(
+                "SELECT id FROM stock_notifications WHERE variant_id = ? AND email = ?"
+            ).bind(variantId, email).first();
+
+            if (!existing) {
+                await env.DB.prepare(
+                    "INSERT INTO stock_notifications (variant_id, email) VALUES (?, ?)"
+                ).bind(variantId, email).run();
+            }
+
+            return new Response(JSON.stringify({ success: true, message: "Erfolgreich benachrichtigt!" }), { headers: corsHeaders });
+        }
 
         if (data.action === 'reorder') {
             if (!data.orderedIds || !Array.isArray(data.orderedIds)) {
@@ -73,15 +95,8 @@ export async function onRequestPost({ request, env }) {
             INSERT INTO products (base_id, title, category, creator, link, material, quality, infill, long_description, sort_order)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 999)
         `).bind(
-            data.baseId,
-            data.title,
-            data.category,
-            data.creator || '',
-            data.link || '',
-            data.material || '',
-            data.quality || '',
-            data.infill || '',
-            data.longDescription || ''
+            data.baseId, data.title, data.category, data.creator || '', data.link || '',
+            data.material || '', data.quality || '', data.infill || '', data.longDescription || ''
         ).run();
 
         if (data.variants && data.variants.length > 0) {
@@ -92,14 +107,10 @@ export async function onRequestPost({ request, env }) {
                     VALUES (?, ?, ?, ?, ?, ?)
                 `).bind(v.id, data.baseId, v.name, parseFloat(v.price), imageStr, parseInt(v.stock) || 0);
             });
-
             await env.DB.batch(statements);
         }
 
-        return new Response(JSON.stringify({ success: true, message: "Produkt erfolgreich gespeichert!" }), {
-            status: 201,
-            headers: corsHeaders
-        });
+        return new Response(JSON.stringify({ success: true, message: "Produkt erfolgreich gespeichert!" }), { status: 201, headers: corsHeaders });
     } catch (err) {
         return new Response(JSON.stringify({ error: err.message }), { status: 500, headers: corsHeaders });
     }
@@ -108,6 +119,65 @@ export async function onRequestPost({ request, env }) {
 export async function onRequestPut({ request, env }) {
     try {
         const data = await request.json();
+
+        if (data.variants && data.variants.length > 0) {
+            for (const v of data.variants) {
+                const oldVariant = await env.DB.prepare("SELECT stock FROM product_variants WHERE id = ?").bind(v.id).first();
+                const oldStock = oldVariant ? parseInt(oldVariant.stock) : 0;
+                const newStock = parseInt(v.stock) || 0;
+
+                if (oldStock <= 0 && newStock > 0) {
+                    const { results: subs } = await env.DB.prepare(
+                        "SELECT email FROM stock_notifications WHERE variant_id = ?"
+                    ).bind(v.id).all();
+
+                    if (subs && subs.length > 0) {
+                        const prodInfo = await env.DB.prepare("SELECT title FROM products WHERE base_id = ?").bind(data.baseId).first();
+                        const prodTitle = prodInfo ? prodInfo.title : "Produkt";
+                        const variantName = v.name;
+
+                        const senderEmail = "info@fabio3d.ch";
+
+                        for (const sub of subs) {
+                            try {
+                                const htmlContent = `
+                                    <div style="font-family: 'Inter', Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 30px; border: 1px solid #e2e8f0; border-radius: 16px; background-color: #ffffff;">
+                                        <div style="text-align: center; border-bottom: 2px solid #f1f5f9; padding-bottom: 20px; margin-bottom: 20px;">
+                                            <h2 style="color: #1e293b; margin: 0; font-size: 24px; font-weight: 800;">FABIO<span style="color: #d40202;">3D</span></h2>
+                                            <p style="color: #64748b; font-size: 14px; margin-top: 5px;">Dein gewünschtes Produkt ist wieder da!</p>
+                                        </div>
+                                        <p style="font-size: 15px; color: #334155;">Hallo,</p>
+                                        <p style="font-size: 14px; color: #475569; line-height: 1.5;">gute Nachrichten! Das Produkt <strong>${prodTitle} (${variantName})</strong> ist ab sofort wieder auf Lager und kann im Shop bestellt werden.</p>
+                                        <div style="text-align: center; margin: 30px 0;">
+                                            <a href="https://fabio3d.pages.dev/product.html?id=${data.baseId}" style="background-color: #d40202; color: #ffffff; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 15px;">Jetzt ansehen & bestellen</a>
+                                        </div>
+                                        <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 20px 0;">
+                                        <p style="font-size: 12px; color: #94a3b8; text-align: center; margin: 0;">Du erhältst diese E-Mail, weil du dich für die Benachrichtigung angemeldet hast.</p>
+                                    </div>
+                                `;
+
+                                const rawEmail = [
+                                    "From: Fabio3D <" + senderEmail + ">",
+                                    "To: " + sub.email,
+                                    "Subject: Wieder verfügbar: " + prodTitle + " (" + variantName + ") | Fabio3D",
+                                    "MIME-Version: 1.0",
+                                    "Content-Type: text/html; charset=utf-8",
+                                    "",
+                                    htmlContent
+                                ].join("\r\n");
+
+                                const emailMsg = new EmailMessage(senderEmail, sub.email, rawEmail);
+                                await env.SEB_EMAIL.send(emailMsg);
+                            } catch (mailErr) {
+                                console.error("Fehler beim Senden der Benachrichtigungs-Mail an", sub.email, mailErr);
+                            }
+                        }
+
+                        await env.DB.prepare("DELETE FROM stock_notifications WHERE variant_id = ?").bind(v.id).run();
+                    }
+                }
+            }
+        }
 
         await env.DB.prepare(`
             UPDATE products 
@@ -132,9 +202,7 @@ export async function onRequestPut({ request, env }) {
             await env.DB.batch(statements);
         }
 
-        return new Response(JSON.stringify({ success: true, message: "Produkt erfolgreich aktualisiert!" }), {
-            headers: corsHeaders
-        });
+        return new Response(JSON.stringify({ success: true, message: "Produkt erfolgreich aktualisiert!" }), { headers: corsHeaders });
     } catch (err) {
         return new Response(JSON.stringify({ error: err.message }), { status: 500, headers: corsHeaders });
     }
