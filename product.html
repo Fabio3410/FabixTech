@@ -91,90 +91,135 @@
         <p>&copy; <span id="copyright"><script>document.getElementById('copyright').appendChild(document.createTextNode(new Date().getFullYear()))</script></span> Fabio3D. Alle Rechte vorbehalten.</p>
     </footer>
 
-<script>
-document.addEventListener('DOMContentLoaded', async () => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const productId = urlParams.get('id');
-    
-    try {
-        const res = await fetch('/api/products');
-        const productsDB = await res.json();
-        const product = productsDB.find(p => p.baseId === productId);
+    <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const productId = urlParams.get('id');
         
-        if (!product) {
-            document.getElementById('product-detail-container').innerHTML = "<h1>Produkt nicht gefunden</h1>";
+        try {
+            const res = await fetch('/api/products');
+            const productsDB = await res.json();
+            const product = productsDB.find(p => p.baseId === productId);
+            
+            if (!product) {
+                document.getElementById('product-detail-container').innerHTML = "<h1>Produkt nicht gefunden</h1>";
+                return;
+            }
+
+            const defaultVariant = product.variants[0];
+            const allImages = [...new Set(product.variants.flatMap(v => v.images))].join(', ');
+            
+            const variantsHtml = product.variants.map((v, index) => `
+                <button class="variant-btn ${index === 0 ? 'active' : ''}" 
+                        data-variant-images="${v.images.join(', ')}" 
+                        data-id="${v.id}" 
+                        onclick="jumpToSlide(this, ${index}); updatePrice(this)">${v.name}</button>
+            `).join('');
+
+            document.getElementById('product-detail-container').innerHTML = `
+                <h1>${product.title}</h1>
+                <div class="detail-left-side">
+                    <div class="slider-container">
+                        <div class="slides">
+                            <img class="product-img" 
+                                src="${defaultVariant.images[0]}" 
+                                data-images="${allImages}"
+                                data-index="0"
+                                alt="${product.title}">
+                        </div>
+                        <button class="arrow prev" id="slides-arrow">&#10094;</button>
+                        <button class="arrow next" id="slides-arrow">&#10095;</button>
+                    </div>
+                    <div class="tech-specs">
+                        <span class="spec"><b>Material:</b> ${product.material}</span>
+                        <span class="spec"><b>Qualität:</b> ${product.quality}</span>
+                        <span class="spec"><b>Infill:</b> ${product.infill}</span>
+                    </div>
+                </div>
+                <div class="product-info">
+                    <span class="prod-category">${product.category}</span>
+                    <div class="long-description">
+                        <p>${product.longDescription}</p>
+                    </div>
+                    <h4><strong>Varianten</strong></h4>
+                    <div class="color-slider-container">
+                        <button type="button" class="nav-arrow left" onclick="scrollSlider(this, -1)">&#10094;</button>
+                        <button type="button" class="nav-arrow right" onclick="scrollSlider(this, 1)">&#10095;</button>
+                        <div class="color-slider-track">
+                            ${variantsHtml}
+                        </div>
+                    </div>
+                
+                    <div id="stock-alert-box" style="display: none; background: var(--bg-dark); border: 1px dashed var(--border-color); padding: 16px; border-radius: 8px; margin: 12px 0 20px 0;">
+                        <p style="font-size: 14px; font-weight: 600; color: var(--text-main); margin: 0 0 8px 0;">Benachrichtigen, sobald wieder verfügbar:</p>
+                        <div style="display: flex; gap: 8px;">
+                            <input type="email" id="stock-alert-email" placeholder="deine.email@beispiel.ch" style="flex: 1; padding: 10px; border-radius: 6px; border: 1px solid var(--border-color); background: var(--bg-card); color: var(--text-main); font-size: 14px; outline: none;">
+                            <button type="button" onclick="subscribeStockAlert()" style="background: var(--light-color); color: #fff; border: none; padding: 10px 16px; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 14px;">Anmelden</button>
+                        </div>
+                        <div id="stock-alert-msg" style="font-size: 12px; margin-top: 6px; font-weight: 500;"></div>
+                    </div>
+                </div>
+                <div class="product-footer">
+                    <div class="price-block">
+                        <span class="currency">CHF</span>
+                        <span class="price">${defaultVariant.price.toFixed(2).replace('.', ',')}</span>
+                    </div>
+                    <button class="btn-buy" data-id="${defaultVariant.id}" onclick="addProductFromCard(this)">In den Warenkorb</button>
+                </div>
+            `;
+            
+            if (typeof initSliders === 'function') initSliders();
+            if (typeof checkSliderArrows === 'function') checkSliderArrows();
+            if (typeof fetchAllStocks === 'function') fetchAllStocks();
+        } catch (err) {
+            console.error("Fehler beim Laden des Produkts:", err);
+        }
+    });
+
+    async function subscribeStockAlert() {
+        const emailInput = document.getElementById('stock-alert-email');
+        const msgDiv = document.getElementById('stock-alert-msg');
+        const activeBtn = document.querySelector('.variant-btn.active');
+
+        if (!activeBtn) return;
+        const variantId = activeBtn.getAttribute('data-id');
+        const email = emailInput ? emailInput.value.trim() : '';
+
+        if (!email || !email.includes('@') || !email.includes('.')) {
+            if (msgDiv) {
+                msgDiv.style.color = '#d40202';
+                msgDiv.innerText = 'Bitte gib eine gültige E-Mail-Adresse ein.';
+            }
             return;
         }
 
-        const defaultVariant = product.variants[0];
-        const allImages = [...new Set(product.variants.flatMap(v => v.images))].join(', ');
-        
-        const variantsHtml = product.variants.map((v, index) => `
-            <button class="variant-btn ${index === 0 ? 'active' : ''}" 
-                    data-variant-images="${v.images.join(', ')}" 
-                    data-id="${v.id}" 
-                    onclick="jumpToSlide(this, ${index}); updatePrice(this)">${v.name}</button>
-        `).join('');
+        try {
+            const res = await fetch('/api/products', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'subscribe_stock', variantId, email })
+            });
 
-        document.getElementById('product-detail-container').innerHTML = `
-            <h1>${product.title}</h1>
-            <div class="detail-left-side">
-                <div class="slider-container">
-                    <div class="slides">
-                        <img class="product-img" 
-                            src="${defaultVariant.images[0]}" 
-                            data-images="${allImages}"
-                            data-index="0"
-                            alt="${product.title}">
-                    </div>
-                    <button class="arrow prev" id="slides-arrow">&#10094;</button>
-                    <button class="arrow next" id="slides-arrow">&#10095;</button>
-                </div>
-                <div class="tech-specs">
-                    <span class="spec"><b>Material:</b> ${product.material}</span>
-                    <span class="spec"><b>Qualität:</b> ${product.quality}</span>
-                    <span class="spec"><b>Infill:</b> ${product.infill}</span>
-                </div>
-            </div>
-            <div class="product-info">
-                <span class="prod-category">${product.category}</span>
-                <div class="long-description">
-                    <p>${product.longDescription}</p>
-                </div>
-                <h4><strong>Varianten</strong></h4>
-                <div class="color-slider-container">
-                    <button type="button" class="nav-arrow left" onclick="scrollSlider(this, -1)">&#10094;</button>
-                    <button type="button" class="nav-arrow right" onclick="scrollSlider(this, 1)">&#10095;</button>
-                    <div class="color-slider-track">
-                        ${variantsHtml}
-                    </div>
-                </div>
-            
-                <div id="stock-alert-box" style="display: none; background: var(--bg-dark); border: 1px dashed var(--border-color); padding: 16px; border-radius: 8px; margin: 12px 0 20px 0;">
-                    <p style="font-size: 14px; font-weight: 600; color: var(--text-main); margin: 0 0 8px 0;">Benachrichtigen, sobald wieder verfügbar:</p>
-                    <div style="display: flex; gap: 8px;">
-                        <input type="email" id="stock-alert-email" placeholder="deine.email@beispiel.ch" style="flex: 1; padding: 10px; border-radius: 6px; border: 1px solid var(--border-color); background: var(--bg-card); color: var(--text-main); font-size: 14px; outline: none;">
-                        <button type="button" onclick="subscribeStockAlert()" style="background: var(--light-color); color: #fff; border: none; padding: 10px 16px; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 14px;">Anmelden</button>
-                    </div>
-                    <div id="stock-alert-msg" style="font-size: 12px; margin-top: 6px; font-weight: 500;"></div>
-                </div>
-            </div>
-            <div class="product-footer">
-                <div class="price-block">
-                    <span class="currency">CHF</span>
-                    <span class="price">${defaultVariant.price.toFixed(2).replace('.', ',')}</span>
-                </div>
-                <button class="btn-buy" data-id="${defaultVariant.id}" onclick="addProductFromCard(this)">In den Warenkorb</button>
-            </div>
-        `;
-        
-        if (typeof initSliders === 'function') initSliders();
-        if (typeof checkSliderArrows === 'function') checkSliderArrows();
-        if (typeof fetchAllStocks === 'function') fetchAllStocks();
-    } catch (err) {
-        console.error("Fehler beim Laden des Produkts:", err);
+            const data = await res.json();
+            if (res.ok) {
+                if (msgDiv) {
+                    msgDiv.style.color = '#16a34a';
+                    msgDiv.innerText = 'Erfolgreich eingetragen! Du erhältst eine Mail, sobald der Artikel wieder da ist.';
+                }
+                if (emailInput) emailInput.value = '';
+            } else {
+                if (msgDiv) {
+                    msgDiv.style.color = '#d40202';
+                    msgDiv.innerText = data.error || 'Fehler beim Anmelden.';
+                }
+            }
+        } catch (e) {
+            if (msgDiv) {
+                msgDiv.style.color = '#d40202';
+                msgDiv.innerText = 'Verbindungsfehler zum Server.';
+            }
+        }
     }
-});
-</script>
+    </script>
 </body>
 </html>

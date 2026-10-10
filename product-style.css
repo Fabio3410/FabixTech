@@ -455,6 +455,28 @@ html, #cart-items-container {
     pointer-events: auto; 
 }
 
+.stock-alert-box {
+    opacity: 0;
+    transform: translateY(-6px);
+    max-height: 0;
+    overflow: hidden;
+    margin: 0 !important;
+    padding: 0 16px !important;
+    border: none !important;
+    background: var(--bg-dark);
+    border-radius: 8px;
+    transition: opacity 0.3s ease, transform 0.3s ease, max-height 0.3s ease, padding 0.3s ease, margin 0.3s ease, border 0.3s ease;
+}
+
+.stock-alert-box.show {
+    opacity: 1;
+    transform: translateY(0);
+    max-height: 150px;
+    padding: 16px !important;
+    margin: 12px 0 20px 0 !important;
+    border: 1.2px dashed var(--border-color) !important;
+}
+
 .sidebar {
     position: fixed;
     top: 0;

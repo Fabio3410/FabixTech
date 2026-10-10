@@ -17,14 +17,17 @@ async function renderShop() {
 
         const categories = ['Alle', ...new Set(productsDB.map(p => p.category).filter(Boolean))];
         const filterContainer = document.getElementById('category-filter-container');
+        
         if (filterContainer) {
-            filterContainer.innerHTML = categories.map(cat => `
-                <button class="category-filter-btn ${cat === 'Alle' ? 'active' : ''}" 
-                        onclick="filterProducts('${cat}')" 
-                        style="background: ${cat === 'Alle' ? 'var(--light-color)' : 'var(--bg-card)'}; color: ${cat === 'Alle' ? '#ffffff' : 'var(--text-main)'}; border: 1.2px solid var(--border-color); padding: 8px 18px; border-radius: 20px; cursor: pointer; font-weight: 600; font-size: 14px; transition: all 0.2s;">
-                    ${cat}
-                </button>
-            `).join('');
+            filterContainer.innerHTML = `
+                <div style="position: relative; display: inline-block; width: 240px;">
+                    <i class="fa-solid fa-filter" style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--text-muted); pointer-events: none; font-size: 13px;"></i>
+                    <select id="category-select" onchange="filterProducts(this.value)" style="width: 100%; padding: 10px 36px 10px 38px; border-radius: 10px; border: 1.2px solid var(--border-color); background: var(--bg-card); color: var(--text-main); font-size: 14px; font-weight: 500; appearance: none; cursor: pointer; outline: none; box-shadow: var(--shadow-sm); transition: border-color 0.2s;">
+                        ${categories.map(cat => `<option value="${cat}" style="background: var(--bg-card); color: var(--text-main);">${cat === 'Alle' ? 'Alle Kategorien' : cat}</option>`).join('')}
+                    </select>
+                    <i class="fa-solid fa-chevron-down" style="position: absolute; right: 14px; top: 50%; transform: translateY(-50%); color: var(--text-muted); pointer-events: none; font-size: 11px;"></i>
+                </div>
+            `;
         }
 
         displayProducts(productsDB);
@@ -95,18 +98,6 @@ function displayProducts(products) {
 }
 
 function filterProducts(category) {
-    document.querySelectorAll('.category-filter-btn').forEach(btn => {
-        if (btn.textContent.trim() === category) {
-            btn.style.background = 'var(--light-color)';
-            btn.style.color = '#ffffff';
-            btn.style.borderColor = 'var(--light-color)';
-        } else {
-            btn.style.background = 'var(--bg-card)';
-            btn.style.color = 'var(--text-main)';
-            btn.style.borderColor = 'var(--border-color)';
-        }
-    });
-
     if (category === 'Alle') {
         displayProducts(allProductsCache);
     } else {
@@ -124,60 +115,17 @@ function updateMainButtonStock(produktKarte) {
     const stockAttr = activeVariantBtn.getAttribute('data-stock') || activeVariantBtn.getAttribute('data-max-stock') || "0";
     const aktuellerBestand = parseInt(stockAttr);
     
-    if (aktuellerBestand <= 0) {
-        cartButton.disabled = true;
-        cartButton.innerText = "Ausverkauft";
-        cartButton.removeAttribute('data-max-stock');
-        if (alertBox) alertBox.style.display = 'block';
-    } else {
-        cartButton.disabled = false;
-        cartButton.innerText = "In den Warenkorb";
-        cartButton.setAttribute('data-max-stock', aktuellerBestand);
-        if (alertBox) alertBox.style.display = 'none';
-    }
-}
-
-async function subscribeStockAlert() {
-    const emailInput = document.getElementById('stock-alert-email');
-    const msgDiv = document.getElementById('stock-alert-msg');
-    const activeBtn = document.querySelector('.variant-btn.active');
-
-    if (!activeBtn) return;
-    const variantId = activeBtn.getAttribute('data-id');
-    const email = emailInput ? emailInput.value.trim() : '';
-
-    if (!email || !email.includes('@') || !email.includes('.')) {
-        if (msgDiv) {
-            msgDiv.style.color = '#d40202';
-            msgDiv.innerText = 'Bitte gib eine gültige E-Mail-Adresse ein.';
-        }
-        return;
-    }
-
-    try {
-        const res = await fetch('/api/products', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ action: 'subscribe_stock', variantId, email })
-        });
-
-        const data = await res.json();
-        if (res.ok) {
-            if (msgDiv) {
-                msgDiv.style.color = '#16a34a';
-                msgDiv.innerText = 'Erfolgreich eingetragen! Du erhältst eine Mail, sobald der Artikel wieder da ist.';
-            }
-            if (emailInput) emailInput.value = '';
+    if (alertBox) {
+        if (aktuellerBestand <= 0) {
+            cartButton.disabled = true;
+            cartButton.innerText = "Ausverkauft";
+            cartButton.removeAttribute('data-max-stock');
+            alertBox.classList.add('show');
         } else {
-            if (msgDiv) {
-                msgDiv.style.color = '#d40202';
-                msgDiv.innerText = data.error || 'Fehler beim Anmelden.';
-            }
-        }
-    } catch (e) {
-        if (msgDiv) {
-            msgDiv.style.color = '#d40202';
-            msgDiv.innerText = 'Verbindungsfehler zum Server.';
+            cartButton.disabled = false;
+            cartButton.innerText = "In den Warenkorb";
+            cartButton.setAttribute('data-max-stock', aktuellerBestand);
+            alertBox.classList.remove('show');
         }
     }
 }
