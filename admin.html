@@ -50,7 +50,6 @@
             padding-top: 85px; 
         }
 
-
         html[data-theme="dark"] img.dark-invert {
             filter: brightness(0) invert(1);
         }
@@ -64,31 +63,6 @@
             max-width: 100%;
             user-select: none;
             scrollbar-gutter: stable;
-        }
-
-        html, #cart-items-container {
-            scrollbar-width: thin;
-            scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
-        }
-
-        ::-webkit-scrollbar {
-            width: 8px; 
-            height: 8px;
-        }
-
-        ::-webkit-scrollbar-track {
-            background: var(--scrollbar-track);
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background-color: var(--scrollbar-thumb);
-            border-radius: 10px;
-            border: 2px solid transparent;
-            background-clip: content-box;
-        }
-
-        ::-webkit-scrollbar-thumb:hover {
-            background-color: var(--scrollbar-thumb-hover);
         }
 
         .navbar {
@@ -108,63 +82,23 @@
             padding: 0 2.4rem;
             height: 100%;
             display: flex;
-            justify-content: space-between;
+            justify-content: flex-start;
             align-items: center;
         }
 
-        .logo {
-            font-weight: 800;
-            font-size: 1.8rem;
-            color: var(--text-main);
+        .btn-back {
+            display: inline-block;
+            margin-bottom: 0;
+            color: #d40202;
             text-decoration: none;
-            letter-spacing: 1.2px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
+            font-weight: bold;
+            font-size: 22px;
+            transition: color 0.2s;
         }
 
-        .logo span {
-            color: var(--dark-color);
-        }
-
-        .nav-links {
-            display: flex;
-            list-style: none;
-            gap: 2.4rem;
-        }
-
-        .nav-link {
-            color: var(--text-muted);
-            text-decoration: none;
-            font-weight: 700;
-            font-size: 21px;
-            transition: color 0.3s;
-            opacity: 0;
-            pointer-events: none;
-        }
-
-        .cart-icon {
-            cursor: pointer;
-            background: var(--bg-card);
-            padding: 0.6rem 1.2rem;
-            border-radius: 24px;
-            border: 1.2px solid var(--border-color);
-            transition: all 0.2s;
-            font-weight: 600;
-            min-width: 40px;
-            opacity: 0;
-            pointer-events: none;
-        }
-
-        .gradient-text {
-            background: var(--primary);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .user-menu-container {
-            opacity: 0;
-            pointer-events: none;
+        .btn-back:hover {
+            color: #960505;
+            text-decoration: underline;
         }
 
         .container {
@@ -247,25 +181,34 @@
             top: 10px;
             right: 10px;
         }
+
+        .sortable-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--bg-body);
+            border: 1px solid var(--border);
+            padding: 12px 16px;
+            border-radius: 8px;
+            cursor: grab;
+            user-select: none;
+            transition: background-color 0.2s, border-color 0.2s;
+        }
+
+        .sortable-item:active {
+            cursor: grabbing;
+        }
+
+        .sortable-item.dragging {
+            opacity: 0.4;
+            border: 2px dashed var(--primary);
+        }
     </style>
 </head>
 <body>
     <nav class="navbar">
         <div class="nav-container">
-            <a href="index" class="logo">FABIO<span class="gradient-text">3D</span></a>
-            <ul class="nav-links">
-                <li><a class="nav-link active" href="index">Home</a></li>
-                <li><a class="nav-link" href="shop">Shop</a></li>
-                <li><a class="nav-link" href="about">Über mich</a></li>
-                <li><a class="nav-link" href="contact">Kontakt</a></li>
-                <li><a class="nav-link" href="impressum">Impressum</a></li>
-            </ul>
-            <div style="display: flex; align-items: center; gap: 1.2rem;">
-                <div class="cart-icon" onclick="toggleCart()">
-                    <i class="fa-solid fa-cart-shopping"></i> <span id="cart-count">0</span>
-                </div>
-                <div id="user-menu-root" class="user-menu-container"></div>
-            </div>
+            <a href="index" class="btn-back">&larr; Zurück zur Startseite</a>
         </div>
     </nav>
 
@@ -311,6 +254,15 @@
                     <span style="font-size:12px; color:var(--text-muted); font-weight:bold;">PRODUKTE</span>
                     <h2 id="stat-products" style="margin: 5px 0 0 0;">0</h2>
                 </div>
+            </div>
+
+            <div class="order-card">
+                <h3 style="margin-top: 0; margin-bottom: 10px;">Produkt-Reihenfolge im Shop</h3>
+                <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 15px;">Ändere die Reihenfolge der Produkte</p>
+                <div id="product-sort-list" style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px;">
+                    <p style="text-align:center; color: var(--text-muted);">Lade Produkte...</p>
+                </div>
+                <button onclick="saveProductOrder()" style="background: var(--primary); width: 100%;">Reihenfolge speichern</button>
             </div>
 
             <div class="order-card">
@@ -481,6 +433,105 @@ async function loadStockManager() {
     }
 }
 
+async function loadProductSortList() {
+    const container = document.getElementById('product-sort-list');
+    try {
+        const res = await fetch('/api/products');
+        const products = await res.json();
+
+        if (!products || products.length === 0) {
+            container.innerHTML = '<p style="text-align:center; color: var(--text-muted);">Keine Produkte gefunden.</p>';
+            return;
+        }
+
+        let html = '';
+        products.forEach((p, index) => {
+            html += `
+                <div class="sortable-item" draggable="true" data-base-id="${p.baseId}">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <i class="fa-solid fa-grip-vertical" style="color: var(--text-muted);"></i>
+                        <span style="font-weight: bold; min-width: 24px;">${index + 1}.</span>
+                        <span>${p.title}</span>
+                        <small style="color: var(--text-muted);">(${p.baseId})</small>
+                    </div>
+                    <span style="font-size: 12px; color: var(--text-muted);">${p.category || ''}</span>
+                </div>
+            `;
+        });
+        container.innerHTML = html;
+        initDragAndDrop();
+    } catch (e) {
+        container.innerHTML = '<p style="text-align:center; color: var(--text-muted);">Fehler beim Laden der Produkte.</p>';
+    }
+}
+
+function initDragAndDrop() {
+    const container = document.getElementById('product-sort-list');
+    let draggedItem = null;
+
+    container.querySelectorAll('.sortable-item').forEach(item => {
+        item.addEventListener('dragstart', function() {
+            draggedItem = this;
+            setTimeout(() => this.classList.add('dragging'), 0);
+        });
+
+        item.addEventListener('dragend', function() {
+            this.classList.remove('dragging');
+            draggedItem = null;
+            updateSortNumbers();
+        });
+
+        item.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            const bounding = this.getBoundingClientRect();
+            const offset = e.clientY - bounding.top;
+            const middle = bounding.height / 2;
+
+            if (offset > middle) {
+                container.insertBefore(draggedItem, this.nextSibling);
+            } else {
+                container.insertBefore(draggedItem, this);
+            }
+        });
+    });
+}
+
+function updateSortNumbers() {
+    const items = document.querySelectorAll('#product-sort-list .sortable-item');
+    items.forEach((item, index) => {
+        const numSpan = item.querySelector('span:nth-child(2)');
+        if (numSpan) numSpan.innerText = `${index + 1}.`;
+    });
+}
+
+async function saveProductOrder() {
+    const items = document.querySelectorAll('#product-sort-list .sortable-item');
+    const orderedIds = Array.from(items).map(item => item.getAttribute('data-base-id'));
+
+    const token = getSessionToken();
+    const headers = { 'Content-Type': 'application/json' };
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+
+    try {
+        const res = await fetch('/api/products/reorder', {
+            method: 'POST',
+            headers: headers,
+            body: JSON.stringify({ orderedIds })
+        });
+
+        if (res.ok) {
+            alert("Produkt-Reihenfolge erfolgreich gespeichert!");
+            loadProductSortList();
+        } else {
+            const err = await res.json();
+            alert("Fehler beim Speichern: " + (err.message || "Unbekannter Fehler"));
+        }
+    } catch (e) {
+        console.error("Fehler:", e);
+        alert("Verbindungsfehler zum Server.");
+    }
+}
+
 async function updateVariantStock(variantId) {
     const newStock = document.getElementById(`stock-input-${variantId}`).value;
 
@@ -529,6 +580,7 @@ function switchAdminTab(tab) {
         settingsTab.style.display = 'block';
         btnSettings.style.background = 'var(--primary)';
         loadVersionSettings();
+        loadProductSortList();
     }
 }
 
@@ -622,6 +674,7 @@ async function createNewProduct(event) {
             document.getElementById('create-product-form').reset();
             document.getElementById('variants-container').innerHTML = '';
             addVariantField();
+            loadProductSortList();
         } else {
             const err = await res.json();
             alert("Fehler beim Speichern: " + (err.message || "Unbekannter Fehler"));
@@ -855,6 +908,7 @@ async function confirmAndDeleteByTitle() {
         if (deleteRes.ok) {
             alert(`Das Produkt "${product.title}" wurde erfolgreich gelöscht!`);
             document.getElementById('delete-prod-title').value = '';
+            loadProductSortList();
         } else {
             const err = await deleteRes.json();
             alert("Fehler beim Löschen: " + (err.error || err.message || "Unbekannter Fehler"));

@@ -106,63 +106,23 @@
             padding: 0 2.4rem;
             height: 100%;
             display: flex;
-            justify-content: space-between;
+            justify-content: flex-start;
             align-items: center;
         }
 
-        .logo {
-            font-weight: 800;
-            font-size: 1.8rem;
-            color: var(--text-main);
+        .btn-back {
+            display: inline-block;
+            margin-bottom: 0;
+            color: #d40202;
             text-decoration: none;
-            letter-spacing: 1.2px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
+            font-weight: bold;
+            font-size: 22px;
+            transition: color 0.2s;
         }
 
-        .logo span {
-            color: var(--dark-color);
-        }
-
-        .nav-links {
-            display: flex;
-            list-style: none;
-            gap: 2.4rem;
-        }
-
-        .nav-link {
-            color: var(--text-muted);
-            text-decoration: none;
-            font-weight: 700;
-            font-size: 21px;
-            transition: color 0.3s;
-            opacity: 0;
-            pointer-events: none;
-        }
-
-        .cart-icon {
-            cursor: pointer;
-            background: var(--bg-card);
-            padding: 0.6rem 1.2rem;
-            border-radius: 24px;
-            border: 1.2px solid var(--border-color);
-            transition: all 0.2s;
-            font-weight: 600;
-            min-width: 40px;
-            opacity: 0;
-            pointer-events: none;
-        }
-
-        .gradient-text {
-            background: var(--primary);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .user-menu-container {
-            opacity: 0;
-            pointer-events: none;
+        .btn-back:hover {
+            color: #960505;
+            text-decoration: underline;
         }
 
         body, .settings-card, .modal-card, h1, h2, h3, span, label, input, button {
@@ -473,20 +433,7 @@
 <body class="preload">
     <nav class="navbar">
         <div class="nav-container">
-            <a href="index" class="logo">FABIO<span class="gradient-text">3D</span></a>
-            <ul class="nav-links">
-                <li><a class="nav-link active" href="index">Home</a></li>
-                <li><a class="nav-link" href="shop">Shop</a></li>
-                <li><a class="nav-link" href="about">Über mich</a></li>
-                <li><a class="nav-link" href="contact">Kontakt</a></li>
-                <li><a class="nav-link" href="impressum">Impressum</a></li>
-            </ul>
-            <div style="display: flex; align-items: center; gap: 1.2rem;">
-                <div class="cart-icon" onclick="toggleCart()">
-                    <i class="fa-solid fa-cart-shopping"></i> <span id="cart-count">0</span>
-                </div>
-                <div id="user-menu-root" class="user-menu-container"></div>
-            </div>
+            <a href="index" class="btn-back">&larr; Zurück zur Startseite</a>
         </div>
     </nav>
     

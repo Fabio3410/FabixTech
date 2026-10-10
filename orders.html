@@ -18,12 +18,48 @@
     <link rel="prefetch" href="shop" as="document">
     <script src="script.js" defer></script>
     <script src="/alert.js"></script>
+    <style>
+        .navbar {
+            position: fixed !important;
+            top: 0 !important;
+            width: 100% !important;
+            height: 85px !important;
+            background-color: var(--bg-card) !important;
+            border-bottom: 1.2px solid var(--border-color) !important;
+            z-index: 1000 !important;
+            box-shadow: var(--shadow-sm) !important;
+        }
+
+        .nav-container {
+            max-width: 1440px !important;
+            margin: 0 auto !important;
+            padding: 0 2.4rem !important;
+            height: 100% !important;
+            display: flex !important;
+            justify-content: flex-start !important;
+            align-items: center !important;
+        }
+
+        .btn-back {
+            display: inline-block;
+            margin-bottom: 0;
+            color: #d40202;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 22px;
+            transition: color 0.2s;
+        }
+
+        .btn-back:hover {
+            color: #960505;
+            text-decoration: underline;
+        }
+    </style>
 </head>
 <body>
     <nav class="navbar">
         <div class="nav-container">
-            <a href="index" class="logo">FABIO<span class="gradient-text">3D</span></a>
-            <div id="user-menu-root" class="user-menu-container"></div>
+            <a href="index" class="btn-back">&larr; Zurück zur Startseite</a>
         </div>
     </nav>
 
