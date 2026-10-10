@@ -259,6 +259,8 @@ html, #cart-items-container {
     grid-template-columns: 1fr 1fr;
     gap: 40px;
     align-items: start;
+    max-width: 1100px;
+    margin: 40px auto;
 }
 
 .product-card-detail-view h1 {
