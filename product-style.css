@@ -96,21 +96,19 @@ html, #cart-items-container {
     margin: 0 auto;
     padding: 0 2.4rem;
     height: 100%;
-    display: grid;
-    grid-template-columns: 1fr auto 1fr;
+    display: flex;
+    justify-content: flex-start;
     align-items: center;
 }
 
 .btn-back {
     display: inline-block;
-    margin-bottom: 20px;
+    margin-bottom: 0;
     color: #d40202;
     text-decoration: none;
     font-weight: bold;
-    font-size: 26px;
+    font-size: 22px;
     transition: color 0.2s;
-    grid-column: 2; 
-    justify-self: center;
 }
 
 .btn-back:hover {
