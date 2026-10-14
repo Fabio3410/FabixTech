@@ -926,9 +926,8 @@ async function loadOrders() {
             const currentStatus = order.status || 'Offen';
             const formattedDate = order.created_at ? new Date(order.created_at).toLocaleString('de-CH') : '';
             const totalAmount = Number(order.total_amount || 0);
-            
-            let discount = subtotal - totalAmount;
-            if (discount < 0) discount = 0;
+
+            let discount = Number(order.discount_amount || 0);
 
             container.innerHTML += `
                 <div class="order-card">
