@@ -1,10 +1,5 @@
 import Stripe from 'stripe';
 
-const PROMO_CODES = {
-    'SPARE5': { type: 'fixed', value: 500 },    // 5 Franken Rabatt
-    'VIP20': { type: 'percent', value: 20 }     // 20% Rabatt
-};
-
 function parseCookie(cookieString, key) {
     if (!cookieString) return null;
     const match = cookieString.match(new RegExp('(^| )' + key + '=([^;]+)'));
@@ -31,7 +26,6 @@ export async function onRequestPost(context) {
             }
         }
 
-        // 2. Lagerbestand prüfen
         for (const item of cart) {
             const variantId = item.id;
             const kundenMenge = item.quantity;
@@ -60,11 +54,14 @@ export async function onRequestPost(context) {
 
         if (promoCode && promoCode.trim() !== '') {
             const cleanCode = promoCode.trim().toUpperCase();
-            const promo = PROMO_CODES[cleanCode];
+            
+            const promo = await context.env.DB.prepare(
+                "SELECT * FROM promo_codes WHERE code = ?"
+            ).bind(cleanCode).first();
 
             if (!promo) {
                 return new Response(JSON.stringify({ 
-                    error: 'Der eingegebene Aktionscode ist ungültig.' 
+                    error: 'Der eingegebene Aktionscode ist nicht gültig.' 
                 }), { 
                     status: 400,
                     headers: { 'Content-Type': 'application/json' }

@@ -344,6 +344,35 @@
             </div>
 
             <div class="order-card">
+                <h3 style="margin-top: 0; margin-bottom: 15px;">Aktionscodes (Promo Codes) verwalten</h3>
+                <div id="promo-codes-list" style="margin-bottom: 20px;">
+                    <p style="color: var(--text-muted); text-align: center;">Lade Codes...</p>
+                </div>
+                <form id="create-promo-form" onsubmit="createPromoCode(event)">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Aktionscode (z. B. SUMMER10)*</label>
+                            <input type="text" id="promo-code-input" required placeholder="SUMMER10" style="text-transform: uppercase;">
+                        </div>
+                        <div class="form-group">
+                            <label>Rabatt-Typ*</label>
+                            <select id="promo-type-input" style="padding: 10px; border-radius: 6px; border: 1px solid var(--border); background: var(--bg-body); color: var(--text-main);">
+                                <option value="fixed">Fester Betrag (CHF)</option>
+                                <option value="percent">Prozentsatz (%)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Wert (z.B. 5.00 für CHF oder 15 für 15%)*</label>
+                        <input type="number" step="0.05" id="promo-value-input" required placeholder="5.00">
+                    </div>
+                    <button type="submit" style="background: var(--primary); width: 100%; margin-top: 5px;">
+                        <i class="fa-solid fa-tag"></i> Aktionscode erstellen
+                    </button>
+                </form>
+            </div>
+
+            <div class="order-card">
                 <h3 style="margin-top: 0; margin-bottom: 15px;">Website Version Einstellungen</h3>
             
                 <div style="margin-bottom: 15px;">
@@ -378,6 +407,108 @@ document.addEventListener('DOMContentLoaded', () => {
     loadDashboardStats();
     loadStockManager();
 });
+
+async function loadPromoCodes() {
+    const container = document.getElementById('promo-codes-list');
+    try {
+        const token = getSessionToken();
+        const headers = { 'Content-Type': 'application/json' };
+        if (token) headers['Authorization'] = `Bearer ${token}`;
+
+        const res = await fetch('/api/promo-codes', { headers });
+        if (!res.ok) throw new Error();
+        const codes = await res.json();
+
+        if (!codes || codes.length === 0) {
+            container.innerHTML = '<p style="text-align:center; color: var(--text-muted);">Keine aktiven Aktionscodes vorhanden.</p>';
+            return;
+        }
+
+        let html = `<table style="width:100%; border-collapse:collapse; font-size:14px;">
+            <thead>
+                <tr style="border-bottom:2px solid var(--border); text-align:left;">
+                    <th style="padding:8px;">Code</th>
+                    <th style="padding:8px;">Typ & Wert</th>
+                    <th style="padding:8px; text-align:right;">Aktion</th>
+                </tr>
+            </thead>
+            <tbody>`;
+
+        codes.forEach(c => {
+            const valDisplay = c.type === 'fixed' ? `CHF ${(c.value / 100).toFixed(2)} Rabatt` : `${c.value}% Rabatt`;
+            html += `
+                <tr style="border-bottom:1px solid var(--border);">
+                    <td style="padding:8px;"><strong>${c.code}</strong></td>
+                    <td style="padding:8px;">${valDisplay}</td>
+                    <td style="padding:8px; text-align:right;">
+                        <button onclick="deletePromoCode('${c.code}')" style="background:#d40202; padding:6px 12px; font-size:12px;">Löschen</button>
+                    </td>
+                </tr>`;
+        });
+
+        html += `</tbody></table>`;
+        container.innerHTML = html;
+    } catch (e) {
+        container.innerHTML = '<p style="text-align:center; color:var(--text-muted);">Fehler beim Laden der Codes.</p>';
+    }
+}
+
+async function createPromoCode(event) {
+    event.preventDefault();
+    const code = document.getElementById('promo-code-input').value.trim();
+    const type = document.getElementById('promo-type-input').value;
+    const value = parseFloat(document.getElementById('promo-value-input').value);
+
+    if (!code || isNaN(value)) {
+        alert("Bitte alle Felder korrekt ausfüllen.");
+        return;
+    }
+
+    const token = getSessionToken();
+    const headers = { 'Content-Type': 'application/json' };
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+
+    try {
+        const res = await fetch('/api/promo-codes', {
+            method: 'POST',
+            headers,
+            body: JSON.stringify({ code, type, value })
+        });
+
+        if (res.ok) {
+            alert("Aktionscode erfolgreich gespeichert!");
+            document.getElementById('create-promo-form').reset();
+            loadPromoCodes();
+        } else {
+            alert("Fehler beim Speichern des Codes.");
+        }
+    } catch (e) {
+        alert("Verbindungsfehler zum Server.");
+    }
+}
+
+async function deletePromoCode(code) {
+    if (!confirm(`Möchtest du den Code "${code}" wirklich löschen?`)) return;
+
+    const token = getSessionToken();
+    const headers = { 'Content-Type': 'application/json' };
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+
+    try {
+        const res = await fetch(`/api/promo-codes?code=${encodeURIComponent(code)}`, {
+            method: 'DELETE',
+            headers
+        });
+
+        if (res.ok) {
+            loadPromoCodes();
+        } else {
+            alert("Fehler beim Löschen.");
+        }
+    } catch (e) {
+        alert("Verbindungsfehler.");
+    }
+}
 
 async function loadDashboardStats() {
     try {
@@ -583,6 +714,7 @@ function switchAdminTab(tab) {
         btnSettings.style.background = 'var(--primary)';
         loadVersionSettings();
         loadProductSortList();
+        loadPromoCodes();
     }
 }
 
