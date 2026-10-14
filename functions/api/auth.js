@@ -7,6 +7,22 @@ async function hashPassword(password) {
     return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
 }
 
+async function verifyTurnstile(token, secretKey) {
+    if (!token || !secretKey) return false;
+    try {
+        const res = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ secret: secretKey, response: token })
+        });
+        const data = await res.json();
+        return data.success === true;
+    } catch (e) {
+        console.error("Turnstile error:", e);
+        return false;
+    }
+}
+
 async function sendCodeEmail(env, recipient, subject, code, introText) {
     const senderEmail = "info@fabio3d.ch";
     
@@ -41,7 +57,7 @@ async function sendCodeEmail(env, recipient, subject, code, introText) {
 export async function onRequestPost(context) {
     const { request, env } = context;
     const data = await request.json();
-    const { action, email, password, code, newPassword, profile_picture, name } = data;
+    const { action, email, password, code, newPassword, profile_picture, name, turnstileToken } = data;
 
     if (action === 'update_avatar') {
         if (!email || !profile_picture) {
@@ -92,6 +108,13 @@ export async function onRequestPost(context) {
     }
 
     if (action === 'send_register_code') {
+        const isValidCaptcha = await verifyTurnstile(turnstileToken, env.TURNSTILE_SECRET_KEY);
+        if (!isValidCaptcha) {
+            return new Response(JSON.stringify({ status: 'error', message: 'Bitte bestätige das CAPTCHA.' }), {
+                status: 400, headers: { 'Content-Type': 'application/json' }
+            });
+        }
+
         const { results } = await env.DB.prepare("SELECT * FROM users WHERE email = ? AND password_hash IS NOT NULL").bind(email).all();
         
         if (results.length > 0) {
@@ -128,6 +151,13 @@ export async function onRequestPost(context) {
     }
 
     if (action === 'login') {
+        const isValidCaptcha = await verifyTurnstile(turnstileToken, env.TURNSTILE_SECRET_KEY);
+        if (!isValidCaptcha) {
+            return new Response(JSON.stringify({ status: 'error', message: 'Bitte bestätige das CAPTCHA.' }), {
+                status: 400, headers: { 'Content-Type': 'application/json' }
+            });
+        }
+
         const hashedPassword = await hashPassword(password);
         const { results } = await env.DB.prepare("SELECT * FROM users WHERE email = ? AND password_hash = ?")
             .bind(email, hashedPassword).all();
@@ -169,6 +199,13 @@ export async function onRequestPost(context) {
     }
 
     if (action === 'send_reset_code') {
+        const isValidCaptcha = await verifyTurnstile(turnstileToken, env.TURNSTILE_SECRET_KEY);
+        if (!isValidCaptcha) {
+            return new Response(JSON.stringify({ status: 'error', message: 'Bitte bestätige das CAPTCHA.' }), {
+                status: 400, headers: { 'Content-Type': 'application/json' }
+            });
+        }
+
         const { results } = await env.DB.prepare("SELECT * FROM users WHERE email = ? AND password_hash IS NOT NULL").bind(email).all();
         
         if (results.length === 0) {

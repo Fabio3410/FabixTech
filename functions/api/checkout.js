@@ -26,29 +26,58 @@ export async function onRequestPost(context) {
             }
         }
 
+        if (!cart || !Array.isArray(cart) || cart.length === 0) {
+            return new Response(JSON.stringify({ error: 'Dein Warenkorb ist leer.' }), {
+                status: 400,
+                headers: { 'Content-Type': 'application/json' }
+            });
+        }
+
+        let verifiedCart = [];
+        let itemsSubtotal = 0;
+
         for (const item of cart) {
             const variantId = item.id;
-            const kundenMenge = item.quantity;
+            const kundenMenge = parseInt(item.quantity) || 1;
 
             if (!variantId) continue;
 
             const result = await context.env.DB.prepare(
-                "SELECT stock FROM product_variants WHERE id = ?"
+                "SELECT stock, price FROM product_variants WHERE id = ?"
             ).bind(variantId).first();
             
-            const aktuellerBestand = result ? parseInt(result.stock) : 0;
-
-            if (aktuellerBestand < kundenMenge) {
+            if (!result) {
                 return new Response(JSON.stringify({ 
-                    error: `Das Produkt "${item.name}" (${item.farbe || 'Standard'}) ist leider nicht mehr in deiner ausgewählten Anzahl verfügbar.` 
+                    error: `Das Produkt wurde nicht gefunden.` 
                 }), { 
                     status: 400,
                     headers: { 'Content-Type': 'application/json' }
                 });
             }
+
+            const aktuellerBestand = parseInt(result.stock) || 0;
+            const echterPreisRappen = parseInt(result.price) || 0;
+
+            if (aktuellerBestand < kundenMenge) {
+                return new Response(JSON.stringify({ 
+                    error: `Das Produkt "${item.name}" ist leider nicht mehr in der ausgewählten Anzahl verfügbar.` 
+                }), { 
+                    status: 400,
+                    headers: { 'Content-Type': 'application/json' }
+                });
+            }
+
+            itemsSubtotal += echterPreisRappen * kundenMenge;
+
+            verifiedCart.push({
+                id: variantId,
+                name: item.name,
+                quantity: kundenMenge,
+                price: echterPreisRappen,
+                farbe: item.farbe || item.variant || 'Standard'
+            });
         }
         
-        let itemsSubtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
         let rabattRappen = 0;
         let angewendeterCode = null;
 
@@ -96,13 +125,13 @@ export async function onRequestPost(context) {
             shipping_address: formattedAddress
         };
 
-        cart.forEach((item, index) => {
+        verifiedCart.forEach((item, index) => {
             sessionMetadata[`item_${index}`] = JSON.stringify({
                 id: item.id,
                 name: item.name,
                 quantity: item.quantity,
                 price: item.price,
-                farbe: item.farbe || ''
+                farbe: item.farbe
             });
         });
 

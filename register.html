@@ -15,6 +15,7 @@
     <link rel="shortcut icon" href="favicon/favicon.ico"/>
     <link rel="apple-touch-icon" sizes="180x180" href="favicon/apple-touch-icon.png"/>
     <link rel="manifest" href="favicon/site.webmanifest"/>
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
     <style>
         :root {
             --bg-page: #f8fafc;
@@ -169,6 +170,7 @@
                 <label>Passwort</label>
                 <input type="password" id="regPass" placeholder="••••••••" required>
             </div>
+            <div class="cf-turnstile" data-sitekey="0x4AAAAAAFW3mjyMEeBEdKP_" style="margin: 15px 0;"></div>
             <button type="button" class="btn-action" onclick="sendVerification()">Code anfordern</button>
         </div>
 
@@ -188,12 +190,18 @@
 <script>
 async function sendVerification() {
     const email = document.getElementById('regEmail').value;
+    const turnstileToken = document.querySelector('[name="cf-turnstile-response"]')?.value;
+
+    if (!turnstileToken) {
+        showAlert('Bitte bestätige, dass du kein Bot bist.', 'Fehler');
+        return;
+    }
     
     if (email) {
         const response = await fetch('/api/auth', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ action: 'send_register_code', email: email })
+            body: JSON.stringify({ action: 'send_register_code', email: email, turnstileToken: turnstileToken })
         });
         
         const result = await response.json();
