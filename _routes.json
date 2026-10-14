@@ -2,8 +2,9 @@
   "version": 1,
   "include": [
     "/admin",
-    "/admin.html",
-    "/admin-scripts/*"
+    "/admin-private.html",
+    "/admin-scripts/*",
+    "/api/*"
   ],
   "exclude": []
 }
