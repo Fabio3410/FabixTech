@@ -7,6 +7,31 @@ const corsHeaders = {
     'Content-Type': 'application/json'
 };
 
+async function verifyAdmin(request, env) {
+    const cookieHeader = request.headers.get('Cookie') || '';
+    const authHeader = request.headers.get('Authorization') || '';
+
+    let sessionId = null;
+    const match = cookieHeader.match(/(?:^|; )session_id=([^;]*)/);
+    if (match) {
+        sessionId = decodeURIComponent(match[1]);
+    } else if (authHeader.startsWith('Bearer ')) {
+        sessionId = authHeader.substring(7).trim();
+    }
+
+    if (!sessionId) return false;
+
+    try {
+        const user = await env.DB.prepare(
+            "SELECT is_admin FROM users WHERE session_id = ?"
+        ).bind(sessionId).first();
+
+        return user && (user.is_admin === 1 || user.is_admin === true);
+    } catch (e) {
+        return false;
+    }
+}
+
 export async function onRequestOptions() {
     return new Response(null, { headers: corsHeaders });
 }
@@ -52,7 +77,6 @@ export async function onRequestGet({ env }) {
 
 export async function onRequestPost({ request, env }) {
     try {
-        const url = new URL(request.url);
         const data = await request.json();
 
         if (data.action === 'subscribe_stock') {
@@ -72,6 +96,11 @@ export async function onRequestPost({ request, env }) {
             }
 
             return new Response(JSON.stringify({ success: true, message: "Erfolgreich benachrichtigt!" }), { headers: corsHeaders });
+        }
+
+        const isAdmin = await verifyAdmin(request, env);
+        if (!isAdmin) {
+            return new Response(JSON.stringify({ error: "Nicht autorisiert. Admin-Rechte erforderlich." }), { status: 403, headers: corsHeaders });
         }
 
         if (data.action === 'reorder') {
@@ -118,6 +147,11 @@ export async function onRequestPost({ request, env }) {
 
 export async function onRequestPut({ request, env }) {
     try {
+        const isAdmin = await verifyAdmin(request, env);
+        if (!isAdmin) {
+            return new Response(JSON.stringify({ error: "Nicht autorisiert. Admin-Rechte erforderlich." }), { status: 403, headers: corsHeaders });
+        }
+
         const data = await request.json();
 
         if (data.variants && data.variants.length > 0) {
@@ -210,6 +244,11 @@ export async function onRequestPut({ request, env }) {
 
 export async function onRequestDelete({ request, env }) {
     try {
+        const isAdmin = await verifyAdmin(request, env);
+        if (!isAdmin) {
+            return new Response(JSON.stringify({ error: "Nicht autorisiert. Admin-Rechte erforderlich." }), { status: 403, headers: corsHeaders });
+        }
+
         const url = new URL(request.url);
         const baseId = url.searchParams.get('id');
 
