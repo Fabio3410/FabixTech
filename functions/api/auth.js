@@ -143,6 +143,8 @@ export async function onRequestPost(context) {
                 console.error("Fehler beim Speichern der Session-ID:", err);
             }
 
+            const cookieHeader = `session_id=${sessionId}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=2592000`;
+
             return new Response(JSON.stringify({ 
                 status: 'success', 
                 message: 'Erfolgreich angemeldet.',
@@ -154,7 +156,13 @@ export async function onRequestPost(context) {
                     is_admin: userRow.is_admin === 1,
                     session_id: sessionId
                 }
-            }));
+            }), {
+                status: 200,
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Set-Cookie': cookieHeader
+                }
+            });
         } else {
             return new Response(JSON.stringify({ status: 'error', message: 'Falsche E-Mail oder Passwort.' }));
         }
