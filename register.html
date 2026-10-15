@@ -229,8 +229,8 @@
                     <label>Passwort</label>
                     <input type="password" id="regPass" placeholder="••••••••" required>
                 </div>
-                <div style="display: block; min-height: 69px;">
-                    <div class="cf-turnstile" data-sitekey="0x4AAAAAAFW3mjyMEeBEdKP_" style="margin: 15px 0;"></div>
+                <div style="display: block; min-height: 99px;">
+                    <div class="cf-turnstile" data-sitekey="0x4AAAAAAFW3mjyMEeBEdKP_" id="turnstile-widget" style="margin: 15px 0;"></div>
                 </div>
                 <button type="button" class="btn-action" onclick="sendVerification()">Code anfordern</button>
             </div>
@@ -309,6 +309,14 @@
             }, 1500);
         } else {
             showAlert(result.message || 'Registrierung fehlgeschlagen.', 'Fehler');
+        }
+    });
+
+    document.addEventListener("DOMContentLoaded", () => {
+        const theme = localStorage.getItem('theme') || 'light';
+        const widget = document.getElementById('turnstile-widget');
+        if (widget) {
+            widget.setAttribute('data-theme', theme);
         }
     });
     </script>

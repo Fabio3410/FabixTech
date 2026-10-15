@@ -139,7 +139,7 @@ function updateCartUI() {
     }
 }
 
-function checkout() {
+async function checkout() {
     if (cart.length === 0) {
         alert("Dein Warenkorb ist leer!");
         return;
@@ -147,10 +147,41 @@ function checkout() {
 
     const legalCheckbox = document.getElementById('legal-checkbox');
     if (legalCheckbox && !legalCheckbox.checked) {
-        alert("Bitte akzeptiere erst die AGB und Datenschutzerklärung.");
+        alert("Bitte akzeptiere zuerst die AGB und Datenschutzerklärung.");
         return;
     }
-    window.location.href = '/checkout';
+
+    const formattedCart = cart.map(item => ({
+        id: item.id, 
+        name: item.name,
+        price: Math.round(item.price * 100),
+        quantity: item.quantity || 1,
+        farbe: item.variant || 'Standard'
+    }));
+
+    try {
+        const token = localStorage.getItem('session_id') || (JSON.parse(localStorage.getItem('user') || '{}')).session_id;
+        const headers = { 'Content-Type': 'application/json' };
+        if (token) headers['Authorization'] = `Bearer ${token}`;
+
+        const response = await fetch('/api/checkout', {
+            method: 'POST',
+            headers: headers,
+            body: JSON.stringify({ cart: formattedCart }),
+        });
+
+        const data = await response.json();
+
+        if (data.error) {
+            alert(data.error);
+            return;
+        }
+
+        window.location.href = '/checkout';
+    } catch (error) {
+        console.error("Fehler beim Checkout:", error);
+        alert("Es ist ein Fehler aufgetreten.");
+    }
 }
 
 async function initCheckoutPage(promoCode = null) {
