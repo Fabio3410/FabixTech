@@ -230,7 +230,7 @@
                     <input type="password" id="regPass" placeholder="••••••••" required>
                 </div>
                 <div style="display: block; min-height: 99px;">
-                    <div class="cf-turnstile" data-sitekey="0x4AAAAAAFW3mjyMEeBEdKP_" id="turnstile-widget" style="margin: 15px 0;"></div>
+                    <div class="cf-turnstile" data-sitekey="0x4AAAAAAFW3mjyMEeBEdKP_" id="register-turnstile" style="margin: 15px 0;"></div>
                 </div>
                 <button type="button" class="btn-action" onclick="sendVerification()">Code anfordern</button>
             </div>
@@ -252,6 +252,8 @@
         </footer>
     </div>
     <script>
+    document.getElementById('register-turnstile').setAttribute('data-theme', localStorage.getItem('theme') || 'light');
+
     async function sendVerification() {
         const email = document.getElementById('regEmail').value;
         const turnstileToken = document.querySelector('[name="cf-turnstile-response"]')?.value;

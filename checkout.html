@@ -130,21 +130,6 @@
             box-shadow: 0 0 0 1px #d40202, 0 0 6px rgba(212, 2, 2, 0.2);
         }
 
-        html[data-theme="dark"] .form-control {
-            background-color: #30313d;
-            border: 1px solid #424353;
-            color: #ffffff;
-        }
-
-        html[data-theme="dark"] .form-control::placeholder {
-            color: #797f8c;
-        }
-
-        html[data-theme="dark"] .form-control:focus {
-            border-color: #d40202;
-            box-shadow: 0 0 0 1px #d40202, 0 0 8px rgba(212, 2, 2, 0.35);
-        }
-
         .pay-btn {
             width: 100%;
             background-color: #d40202;
@@ -228,9 +213,11 @@
                 </div>
                 <h3 class="section-heading" style="margin-top: 20px;">Zahlungsmethode</h3>
                 <div id="payment-element"></div>
+                
                 <div style="display: block; min-height: 99px; margin-top: 15px;">
                     <div class="cf-turnstile" data-sitekey="0x4AAAAAAFW3mjyMEeBEdKP_" id="checkout-turnstile" style="margin: 0;"></div>
                 </div>
+
                 <button type="submit" id="submit-btn" class="pay-btn">Zahlen</button>
                 <div class="footer-links">
                     Powered by <strong>Stripe</strong>
@@ -240,7 +227,7 @@
     </div>
     <script src="/cart.js"></script>
     <script>
-    document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', () => {
             initCheckoutPage();
             
             const theme = localStorage.getItem('theme') || 'light';
@@ -249,13 +236,6 @@
                 turnstileWidget.setAttribute('data-theme', theme);
             }
         });
-
-        const turnstileToken = document.querySelector('[name="cf-turnstile-response"]')?.value;
-
-        if (!turnstileToken) {
-            showAlert('Bitte bestätige, dass du kein Bot bist.', 'Fehler');
-            return;
-        }
     </script>
 </body>
 </html>

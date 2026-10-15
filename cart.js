@@ -108,13 +108,6 @@ function updateCartUI() {
                 <button class="remove-btn" onclick="removeFromCart(${index})" style="align-self: center;">
                     <img class="dark-invert" src="/images/delete-icon.svg" alt="delete">
                 </button>
-                <style>
-                    .trash-icon {
-                        font-family: "Segoe UI Symbol", "Apple Color Emoji", Arial, sans-serif;
-                        line-height: 1;
-                    }
-                    
-                </style>
             `;
             container.appendChild(itemRow);
         });
@@ -278,6 +271,12 @@ async function initCheckoutPage(promoCode = null) {
         form.onsubmit = async (e) => {
             e.preventDefault();
 
+            const turnstileToken = document.querySelector('[name="cf-turnstile-response"]')?.value;
+            if (!turnstileToken) {
+                showAlert('Bitte bestätige, dass du kein Bot bist.', 'Fehler');
+                return;
+            }
+
             const emailInput = document.getElementById('email');
             const nameInput = document.getElementById('name');
             const streetInput = document.getElementById('street');
@@ -345,7 +344,6 @@ function initSwissZipAutocomplete() {
                 if (data.results && data.results.length > 0) {
                     const label = data.results[0].attrs.label;
                     const cleanCity = label.replace(/<[^>]*>?/gm, '').replace(/^[0-9]{4}\s*/, '');
-                    
                     cityInput.value = cleanCity;
                 }
             } catch (err) {
@@ -354,6 +352,7 @@ function initSwissZipAutocomplete() {
         }
     });
 }
+
 function applyPromoCode() {
     const input = document.getElementById('promo-code-input');
     if (input && input.value.trim() !== '') {
@@ -396,7 +395,6 @@ function addProductFromCard(buttonElement) {
         }
 
         addToCart(id, titel, preis, variante, maxStock);
-        
     } catch (error) {
         console.error("Fehler beim Hinzufügen:", error);
         alert("Ups! Das Produkt konnte nicht hinzugefügt werden: " + error.message);

@@ -233,7 +233,7 @@
             </div>
 
             <div style="display: block; min-height: 99px;">
-                    <div class="cf-turnstile" data-sitekey="0x4AAAAAAFW3mjyMEeBEdKP_" id="turnstile-widget" style="margin: 15px 0;"></div>
+                    <div class="cf-turnstile" data-sitekey="0x4AAAAAAFW3mjyMEeBEdKP_" id="login-turnstile" style="margin: 15px 0;"></div>
             </div>
 
             <button type="submit" class="btn-action" id="submitBtn">Anmelden</button>
@@ -247,6 +247,8 @@
         </footer>
     </div>
     <script>
+    document.getElementById('login-turnstile').setAttribute('data-theme', localStorage.getItem('theme') || 'light');
+
     document.getElementById('authForm').addEventListener('submit', async function(e) {
         e.preventDefault();
         
