@@ -18,6 +18,21 @@
     <script src="/theme-toggle.js" defer></script>
     <script src="https://kit.fontawesome.com/fba23d88db.js" crossorigin="anonymous"></script>
     <style>
+        :root {
+            --bg-card: #ffffff;
+            --text-main: #0f172a;
+            --border: #e2e8f0;
+            --primary: #d40202;
+            --shadow-md: 0 12px 30px rgba(15, 23, 42, 0.08);
+        }
+
+        html[data-theme="dark"] {
+            --bg-card: #1e293b;
+            --text-main: #f8fafc;
+            --border: #334155;
+            --primary: #d40202;
+        }
+    
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             line-height: 1.6;

@@ -204,6 +204,10 @@
                 font-size: 18px;
             }
         }
+
+        footer div, footer span, .version-text {
+            display: none !important;
+        }
     </style>
 </head>
 <body>
@@ -225,7 +229,7 @@
                     <label>Passwort</label>
                     <input type="password" id="regPass" placeholder="••••••••" required>
                 </div>
-                <div class="cf-turnstile" data-sitekey="0x4AAAAAAFW3mjyMEeBEdKP_" style="margin: 15px 0; min-height: 99px;"></div>
+                <div class="cf-turnstile" data-sitekey="0x4AAAAAAFW3mjyMEeBEdKP_" style="margin: 15px 0;"></div>
                 <button type="button" class="btn-action" onclick="sendVerification()">Code anfordern</button>
             </div>
 
