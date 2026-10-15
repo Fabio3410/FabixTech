@@ -17,6 +17,8 @@
     <link rel="manifest" href="favicon/site.webmanifest"/>
     <script src="script.js" defer></script>
     <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+    <script src="https://kit.fontawesome.com/fba23d88db.js" crossorigin="anonymous"></script>
+    <script src="/theme-toggle.js" defer></script>
     <style>
         :root {
             --bg-page: #f8fafc;
@@ -153,77 +155,134 @@
         .toggle-text a:hover {
             color: var(--primary-hover);
         }
+
+        footer {
+            margin-top: 40px;
+            text-align: center;
+            font-size: 12px;
+            color: #a0aec0;
+        }
+
+        html[data-theme="dark"] footer {
+            color: #64748b;
+        }
+
+        .theme-toggle-btn {
+            position: fixed;
+            bottom: 30px;
+            left: 30px;
+            width: 54px;
+            height: 54px;
+            border-radius: 50%;
+            background-color: var(--bg-card);
+            color: var(--text-main);
+            border: 2px solid var(--border-color);
+            box-shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
+            cursor: pointer;
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            transition: transform 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55), 
+                        background-color 0.4s ease, 
+                        border-color 0.4s ease, 
+                        box-shadow 0.2s ease;
+        }
+
+        .theme-toggle-btn:hover {
+            box-shadow: 0 15px 25px rgba(0, 0, 0, 0.15);
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .theme-toggle-btn i {
+            transition: transform 0.15s ease, opacity 0.15s ease;
+        }
+
+        @media (max-width: 1024px) {
+            .theme-toggle-btn {
+                bottom: 20px;
+                left: 20px;
+                width: 48px;
+                height: 48px;
+                font-size: 18px;
+            }
+        }
     </style>
 </head>
 <body>
-<div class="auth-card">
-    <h2 id="formTitle">Willkommen zurück</h2>
-    <p class="subtitle" id="formSubtitle">Logge dich in dein Konto ein.</p>
+    <div class="auth-card">
+        <h2 id="formTitle">Willkommen zurück</h2>
+        <p class="subtitle" id="formSubtitle">Logge dich in dein Konto ein.</p>
 
-    <form id="authForm">
-        <div class="input-group">
-            <label>E-Mail</label>
-            <input type="email" id="loginEmail" placeholder="name@beispiel.ch" required>
-        </div>
+        <form id="authForm">
+            <div class="input-group">
+                <label>E-Mail</label>
+                <input type="email" id="loginEmail" placeholder="name@beispiel.ch" required>
+            </div>
+            
+            <div class="input-group">
+                <label>Passwort</label>
+                <input type="password" id="loginPass" placeholder="••••••••" required>
+                <a href="reset-password" class="forgot-password" id="forgotLink">Passwort vergessen?</a>
+            </div>
+
+            <div class="cf-turnstile" data-sitekey="0x4AAAAAAFW3mjyMEeBEdKP_" style="margin: 15px 0; min-height: 69px;"></div>
+
+            <button type="submit" class="btn-action" id="submitBtn">Anmelden</button>
+        </form>
         
-        <div class="input-group">
-            <label>Passwort</label>
-            <input type="password" id="loginPass" placeholder="••••••••" required>
-            <a href="reset-password" class="forgot-password" id="forgotLink">Passwort vergessen?</a>
-        </div>
-
-        <div class="cf-turnstile" data-sitekey="0x4AAAAAAFW3mjyMEeBEdKP_" style="margin: 15px 0;"></div>
-
-        <button type="submit" class="btn-action" id="submitBtn">Anmelden</button>
-    </form>
-    
-    <p class="toggle-text" id="toggleText">
-        Noch kein Konto? <a href="register">Registrieren</a>
-    </p>
-</div>
-<script>
-document.getElementById('authForm').addEventListener('submit', async function(e) {
-    e.preventDefault();
-    
-    const email = document.getElementById('loginEmail').value;
-    const password = document.getElementById('loginPass').value;
-    const turnstileToken = document.querySelector('[name="cf-turnstile-response"]')?.value;
-
-    if (!turnstileToken) {
-        showAlert('Bitte bestätige, dass du kein Bot bist.', 'Fehler');
-        return;
-    }
-
-    const response = await fetch('/api/auth', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'login', email: email, password: password, turnstileToken: turnstileToken })
-    });
-
-    const result = await response.json();
-    
-    if (result.status === 'success') {
-        localStorage.setItem('user', JSON.stringify(result.user));
+        <p class="toggle-text" id="toggleText">
+            Noch kein Konto? <a href="register">Registrieren</a>
+        </p>
+        <footer>
+            <p>&copy; <span id="copyright"><script>document.getElementById('copyright').appendChild(document.createTextNode(new Date().getFullYear()))</script></span> Fabio3D. Alle Rechte vorbehalten.</p>
+        </footer>
+    </div>
+    <script>
+    document.getElementById('authForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
         
-        const sessionId = result.session_id || (result.user && result.user.session_id);
-        if (sessionId) {
-            localStorage.setItem('session_id', sessionId);
+        const email = document.getElementById('loginEmail').value;
+        const password = document.getElementById('loginPass').value;
+        const turnstileToken = document.querySelector('[name="cf-turnstile-response"]')?.value;
+
+        if (!turnstileToken) {
+            showAlert('Bitte bestätige, dass du kein Bot bist.', 'Fehler');
+            return;
         }
+
+        const response = await fetch('/api/auth', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action: 'login', email: email, password: password, turnstileToken: turnstileToken })
+        });
+
+        const result = await response.json();
         
-        if (result.user && result.user.is_admin) {
-            localStorage.setItem('is_admin', 'true');
+        if (result.status === 'success') {
+            localStorage.setItem('user', JSON.stringify(result.user));
+            
+            const sessionId = result.session_id || (result.user && result.user.session_id);
+            if (sessionId) {
+                localStorage.setItem('session_id', sessionId);
+            }
+            
+            if (result.user && result.user.is_admin) {
+                localStorage.setItem('is_admin', 'true');
+            } else {
+                localStorage.removeItem('is_admin');
+            }
+
+            showAlert('Erfolgreich angemeldet!', 'Willkommen');
+            setTimeout(() => {
+                window.location.href = result.user && result.user.is_admin ? '/admin' : '/'; 
+            }, 1500);
         } else {
-            localStorage.removeItem('is_admin');
+            showAlert(result.message || 'Falsche Anmeldedaten.', 'Fehler');
         }
-
-        showAlert('Erfolgreich angemeldet!', 'Willkommen');
-        setTimeout(() => {
-            window.location.href = result.user && result.user.is_admin ? '/admin' : '/'; 
-        }, 1500);
-    } else {
-        showAlert(result.message || 'Falsche Anmeldedaten.', 'Fehler');
-    }
-});
-</script>
+    });
+    </script>
 </body>
 </html>

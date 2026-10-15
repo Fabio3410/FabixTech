@@ -16,6 +16,8 @@
     <link rel="apple-touch-icon" sizes="180x180" href="favicon/apple-touch-icon.png"/>
     <link rel="manifest" href="favicon/site.webmanifest"/>
     <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+    <script src="https://kit.fontawesome.com/fba23d88db.js" crossorigin="anonymous"></script>
+    <script src="/theme-toggle.js" defer></script>
     <style>
         :root {
             --bg-page: #f8fafc;
@@ -148,105 +150,161 @@
         #codeSection { 
             display: none; 
         }
+
+        footer {
+            margin-top: 40px;
+            text-align: center;
+            font-size: 12px;
+            color: #a0aec0;
+        }
+
+        html[data-theme="dark"] footer {
+            color: #64748b;
+        }
+
+        .theme-toggle-btn {
+            position: fixed;
+            bottom: 30px;
+            left: 30px;
+            width: 54px;
+            height: 54px;
+            border-radius: 50%;
+            background-color: var(--bg-card);
+            color: var(--text-main);
+            border: 2px solid var(--border-color);
+            box-shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
+            cursor: pointer;
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            transition: transform 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55), 
+                        background-color 0.4s ease, 
+                        border-color 0.4s ease, 
+                        box-shadow 0.2s ease;
+        }
+
+        .theme-toggle-btn:hover {
+            box-shadow: 0 15px 25px rgba(0, 0, 0, 0.15);
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .theme-toggle-btn i {
+            transition: transform 0.15s ease, opacity 0.15s ease;
+        }
+
+        @media (max-width: 1024px) {
+            .theme-toggle-btn {
+                bottom: 20px;
+                left: 20px;
+                width: 48px;
+                height: 48px;
+                font-size: 18px;
+            }
+        }
     </style>
 </head>
 <body>
+    <div class="auth-card">
+        <h2 id="formTitle">Konto erstellen</h2>
+        <p class="subtitle" id="formSubtitle">Tritt Fabio3D bei.</p>
 
-<div class="auth-card">
-    <h2 id="formTitle">Konto erstellen</h2>
-    <p class="subtitle" id="formSubtitle">Tritt Fabio3D bei.</p>
+        <form id="registerForm">
+            <div id="dataSection">
+                <div class="input-group">
+                    <label>Benutzername</label>
+                    <input type="text" id="regName" placeholder="Dein Name" required>
+                </div>
+                <div class="input-group">
+                    <label>E-Mail</label>
+                    <input type="email" id="regEmail" placeholder="name@beispiel.ch" required>
+                </div>
+                <div class="input-group">
+                    <label>Passwort</label>
+                    <input type="password" id="regPass" placeholder="••••••••" required>
+                </div>
+                <div class="cf-turnstile" data-sitekey="0x4AAAAAAFW3mjyMEeBEdKP_" style="margin: 15px 0; min-height: 69px;"></div>
+                <button type="button" class="btn-action" onclick="sendVerification()">Code anfordern</button>
+            </div>
 
-    <form id="registerForm">
-        <div id="dataSection">
-            <div class="input-group">
-                <label>Benutzername</label>
-                <input type="text" id="regName" placeholder="Dein Name" required>
+            <div id="codeSection">
+                <div class="input-group">
+                    <label>6-stelliger Code (aus E-Mail)</label>
+                    <input type="text" id="regCode" placeholder="123456" maxlength="6">
+                </div>
+                <button type="submit" class="btn-action">Registrierung abschließen</button>
             </div>
-            <div class="input-group">
-                <label>E-Mail</label>
-                <input type="email" id="regEmail" placeholder="name@beispiel.ch" required>
-            </div>
-            <div class="input-group">
-                <label>Passwort</label>
-                <input type="password" id="regPass" placeholder="••••••••" required>
-            </div>
-            <div class="cf-turnstile" data-sitekey="0x4AAAAAAFW3mjyMEeBEdKP_" style="margin: 15px 0;"></div>
-            <button type="button" class="btn-action" onclick="sendVerification()">Code anfordern</button>
-        </div>
+        </form>
+        
+        <p class="toggle-text">
+            Bereits ein Konto? <a href="login">Anmelden</a>
+        </p>
+        <footer>
+            <p>&copy; <span id="copyright"><script>document.getElementById('copyright').appendChild(document.createTextNode(new Date().getFullYear()))</script></span> Fabio3D. Alle Rechte vorbehalten.</p>
+        </footer>
+    </div>
+    <script>
+    async function sendVerification() {
+        const email = document.getElementById('regEmail').value;
+        const turnstileToken = document.querySelector('[name="cf-turnstile-response"]')?.value;
 
-        <div id="codeSection">
-            <div class="input-group">
-                <label>6-stelliger Code (aus E-Mail)</label>
-                <input type="text" id="regCode" placeholder="123456" maxlength="6">
-            </div>
-            <button type="submit" class="btn-action">Registrierung abschließen</button>
-        </div>
-    </form>
-    
-    <p class="toggle-text">
-        Bereits ein Konto? <a href="login">Anmelden</a>
-    </p>
-</div>
-<script>
-async function sendVerification() {
-    const email = document.getElementById('regEmail').value;
-    const turnstileToken = document.querySelector('[name="cf-turnstile-response"]')?.value;
-
-    if (!turnstileToken) {
-        showAlert('Bitte bestätige, dass du kein Bot bist.', 'Fehler');
-        return;
+        if (!turnstileToken) {
+            showAlert('Bitte bestätige, dass du kein Bot bist.', 'Fehler');
+            return;
+        }
+        
+        if (email) {
+            const response = await fetch('/api/auth', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'send_register_code', email: email, turnstileToken: turnstileToken })
+            });
+            
+            const result = await response.json();
+            
+            if (result.status === 'success') {
+                document.getElementById('dataSection').style.display = 'none';
+                document.getElementById('codeSection').style.display = 'block';
+                document.getElementById('formSubtitle').innerText = 'Wir haben einen Code an deine E-Mail gesendet.';
+            } else {
+                showAlert(result.message || 'Es gab einen Fehler beim Senden der E-Mail.', 'Fehler');
+            }
+        }
     }
-    
-    if (email) {
+
+    document.getElementById('registerForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+
+        const name = document.getElementById('regName').value;
+        const email = document.getElementById('regEmail').value;
+        const password = document.getElementById('regPass').value;
+        const code = document.getElementById('regCode').value;
+
         const response = await fetch('/api/auth', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ action: 'send_register_code', email: email, turnstileToken: turnstileToken })
+            body: JSON.stringify({ 
+                action: 'register', 
+                name: name,
+                email: email, 
+                password: password, 
+                code: code 
+            })
         });
-        
+
         const result = await response.json();
-        
+
         if (result.status === 'success') {
-            document.getElementById('dataSection').style.display = 'none';
-            document.getElementById('codeSection').style.display = 'block';
-            document.getElementById('formSubtitle').innerText = 'Wir haben einen Code an deine E-Mail gesendet.';
+            showAlert('Konto erfolgreich erstellt! Du kannst dich jetzt anmelden.', 'Erfolg');
+            setTimeout(() => {
+                window.location.href = 'login';
+            }, 1500);
         } else {
-            showAlert(result.message || 'Es gab einen Fehler beim Senden der E-Mail.', 'Fehler');
+            showAlert(result.message || 'Registrierung fehlgeschlagen.', 'Fehler');
         }
-    }
-}
-
-document.getElementById('registerForm').addEventListener('submit', async function(e) {
-    e.preventDefault();
-
-    const name = document.getElementById('regName').value;
-    const email = document.getElementById('regEmail').value;
-    const password = document.getElementById('regPass').value;
-    const code = document.getElementById('regCode').value;
-
-    const response = await fetch('/api/auth', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-            action: 'register', 
-            name: name,
-            email: email, 
-            password: password, 
-            code: code 
-        })
     });
-
-    const result = await response.json();
-
-    if (result.status === 'success') {
-        showAlert('Konto erfolgreich erstellt! Du kannst dich jetzt anmelden.', 'Erfolg');
-        setTimeout(() => {
-            window.location.href = 'login';
-        }, 1500);
-    } else {
-        showAlert(result.message || 'Registrierung fehlgeschlagen.', 'Fehler');
-    }
-});
-</script>
+    </script>
 </body>
 </html>
