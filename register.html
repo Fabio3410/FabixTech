@@ -205,7 +205,7 @@
             }
         }
 
-        footer div, footer span, .version-text {
+        #footer-version-tag {
             display: none !important;
         }
     </style>
@@ -229,7 +229,9 @@
                     <label>Passwort</label>
                     <input type="password" id="regPass" placeholder="••••••••" required>
                 </div>
-                <div class="cf-turnstile" data-sitekey="0x4AAAAAAFW3mjyMEeBEdKP_" style="margin: 15px 0;"></div>
+                <div style="display: block; min-height: 69px;">
+                    <div class="cf-turnstile" data-sitekey="0x4AAAAAAFW3mjyMEeBEdKP_" style="margin: 15px 0;"></div>
+                </div>
                 <button type="button" class="btn-action" onclick="sendVerification()">Code anfordern</button>
             </div>
 
