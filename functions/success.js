@@ -48,8 +48,7 @@ export async function onRequestGet(context) {
             }
         });
     }
-
-    const existingOrder = await context.env.DB.prepare(
+const existingOrder = await context.env.DB.prepare(
         "SELECT id FROM orders WHERE payment_intent_id = ?"
     ).bind(paymentIntentId).first();
 
@@ -61,20 +60,36 @@ export async function onRequestGet(context) {
         const addressStr = paymentIntent.metadata?.shipping_address || (shipping?.address 
             ? `${shipping.address.line1 || ''}, ${shipping.address.postal_code || ''} ${shipping.address.city || ''}, ${shipping.address.country || ''}`
             : 'Keine Adresse');
+        
+        const shippingNote = paymentIntent.metadata?.shipping_note || '';
 
         await context.env.DB.prepare(`
-            INSERT INTO orders (id, payment_intent_id, customer_name, customer_email, shipping_address, total_amount, discount_amount, promo_code, status)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'offen')
+            INSERT INTO orders (id, payment_intent_id, customer_name, customer_email, shipping_address, shipping_note, total_amount, discount_amount, promo_code, status)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'offen')
         `).bind(
             orderId,
             paymentIntentId,
             kundeName || 'Unbekannt',
             kundeEmail,
             addressStr,
+            shippingNote,
             parseFloat(gesamtBetrag),
             rabattWert,
             promoCode || 'Keiner'
         ).run();
+
+        for (const item of items) {
+            await context.env.DB.prepare(`
+                INSERT INTO order_items (order_id, product_name, variant, quantity, price)
+                VALUES (?, ?, ?, ?, ?)
+            `).bind(
+                orderId,
+                item.name,
+                item.farbe || 'Standard',
+                item.quantity,
+                item.price
+            ).run();
+        }
 
         for (const item of items) {
             await context.env.DB.prepare(`
@@ -180,27 +195,27 @@ export async function onRequestGet(context) {
     }
 
     const artikelListeHtml = items.map(item => {
-      const variante = item.farbe || '';
-      const einzelPreis = (item.price / 100).toFixed(2);
-      const gesamtZeilenPreis = ((item.price * item.quantity) / 100).toFixed(2);
+        const variante = item.farbe || '';
+        const einzelPreis = Number(item.price).toFixed(2);
+        const gesamtZeilenPreis = (Number(item.price) * Number(item.quantity)).toFixed(2);
 
-      return `
-      <div class="item" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid var(--border-color); padding-bottom: 10px;">
-          <div class="item-details" style="display: flex; flex-direction: column; text-align: left;">
-              <strong style="color: var(--text-main); font-size: 15px;">${item.name}</strong>
-              <small style="color: var(--text-muted); margin-top: 2px;">${variante}</small>
-          </div>
-          
-          <div class="item-price" style="display: flex; flex-direction: column; align-items: flex-end; text-align: right;">
-              <strong style="color: var(--text-main); font-size: 16px; white-space: nowrap;">
-                  ${gesamtZeilenPreis} CHF
-              </strong>
-              <span style="color: var(--text-muted); font-size: 13px; white-space: nowrap; margin-bottom: 2px;">
-                  ${item.quantity}x ${einzelPreis} CHF
-              </span>
-          </div>
-      </div>
-      `;
+        return `
+        <div class="item" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid var(--border-color); padding-bottom: 10px;">
+            <div class="item-details" style="display: flex; flex-direction: column; text-align: left;">
+                <strong style="color: var(--text-main); font-size: 15px;">${item.name}</strong>
+                <small style="color: var(--text-muted); margin-top: 2px;">${variante}</small>
+            </div>
+            
+            <div class="item-price" style="display: flex; flex-direction: column; align-items: flex-end; text-align: right;">
+                <strong style="color: var(--text-main); font-size: 16px; white-space: nowrap;">
+                    ${gesamtZeilenPreis} CHF
+                </strong>
+                <span style="color: var(--text-muted); font-size: 13px; white-space: nowrap; margin-bottom: 2px;">
+                    ${item.quantity}x ${einzelPreis} CHF
+                </span>
+            </div>
+        </div>
+        `;
     }).join('');
 
     const html = `

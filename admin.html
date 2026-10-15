@@ -991,7 +991,7 @@ async function loadOrders() {
 
                     <div style="background:var(--bg-body); padding:12px; border-radius:6px; margin-bottom:12px; font-size:13px; line-height:1.6;">
                         <div><strong>Kunde:</strong> ${order.customer_name || 'Kein Name'} (${order.customer_email || 'Keine E-Mail'})</div>
-                        <div><strong>Adresse:</strong> ${order.shipping_address || 'Keine Adresse angegeben'}</div>
+                        <div><strong>Adresse:</strong> ${order.shipping_address || 'Keine Adresse angegeben'}</div>${order.shipping_note ? `<div style="margin-top: 6px; color: var(--primary);"><strong>Lieferhinweis:</strong> ${order.shipping_note}</div>` : ''}
                     </div>
 
                     <ul style="background:var(--bg-body); padding:12px; border-radius:6px; list-style:none; margin:0;">

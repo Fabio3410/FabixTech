@@ -282,10 +282,37 @@ async function initCheckoutPage(promoCode = null) {
             const streetInput = document.getElementById('street');
             const zipInput = document.getElementById('zip');
             const cityInput = document.getElementById('city');
+            const shippingNoteInput = document.getElementById('shipping-note');
             const submitBtn = document.getElementById('submit-btn');
+
             if (submitBtn) {
                 submitBtn.disabled = true;
                 submitBtn.innerText = 'Wird verarbeitet...';
+            }
+
+            const paymentIntentId = data.clientSecret ? data.clientSecret.split('_secret_')[0] : null;
+
+            if (paymentIntentId) {
+                try {
+                    await fetch('/api/checkout', {
+                        method: 'POST',
+                        headers: headers,
+                        body: JSON.stringify({
+                            action: 'update_metadata',
+                            paymentIntentId: paymentIntentId,
+                            shippingAddress: {
+                                name: nameInput ? nameInput.value : '',
+                                email: emailInput ? emailInput.value : '',
+                                street: streetInput ? streetInput.value : '',
+                                zip: zipInput ? zipInput.value : '',
+                                city: cityInput ? cityInput.value : '',
+                                shipping_note: shippingNoteInput ? shippingNoteInput.value : ''
+                            }
+                        })
+                    });
+                } catch (err) {
+                    console.error("Fehler beim Aktualisieren der Metadaten:", err);
+                }
             }
 
             const { error, paymentIntent } = await stripe.confirmPayment({

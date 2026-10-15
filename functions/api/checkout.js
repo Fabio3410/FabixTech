@@ -34,7 +34,7 @@ export async function onRequestPost(context) {
         }
 
         let verifiedCart = [];
-        let itemsSubtotal = 0;
+        let itemsSubtotalRappen = 0;
 
         for (const item of cart) {
             const variantId = item.id;
@@ -56,7 +56,8 @@ export async function onRequestPost(context) {
             }
 
             const aktuellerBestand = parseInt(result.stock) || 0;
-            const echterPreisRappen = parseInt(result.price) || 0;
+            const echterPreisFranken = parseFloat(result.price) || 0;
+            const echterPreisRappen = Math.round(echterPreisFranken * 100);
 
             if (aktuellerBestand < kundenMenge) {
                 return new Response(JSON.stringify({ 
@@ -67,13 +68,13 @@ export async function onRequestPost(context) {
                 });
             }
 
-            itemsSubtotal += echterPreisRappen * kundenMenge;
+            itemsSubtotalRappen += echterPreisRappen * kundenMenge;
 
             verifiedCart.push({
                 id: variantId,
                 name: item.name,
                 quantity: kundenMenge,
-                price: echterPreisRappen,
+                price: echterPreisFranken,
                 farbe: item.farbe || item.variant || 'Standard'
             });
         }
@@ -98,20 +99,20 @@ export async function onRequestPost(context) {
             }
 
             if (promo.type === 'percent') {
-                rabattRappen = Math.round((itemsSubtotal * promo.value) / 100);
+                rabattRappen = Math.round((itemsSubtotalRappen * promo.value) / 100);
             } else if (promo.type === 'fixed') {
-                rabattRappen = promo.value;
+                rabattRappen = Math.round(promo.value * 100);
             }
 
-            if (rabattRappen > itemsSubtotal) {
-                rabattRappen = itemsSubtotal;
+            if (rabattRappen > itemsSubtotalRappen) {
+                rabattRappen = itemsSubtotalRappen;
             }
 
             angewendeterCode = cleanCode;
         }
 
         const versandkostenRappen = 590;
-        const totalAmount = (itemsSubtotal - rabattRappen) + versandkostenRappen;
+        const totalAmountRappen = (itemsSubtotalRappen - rabattRappen) + versandkostenRappen;
 
         const formattedAddress = shippingAddress 
             ? `${shippingAddress.street}, ${shippingAddress.zip} ${shippingAddress.city}, CH`
@@ -122,7 +123,8 @@ export async function onRequestPost(context) {
             rabatt: `${(rabattRappen / 100).toFixed(2)} CHF`,
             customer_name: shippingAddress?.name || '',
             customer_email: customerEmail,
-            shipping_address: formattedAddress
+            shipping_address: formattedAddress,
+            shipping_note: shippingAddress?.shipping_note || ''
         };
 
         verifiedCart.forEach((item, index) => {
@@ -136,7 +138,7 @@ export async function onRequestPost(context) {
         });
 
         const paymentIntent = await stripe.paymentIntents.create({
-            amount: totalAmount,
+            amount: totalAmountRappen,
             currency: 'chf',
             automatic_payment_methods: { enabled: true },
             metadata: sessionMetadata,
@@ -153,10 +155,10 @@ export async function onRequestPost(context) {
 
         return new Response(JSON.stringify({ 
             clientSecret: paymentIntent.client_secret,
-            subtotal: itemsSubtotal / 100,
+            subtotal: itemsSubtotalRappen / 100,
             discount: rabattRappen / 100,
             shipping: versandkostenRappen / 100,
-            total: totalAmount / 100,
+            total: totalAmountRappen / 100,
             appliedCode: angewendeterCode
         }), {
             status: 200,
