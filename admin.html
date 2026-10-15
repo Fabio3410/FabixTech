@@ -956,8 +956,24 @@ async function loadOrders() {
         filteredOrders.forEach(order => {
             let subtotal = 0;
             
-            const itemsHtml = (order.items || []).map(i => {
-                const itemTotal = Number(i.quantity) * Number(i.price);
+            const groupedItemsMap = {};
+            (order.items || []).forEach(i => {
+                const key = (i.product_name || '') + '___' + (i.variant || 'Standard');
+                const qty = Number(i.quantity) || 1;
+                if (groupedItemsMap[key]) {
+                    groupedItemsMap[key].quantity += qty;
+                } else {
+                    groupedItemsMap[key] = { 
+                        product_name: i.product_name, 
+                        variant: i.variant || 'Standard', 
+                        price: Number(i.price) || 0, 
+                        quantity: qty 
+                    };
+                }
+            });
+
+            const itemsHtml = Object.values(groupedItemsMap).map(i => {
+                const itemTotal = i.quantity * i.price;
                 subtotal += itemTotal;
                 return `
                     <li style="display:flex; justify-content:space-between; padding:4px 0;">
