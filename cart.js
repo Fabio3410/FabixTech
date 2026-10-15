@@ -147,7 +147,7 @@ async function checkout() {
     const formattedCart = cart.map(item => ({
         id: item.id, 
         name: item.name,
-        price: Math.round(item.price * 100),
+        price: Math.round(item.price),
         quantity: item.quantity || 1,
         farbe: item.variant || 'Standard'
     }));
@@ -189,7 +189,7 @@ async function initCheckoutPage(promoCode = null) {
     const formattedCart = cart.map(item => ({
         id: item.id, 
         name: item.name,
-        price: Math.round(item.price * 100),
+        price: Math.round(item.price),
         quantity: item.quantity || 1,
         farbe: item.variant || 'Standard'
     }));

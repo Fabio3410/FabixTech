@@ -85,7 +85,7 @@ export async function onRequestGet(context) {
                 item.name,
                 item.farbe || 'Standard',
                 item.quantity,
-                (item.price / 100)
+                item.price
             ).run();
         }
 
