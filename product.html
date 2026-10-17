@@ -34,8 +34,27 @@
         <div class="product-details">
             <div id="product-detail-container" class="product-card-detail-view"></div>
 
-            <div id="product-reviews-section" style="max-width: 1100px; margin: 40px auto; background: var(--bg-card); padding: 35px; border-radius: 16px; border: 1.2px solid var(--border-color); box-shadow: var(--shadow-sm);">
-                <h3 style="font-size: 24px; font-weight: 800; margin-bottom: 25px; letter-spacing: -0.5px;">Community-Bewertungen</h3>
+<div id="product-reviews-section" style="max-width: 1100px; margin: 40px auto; background: var(--bg-card); padding: 35px; border-radius: 16px; border: 1.2px solid var(--border-color); box-shadow: var(--shadow-sm);">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; flex-wrap: wrap; gap: 15px;">
+                    <h3 style="font-size: 24px; font-weight: 800; margin: 0; letter-spacing: -0.5px;">Community-Bewertungen</h3>
+                    
+                    <!-- Sortier- und Filterleiste -->
+                    <div style="display: flex; gap: 10px; align-items: center;">
+                        <select id="review-sort-select" onchange="filterAndRenderReviews()" style="padding: 8px 12px; border-radius: 8px; border: 1.2px solid var(--border-color); background: var(--bg-dark); color: var(--text-main); font-size: 13.5px; outline: none; cursor: pointer;">
+                            <option value="newest">Neueste zuerst</option>
+                            <option value="highest">Höchste Bewertung</option>
+                            <option value="lowest">Tiefste Bewertung</option>
+                        </select>
+                        <select id="review-filter-star" onchange="filterAndRenderReviews()" style="padding: 8px 12px; border-radius: 8px; border: 1.2px solid var(--border-color); background: var(--bg-dark); color: var(--text-main); font-size: 13.5px; outline: none; cursor: pointer;">
+                            <option value="all">Alle Sterne</option>
+                            <option value="5">5 Sterne</option>
+                            <option value="4">4 Sterne</option>
+                            <option value="3">3 Sterne</option>
+                            <option value="2">2 Sterne</option>
+                            <option value="1">1 Stern</option>
+                        </select>
+                    </div>
+                </div>
                 
                 <div id="reviews-summary-container"></div>
 
@@ -68,7 +87,7 @@
                                 <label style="font-weight: 600; display: block; margin-bottom: 6px; font-size: 14px; color: #16a34a;">+ Positiv</label>
                                 <div id="pros-inputs-container">
                                     <div class="dynamic-input-row">
-                                        <input type="text" class="pro-input">
+                                        <input type="text" class="pro-input" placeholder="Positiver Punkt">
                                     </div>
                                 </div>
                                 <button type="button" class="btn-add-field" onclick="addDynamicInput('pros')">+ Weiteren Punkt hinzufügen</button>
@@ -77,7 +96,7 @@
                                 <label style="font-weight: 600; display: block; margin-bottom: 6px; font-size: 14px; color: #dc2626;">- Negativ</label>
                                 <div id="cons-inputs-container">
                                     <div class="dynamic-input-row">
-                                        <input type="text" class="con-input">
+                                        <input type="text" class="con-input" placeholder="Negativer Punkt">
                                     </div>
                                 </div>
                                 <button type="button" class="btn-add-field" onclick="addDynamicInput('cons')">+ Weiteren Punkt hinzufügen</button>
@@ -140,6 +159,8 @@
     </footer>
 
     <script>
+    let globalReviewsData = [];
+
     document.addEventListener('DOMContentLoaded', async () => {
         const urlParams = new URLSearchParams(window.location.search);
         const productId = urlParams.get('id');
@@ -278,6 +299,7 @@
     function addDynamicInput(type) {
         const container = document.getElementById(`${type}-inputs-container`);
         const className = type === 'pros' ? 'pro-input' : 'con-input';
+        const placeholder = type === 'pros' ? 'positiver Punkt' : 'negativer Punkt';
 
         const div = document.createElement('div');
         div.className = 'dynamic-input-row';
@@ -290,7 +312,6 @@
 
     async function loadProductReviews(productId) {
         const summaryContainer = document.getElementById('reviews-summary-container');
-        const listContainer = document.getElementById('reviews-list-container');
         const headerRatingContainer = document.getElementById('header-rating-container');
         const writeSection = document.getElementById('write-review-container');
         const lockedMsg = document.getElementById('review-locked-msg');
@@ -299,7 +320,7 @@
             const res = await fetch(`/api/reviews?productId=${productId}`);
             const data = await res.json();
 
-            const reviews = data.reviews || [];
+            globalReviewsData = data.reviews || [];
             const avg = data.average || 0;
             const total = data.total || 0;
             const breakdown = data.breakdown || {5:0, 4:0, 3:0, 2:0, 1:0};
@@ -343,52 +364,7 @@
                 </div>
             `;
 
-            if (reviews.length === 0) {
-                listContainer.innerHTML = '<p style="color: var(--text-muted); text-align: center; padding: 20px;">Noch keine Bewertungen vorhanden. Sei der Erste!</p>';
-            } else {
-                listContainer.innerHTML = reviews.map(r => {
-                    const rStars = '★'.repeat(r.rating) + '☆'.repeat(5 - r.rating);
-                    
-                    const textColor = stringToColor(r.user_email || r.customer_name);
-                    const hasCustomImage = Boolean(r.profile_picture);
-                    const defaultSvg = `
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="100%" height="100%">
-                            <rect width="200" height="200" fill="#ffffff" />
-                            <text x="50%" y="55%" dominant-baseline="middle" text-anchor="middle" fill="${textColor}" font-family="'Inter', sans-serif" font-weight="900" font-size="95" letter-spacing="-2">3D</text>
-                        </svg>
-                    `;
-                    const avatarContent = hasCustomImage 
-                        ? `<img src="${r.profile_picture}" alt="Profilbild" style="width: 100%; height: 100%; object-fit: cover;">`
-                        : defaultSvg;
-
-                    const prosArray = r.pros ? r.pros.split(' | ').filter(Boolean) : [];
-                    const consArray = r.cons ? r.cons.split(' | ').filter(Boolean) : [];
-                    
-                    const prosHtml = prosArray.length > 0 ? `<div style="margin-top: 8px; display: flex; flex-direction: column; gap: 4px;">${prosArray.map(p => `<span style="color: #16a34a; font-size: 13.5px;"><i class="fa-solid fa-plus" style="font-size: 11px; margin-right: 4px;"></i> ${p}</span>`).join('')}</div>` : '';
-                    const consHtml = consArray.length > 0 ? `<div style="margin-top: 6px; display: flex; flex-direction: column; gap: 4px;">${consArray.map(c => `<span style="color: #dc2626; font-size: 13.5px;"><i class="fa-solid fa-minus" style="font-size: 11px; margin-right: 4px;"></i> ${c}</span>`).join('')}</div>` : '';
-                    
-                    return `
-                        <div style="background: var(--bg-dark); padding: 22px; border-radius: 12px; border: 1.2px solid var(--border-color);">
-                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-                                <div style="display: flex; align-items: center; gap: 10px;">
-                                    <div style="width: 42px; height: 42px; border-radius: 50%; overflow: hidden; border: 2px solid var(--border-color); display: flex; align-items: center; justify-content: center; background-color: #ffffff; flex-shrink: 0;">
-                                        ${avatarContent}
-                                    </div>
-                                    <div>
-                                        <strong style="font-size: 15px; display: block;">${r.customer_name}</strong>
-                                        <span style="font-size: 11.5px; color: #16a34a; font-weight: 600;"><i class="fa-solid fa-circle-check"></i> Verifizierter Kauf</span>
-                                    </div>
-                                </div>
-                                <div style="color: #f59e0b; font-size: 15px;">${rStars}</div>
-                            </div>
-                            <h5 style="font-size: 16px; font-weight: 700; margin: 0 0 6px 0; color: var(--text-main);">${r.title}</h5>
-                            <p style="font-size: 14px; color: var(--text-muted); margin: 0 0 10px 0; line-height: 1.6;">${r.comment || ''}</p>
-                            ${prosHtml}
-                            ${consHtml}
-                        </div>
-                    `;
-                }).join('');
-            }
+            filterAndRenderReviews();
 
             const userStr = localStorage.getItem('user');
             if (userStr) {
@@ -408,6 +384,157 @@
 
         } catch (e) {
             console.error("Fehler beim Laden der Reviews:", e);
+        }
+    }
+
+    function filterAndRenderReviews() {
+        const listContainer = document.getElementById('reviews-list-container');
+        const sortBy = document.getElementById('review-sort-select').value;
+        const starFilter = document.getElementById('review-filter-star').value;
+
+        let filtered = [...globalReviewsData];
+
+        if (starFilter !== 'all') {
+            filtered = filtered.filter(r => r.rating === parseInt(starFilter));
+        }
+
+        filtered.sort((a, b) => {
+            if (sortBy === 'newest') return new Date(b.created_at) - new Date(a.created_at);
+            if (sortBy === 'highest') return b.rating - a.rating;
+            if (sortBy === 'lowest') return a.rating - b.rating;
+        });
+
+        if (filtered.length === 0) {
+            listContainer.innerHTML = '<p style="color: var(--text-muted); text-align: center; padding: 20px;">Keine Bewertungen gefunden, die zu diesem Filter passen.</p>';
+            return;
+        }
+
+        const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
+        const isAdmin = Boolean(currentUser.is_admin);
+
+        listContainer.innerHTML = filtered.map(r => {
+            const rStars = '★'.repeat(r.rating) + '☆'.repeat(5 - r.rating);
+            const textColor = stringToColor(r.user_email || r.customer_name);
+            const hasCustomImage = Boolean(r.profile_picture);
+            const defaultSvg = `
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="100%" height="100%">
+                    <rect width="200" height="200" fill="#ffffff" />
+                    <text x="50%" y="55%" dominant-baseline="middle" text-anchor="middle" fill="${textColor}" font-family="'Inter', sans-serif" font-weight="900" font-size="95" letter-spacing="-2">3D</text>
+                </svg>
+            `;
+            const avatarContent = hasCustomImage 
+                ? `<img src="${r.profile_picture}" alt="Profilbild" style="width: 100%; height: 100%; object-fit: cover;">`
+                : defaultSvg;
+
+            const prosArray = r.pros ? r.pros.split(' | ').filter(Boolean) : [];
+            const consArray = r.cons ? r.cons.split(' | ').filter(Boolean) : [];
+            
+            const prosHtml = prosArray.length > 0 ? `<div style="margin-top: 8px; display: flex; flex-direction: column; gap: 4px;">${prosArray.map(p => `<span style="color: #16a34a; font-size: 13.5px;"><i class="fa-solid fa-plus" style="font-size: 11px; margin-right: 4px;"></i> ${p}</span>`).join('')}</div>` : '';
+            const consHtml = consArray.length > 0 ? `<div style="margin-top: 6px; display: flex; flex-direction: column; gap: 4px;">${consArray.map(c => `<span style="color: #dc2626; font-size: 13.5px;"><i class="fa-solid fa-minus" style="font-size: 11px; margin-right: 4px;"></i> ${c}</span>`).join('')}</div>` : '';
+            
+            let adminReplyHtml = '';
+            if (r.admin_reply) {
+                adminReplyHtml = `
+                    <div style="margin-top: 15px; background: var(--bg-card); padding: 12px 16px; border-radius: 8px; border-left: 3px solid var(--light-color);">
+                        <strong style="font-size: 13px; color: var(--light-color); display: block; margin-bottom: 2px;">Antwort vom Shop (Fabio3D)</strong>
+                        <p style="font-size: 13.5px; color: var(--text-main); margin: 0;">${r.admin_reply}</p>
+                    </div>
+                `;
+            } else if (isAdmin) {
+                adminReplyHtml = `
+                    <div style="margin-top: 15px;">
+                        <button onclick="toggleAdminReplyForm(${r.id})" style="background: none; border: none; color: var(--light-color); font-size: 13px; font-weight: 600; cursor: pointer; padding: 0;">+ Als Admin antworten</button>
+                        <div id="admin-reply-box-${r.id}" style="display: none; margin-top: 8px; display: flex; gap: 8px;">
+                            <input type="text" id="admin-reply-input-${r.id}" placeholder="Antwort schreiben..." style="flex: 1; padding: 8px; border-radius: 6px; border: 1.2px solid var(--border-color); background: var(--bg-card); color: var(--text-main); font-size: 13px;">
+                            <button onclick="submitAdminReply(${r.id})" style="background: var(--light-color); color: #fff; border: none; padding: 8px 14px; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 13px;">Senden</button>
+                        </div>
+                    </div>
+                `;
+            }
+
+            return `
+                <div style="background: var(--bg-dark); padding: 22px; border-radius: 12px; border: 1.2px solid var(--border-color);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <div style="width: 42px; height: 42px; border-radius: 50%; overflow: hidden; border: 2px solid var(--border-color); display: flex; align-items: center; justify-content: center; background-color: #ffffff; flex-shrink: 0;">
+                                ${avatarContent}
+                            </div>
+                            <div>
+                                <strong style="font-size: 15px; display: block;">${r.customer_name}</strong>
+                                <span style="font-size: 11.5px; color: #16a34a; font-weight: 600;"><i class="fa-solid fa-circle-check"></i> Verifizierter Kauf</span>
+                            </div>
+                        </div>
+                        <div style="color: #f59e0b; font-size: 15px;">${rStars}</div>
+                    </div>
+                    <h5 style="font-size: 16px; font-weight: 700; margin: 0 0 6px 0; color: var(--text-main);">${r.title}</h5>
+                    <p style="font-size: 14px; color: var(--text-muted); margin: 0 0 10px 0; line-height: 1.6;">${r.comment || ''}</p>
+                    ${prosHtml}
+                    ${consHtml}
+                    
+                    <div style="margin-top: 15px; display: flex; align-items: center; gap: 15px; font-size: 13px; color: var(--text-muted);">
+                        <span>War diese Bewertung hilfreich?</span>
+                        <button onclick="voteHelpful(${r.id}, 'yes')" style="background: var(--bg-card); border: 1.2px solid var(--border-color); padding: 4px 10px; border-radius: 6px; cursor: pointer; color: var(--text-main); font-size: 12px;">
+                            👍 Ja (${r.helpful_yes || 0})
+                        </button>
+                        <button onclick="voteHelpful(${r.id}, 'no')" style="background: var(--bg-card); border: 1.2px solid var(--border-color); padding: 4px 10px; border-radius: 6px; cursor: pointer; color: var(--text-main); font-size: 12px;">
+                            👎 Nein (${r.helpful_no || 0})
+                        </button>
+                    </div>
+
+                    ${adminReplyHtml}
+                </div>
+            `;
+        }).join('');
+    }
+
+    // Hilfreich-Vote absenden
+    async function voteHelpful(reviewId, type) {
+        try {
+            const res = await fetch('/api/reviews', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'vote', reviewId, type })
+            });
+            if (res.ok) {
+                const urlParams = new URLSearchParams(window.location.search);
+                loadProductReviews(urlParams.get('id'));
+            }
+        } catch (e) {
+            console.error("Fehler beim Abstimmen", e);
+        }
+    }
+
+    function toggleAdminReplyForm(reviewId) {
+        const box = document.getElementById(`admin-reply-box-${reviewId}`);
+        if (box) box.style.display = box.style.display === 'none' ? 'flex' : 'none';
+    }
+
+    async function submitAdminReply(reviewId) {
+        const input = document.getElementById(`admin-reply-input-${reviewId}`);
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
+        if (!input || !input.value.trim()) return;
+
+        try {
+            const res = await fetch('/api/reviews', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    action: 'admin_reply',
+                    reviewId: reviewId,
+                    admin_reply: input.value.trim(),
+                    user_email: user.email
+                })
+            });
+
+            if (res.ok) {
+                const urlParams = new URLSearchParams(window.location.search);
+                loadProductReviews(urlParams.get('id'));
+            } else {
+                const err = await res.json();
+                alert(err.error || "Fehler beim Speichern der Antwort.");
+            }
+        } catch (e) {
+            alert("Verbindungsfehler.");
         }
     }
 
