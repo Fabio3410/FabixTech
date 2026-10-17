@@ -92,19 +92,6 @@ const existingOrder = await context.env.DB.prepare(
         }
 
         for (const item of items) {
-            await context.env.DB.prepare(`
-                INSERT INTO order_items (order_id, product_name, variant, quantity, price)
-                VALUES (?, ?, ?, ?, ?)
-            `).bind(
-                orderId,
-                item.name,
-                item.farbe || 'Standard',
-                item.quantity,
-                item.price
-            ).run();
-        }
-
-        for (const item of items) {
             if (item.id && item.quantity) {
                 await context.env.DB.prepare(
                     "UPDATE product_variants SET stock = stock - ? WHERE id = ?"

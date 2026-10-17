@@ -348,12 +348,50 @@ html, #cart-items-container {
 .hero-buttons {
     display: flex;
     gap: 1.2rem;
+    align-items: center;
+    flex-wrap: wrap;
 }
 
 .hero-visual {
     display: flex;
     justify-content: center;
     align-items: center;
+}
+
+.btn-social {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 52px;
+    height: 52px;
+    padding: 0;
+    border-radius: 7px;
+    background: var(--bg-card);
+    color: var(--text-main);
+    border: 1.2px solid var(--border-color);
+    font-size: 1.5rem;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    box-shadow: var(--shadow-sm);
+}
+
+.btn-social:hover {
+    transform: scale(1.05);
+    background: var(--light-color);
+    color: #ffffff;
+    border-color: var(--light-color);
+}
+
+.discord-btn:hover {
+    background: #5865F2;
+    border-color: #5865F2;
+    color: #ffffff;
+}
+
+.youtube-btn:hover {
+    background: #FF0000;
+    border-color: #FF0000;
+    color: #ffffff;
 }
 
 .tech-box {
