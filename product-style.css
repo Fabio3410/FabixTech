@@ -195,6 +195,90 @@ html, #cart-items-container {
     text-decoration: underline;
 }
 
+body, .product-card-detail-view, #product-reviews-section, .material-card, .navbar, footer, input, textarea, select, button {
+    transition: background-color 0.4s ease, 
+                color 0.4s ease, 
+                border-color 0.4s ease, 
+                box-shadow 0.4s ease !important;
+}
+
+#new-review-comment {
+    resize: none !important;
+}
+
+.pros-cons-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    width: 100%;
+}
+
+.dynamic-input-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 8px;
+    align-items: center;
+}
+
+.dynamic-input-row input {
+    flex: 1;
+    padding: 10px;
+    border-radius: 6px;
+    border: 1.2px solid var(--border-color);
+    background: var(--bg-dark);
+    color: var(--text-main);
+    font-size: 14px;
+    outline: none;
+}
+
+.btn-add-field {
+    background: var(--bg-dark);
+    color: var(--text-main);
+    border: 1.2px solid var(--border-color);
+    padding: 6px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    transition: all 0.2s;
+    margin-top: 4px;
+}
+
+.btn-add-field:hover {
+    border-color: var(--light-color);
+    color: var(--light-color);
+}
+
+.btn-remove-field {
+    background: transparent;
+    color: #dc2626;
+    border: none;
+    cursor: pointer;
+    font-size: 18px;
+    padding: 0 6px;
+    font-weight: bold;
+}
+
+.btn-review-submit {
+    background: linear-gradient(135deg, var(--light-color), var(--dark-color));
+    color: #ffffff;
+    border: none;
+    padding: 12px 28px;
+    border-radius: 10px;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(212, 2, 2, 0.25);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    align-self: flex-start;
+    margin-top: 10px;
+}
+
+.btn-review-submit:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(212, 2, 2, 0.4);
+}
+
 .product-card-detail-view {
     background-color: var(--bg-card);
     border-radius: 12px;
@@ -838,6 +922,10 @@ footer {
 
     .tech-specs {
         margin: 20px auto;
+    }
+    
+    .pros-cons-grid {
+        grid-template-columns: 1fr;
     }
 }
 
