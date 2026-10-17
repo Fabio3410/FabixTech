@@ -11,9 +11,13 @@ export async function onRequestGet(context) {
     }
 
     try {
-        const { results: reviews } = await env.DB.prepare(
-            "SELECT * FROM reviews WHERE product_id = ? ORDER BY created_at DESC"
-        ).bind(productId).all();
+        const { results: reviews } = await env.DB.prepare(`
+            SELECT r.*, u.profile_picture 
+            FROM reviews r
+            LEFT JOIN users u ON r.user_email = u.email
+            WHERE r.product_id = ? 
+            ORDER BY r.created_at DESC
+        `).bind(productId).all();
 
         const total = reviews.length;
         let sum = 0;
