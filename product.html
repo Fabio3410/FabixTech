@@ -32,7 +32,53 @@
     </nav>
     <main>
         <div class="product-details">
-            <div id="product-detail-container" class="product-card-detail-view">
+            <div id="product-detail-container" class="product-card-detail-view"></div>
+
+            <div id="product-reviews-section" style="max-width: 1100px; margin: 40px auto; background: var(--bg-card); padding: 30px; border-radius: 12px; border: 1.2px solid var(--border-color);">
+                <h3 style="font-size: 24px; font-weight: 800; margin-bottom: 20px;">Bewertungen</h3>
+                
+                <div id="reviews-summary-container"></div>
+
+                <div id="reviews-list-container" style="margin-top: 30px; display: flex; flex-direction: column; gap: 20px;"></div>
+
+                <div id="write-review-container" style="margin-top: 40px; border-top: 1px solid var(--border-color); padding-top: 30px; display: none;">
+                    <h4>Produkt bewerten</h4>
+                    <form id="review-form" onsubmit="submitProductReview(event)" style="margin-top: 15px; display: flex; flex-direction: column; gap: 15px;">
+                        <div>
+                            <label style="font-weight: 600; display: block; margin-bottom: 5px;">Sterne</label>
+                            <select id="new-review-rating" class="form-control" style="padding: 10px; border-radius: 6px; border: 1px solid var(--border-color); background: var(--bg-dark); color: var(--text-main); width: 200px;">
+                                <option value="5">★★★★★ (5 - Hervorragend)</option>
+                                <option value="4">★★★★☆ (4 - Gut)</option>
+                                <option value="3">★★★☆☆ (3 - Mittelmäßig)</option>
+                                <option value="2">★★☆☆☆ (2 - Nicht so gut)</option>
+                                <option value="1">★☆☆☆☆ (1 - Schlecht)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label style="font-weight: 600; display: block; margin-bottom: 5px;">Titel der Bewertung</label>
+                            <input type="text" id="new-review-title" placeholder="z.B. Funktioniert genau so wie beschrieben!" required style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid var(--border-color); background: var(--bg-dark); color: var(--text-main);">
+                        </div>
+                        <div>
+                            <label style="font-weight: 600; display: block; margin-bottom: 5px;">Kommentar</label>
+                            <textarea id="new-review-comment" rows="3" placeholder="Schreibe hier deine Erfahrung" style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid var(--border-color); background: var(--bg-dark); color: var(--text-main);"></textarea>
+                        </div>
+                        <div style="display: flex; gap: 15px;">
+                            <div style="flex: 1;">
+                                <label style="font-weight: 600; display: block; margin-bottom: 5px; color: #16a34a;">+ Positive (optional)</label>
+                                <input type="text" id="new-review-pros" placeholder="z. B. Tolle Verarbeitung, leuchtet hell" style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid var(--border-color); background: var(--bg-dark); color: var(--text-main);">
+                            </div>
+                            <div style="flex: 1;">
+                                <label style="font-weight: 600; display: block; margin-bottom: 5px; color: #dc2626;">- Negative (optional)</label>
+                                <input type="text" id="new-review-cons" placeholder="z. B. Kurzes Kabel" style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid var(--border-color); background: var(--bg-dark); color: var(--text-main);">
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary" style="align-self: flex-start; margin-top: 10px;">Bewertung absenden</button>
+                    </form>
+                </div>
+                
+                <div id="review-locked-msg" style="margin-top: 30px; color: var(--text-muted); font-size: 14px; font-style: italic;">
+                    Hinweis: Du kannst dieses Produkt erst bewerten, wenn du angemeldet bist und es gekauft hast.
+                </div>
             </div>
         </div>
     </main>
@@ -109,6 +155,9 @@
 
             document.getElementById('product-detail-container').innerHTML = `
                 <h1>${product.title}</h1>
+                <div id="header-rating-container" style="display: flex; align-items: center; gap: 8px; margin-top: -5px; margin-bottom: 15px; grid-column: 1 / -1;">
+                    <span style="font-size: 13px; color: var(--text-muted);">Lade Bewertungen...</span>
+                </div>
                 <div class="detail-left-side">
                     <div class="slider-container">
                         <div class="slides">
@@ -162,6 +211,9 @@
             if (typeof initSliders === 'function') initSliders();
             if (typeof checkSliderArrows === 'function') checkSliderArrows();
             if (typeof fetchAllStocks === 'function') fetchAllStocks();
+            
+            loadProductReviews(productId);
+
         } catch (err) {
             console.error("Fehler beim Laden des Produkts:", err);
         }
@@ -209,6 +261,148 @@
                 msgDiv.style.color = '#d40202';
                 msgDiv.innerText = 'Verbindungsfehler zum Server.';
             }
+        }
+    }
+
+    async function loadProductReviews(productId) {
+        const summaryContainer = document.getElementById('reviews-summary-container');
+        const listContainer = document.getElementById('reviews-list-container');
+        const headerRatingContainer = document.getElementById('header-rating-container');
+        const writeSection = document.getElementById('write-review-container');
+        const lockedMsg = document.getElementById('review-locked-msg');
+
+        try {
+            const res = await fetch(`/api/reviews?productId=${productId}`);
+            const data = await res.json();
+
+            const reviews = data.reviews || [];
+            const avg = data.average || 0;
+            const total = data.total || 0;
+            const breakdown = data.breakdown || {5:0, 4:0, 3:0, 2:0, 1:0};
+
+            const starsHtml = '★'.repeat(Math.round(avg)) + '☆'.repeat(5 - Math.round(avg));
+            
+            if (headerRatingContainer) {
+                if (total > 0) {
+                    headerRatingContainer.innerHTML = `
+                        <span style="color: #f59e0b; font-size: 16px;">${starsHtml}</span>
+                        <span style="font-size: 14px; font-weight: 600; color: var(--text-main);">${avg.toFixed(1)}</span>
+                        <span style="font-size: 14px; color: var(--text-muted);">(${total})</span>
+                    `;
+                } else {
+                    headerRatingContainer.innerHTML = `<span style="font-size: 13px; color: var(--text-muted);">Noch keine Bewertungen</span>`;
+                }
+            }
+
+            summaryContainer.innerHTML = `
+                <div style="display: flex; gap: 40px; align-items: center; flex-wrap: wrap; border-bottom: 1px solid var(--border-color); padding-bottom: 25px;">
+                    <div style="text-align: center;">
+                        <span style="font-size: 48px; font-weight: 800; line-height: 1;">${avg.toFixed(1)}</span>
+                        <div style="color: #f59e0b; font-size: 20px; margin: 5px 0;">${starsHtml}</div>
+                        <span style="color: var(--text-muted); font-size: 14px;">Basiert auf ${total} echten Käufen</span>
+                    </div>
+                    <div style="flex-grow: 1; max-width: 350px; display: flex; flex-direction: column; gap: 6px;">
+                        ${[5,4,3,2,1].map(stars => {
+                            const count = breakdown[stars] || 0;
+                            const percent = total > 0 ? Math.round((count / total) * 100) : 0;
+                            return `
+                                <div style="display: flex; align-items: center; gap: 10px; font-size: 13px;">
+                                    <span style="width: 25px;">${stars} ★</span>
+                                    <div style="flex-grow: 1; background: var(--bg-dark); height: 8px; border-radius: 4px; overflow: hidden; border: 1px solid var(--border-color);">
+                                        <div style="width: ${percent}%; background: var(--light-color); height: 100%;"></div>
+                                    </div>
+                                    <span style="width: 35px; color: var(--text-muted); text-align: right;">${percent}%</span>
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                </div>
+            `;
+
+            if (reviews.length === 0) {
+                listContainer.innerHTML = '<p style="color: var(--text-muted);">Noch keine Bewertungen vorhanden. Sei der Erste!</p>';
+            } else {
+                listContainer.innerHTML = reviews.map(r => {
+                    const rStars = '★'.repeat(r.rating) + '☆'.repeat(5 - r.rating);
+                    const prosHtml = r.pros ? `<div style="color: #16a34a; font-size: 14px; margin-top: 4px;">+ ${r.pros}</div>` : '';
+                    const consHtml = r.cons ? `<div style="color: #dc2626; font-size: 14px; margin-top: 4px;">- ${r.cons}</div>` : '';
+                    
+                    return `
+                        <div style="background: var(--bg-dark); padding: 20px; border-radius: 8px; border: 1px solid var(--border-color);">
+                            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 10px;">
+                                <div style="width: 36px; height: 36px; background: var(--light-color); color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold;">
+                                    ${r.customer_name.charAt(0).toUpperCase()}
+                                </div>
+                                <div>
+                                    <strong style="font-size: 15px;">${r.customer_name}</strong>
+                                    <span style="font-size: 12px; color: #16a34a; margin-left: 8px;"><i class="fa-solid fa-circle-check"></i> hat dieses Produkt gekauft</span>
+                                </div>
+                            </div>
+                            <div style="color: #f59e0b; font-size: 16px; margin-bottom: 6px;">${rStars}</div>
+                            <h5 style="font-size: 16px; font-weight: bold; margin: 0 0 6px 0; color: var(--text-main);">${r.title}</h5>
+                            <p style="font-size: 14px; color: var(--text-muted); margin: 0 0 10px 0; line-height: 1.5;">${r.comment || ''}</p>
+                            ${prosHtml}
+                            ${consHtml}
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            const userStr = localStorage.getItem('user');
+            if (userStr) {
+                const user = JSON.parse(userStr);
+                const checkRes = await fetch(`/api/check-purchase?email=${encodeURIComponent(user.email)}&productId=${productId}`);
+                const checkData = await checkRes.json();
+
+                if (checkData.hasBought) {
+                    writeSection.style.display = 'block';
+                    lockedMsg.style.display = 'none';
+                } else {
+                    lockedMsg.innerText = "Du hast dieses Produkt noch nicht gekauft und kannst daher keine Bewertung abgeben.";
+                }
+            } else {
+                lockedMsg.innerHTML = 'Bitte <a href="/login" style="color: var(--light-color); font-weight: bold;">melde dich an</a>, um dieses Produkt zu bewerten!';
+            }
+
+        } catch (e) {
+            console.error("Fehler beim Laden der Reviews:", e);
+        }
+    }
+
+    async function submitProductReview(event) {
+        event.preventDefault();
+        const urlParams = new URLSearchParams(window.location.search);
+        const productId = urlParams.get('id');
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
+
+        const payload = {
+            productId: productId,
+            user_email: user.email,
+            customer_name: user.name || user.email.split('@')[0],
+            rating: parseInt(document.getElementById('new-review-rating').value),
+            title: document.getElementById('new-review-title').value.trim(),
+            comment: document.getElementById('new-review-comment').value.trim(),
+            pros: document.getElementById('new-review-pros').value.trim(),
+            cons: document.getElementById('new-review-cons').value.trim()
+        };
+
+        try {
+            const res = await fetch('/api/reviews', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            if (res.ok) {
+                alert("Vielen Dank für deine Bewertung!");
+                document.getElementById('review-form').reset();
+                loadProductReviews(productId);
+            } else {
+                const err = await res.json();
+                alert(err.error || "Fehler beim Speichern der Bewertung.");
+            }
+        } catch (e) {
+            alert("Verbindungsfehler zum Server.");
         }
     }
     </script>
