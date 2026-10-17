@@ -364,7 +364,7 @@ html, #cart-items-container {
     justify-content: center;
     width: 52px;
     height: 52px;
-    padding: 0;
+    padding: 0 !important;
     border-radius: 7px;
     background: var(--bg-card);
     color: var(--text-main);
@@ -373,13 +373,11 @@ html, #cart-items-container {
     text-decoration: none;
     transition: all 0.3s ease;
     box-shadow: var(--shadow-sm);
+    flex-shrink: 0;
 }
 
 .btn-social:hover {
-    transform: scale(1.05);
-    background: var(--light-color);
-    color: #ffffff;
-    border-color: var(--light-color);
+    transform: scale(1.03);
 }
 
 .discord-btn:hover {
