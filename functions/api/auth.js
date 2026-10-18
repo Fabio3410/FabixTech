@@ -63,7 +63,8 @@ async function sendCodeEmail(env, recipient, subject, code, introText) {
 export async function onRequestPost(context) {
     const { request, env } = context;
     const data = await request.json();
-    const { action, password, code, newPassword, profile_picture, name, turnstileToken } = data;
+    
+    const { action, email, password, code, newPassword, profile_picture, name, turnstileToken } = data;
 
     if (action === 'update_avatar' || action === 'delete_avatar') {
         const cookieHeader = request.headers.get('Cookie') || '';
@@ -124,7 +125,7 @@ export async function onRequestPost(context) {
             }
         }
     }
-
+    
     if (action === 'send_register_code') {
         const isValidCaptcha = await verifyTurnstile(turnstileToken, env.TURNSTILE_SECRET_KEY);
         if (!isValidCaptcha) {
