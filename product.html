@@ -442,8 +442,8 @@
                 ? 'background: rgba(212, 2, 2, 0.08); border: 1.2px solid var(--light-color); color: var(--light-color); font-weight: bold;' 
                 : 'background: var(--bg-card); border: 1.2px solid var(--border-color); color: var(--text-main);';
 
-            const yesText = isYesActive ? `👍 Ja (${r.helpful_yes || 0})` : `Ja (${r.helpful_yes || 0})`;
-            const noText = isNoActive ? `👎 Nein (${r.helpful_no || 0})` : `Nein (${r.helpful_no || 0})`;
+            const yesText = isYesActive ? ` Ja (${r.helpful_yes || 0})` : `Ja (${r.helpful_yes || 0})`;
+            const noText = isNoActive ? ` Nein (${r.helpful_no || 0})` : `Nein (${r.helpful_no || 0})`;
 
             let adminReplyHtml = '';
             if (r.admin_reply) {
