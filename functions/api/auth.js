@@ -1,5 +1,11 @@
 import { EmailMessage } from "cloudflare:email";
 
+function parseCookie(cookieHeader, name) {
+    if (!cookieHeader) return null;
+    const matches = cookieHeader.match(new RegExp('(?:^|; )' + name.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, '\\$1') + '=([^;]*)'));
+    return matches ? decodeURIComponent(matches[1]) : null;
+}
+
 async function hashPassword(password) {
     const msgBuffer = new TextEncoder().encode(password);
     const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
@@ -57,53 +63,65 @@ async function sendCodeEmail(env, recipient, subject, code, introText) {
 export async function onRequestPost(context) {
     const { request, env } = context;
     const data = await request.json();
-    const { action, email, password, code, newPassword, profile_picture, name, turnstileToken } = data;
+    const { action, password, code, newPassword, profile_picture, name, turnstileToken } = data;
 
-    if (action === 'update_avatar') {
-        if (!email || !profile_picture) {
-            return new Response(JSON.stringify({ status: 'error', message: 'Fehlende Daten.' }), { 
-                status: 400,
-                headers: { 'Content-Type': 'application/json' }
+    if (action === 'update_avatar' || action === 'delete_avatar') {
+        const cookieHeader = request.headers.get('Cookie') || '';
+        const sessionId = parseCookie(cookieHeader, 'session_id');
+
+        if (!sessionId) {
+            return new Response(JSON.stringify({ status: 'error', message: 'Nicht angemeldet.' }), { 
+                status: 401, 
+                headers: { 'Content-Type': 'application/json' } 
             });
         }
-        
-        try {
-            await env.DB.prepare("UPDATE users SET profile_picture = ? WHERE email = ?")
-                .bind(profile_picture, email)
-                .run();
+
+        const user = await env.DB.prepare("SELECT * FROM users WHERE session_id = ?").bind(sessionId).first();
+        if (!user) {
+            return new Response(JSON.stringify({ status: 'error', message: 'Ungültige Sitzung.' }), { 
+                status: 401, 
+                headers: { 'Content-Type': 'application/json' } 
+            });
+        }
+
+        const userEmail = user.email;
+
+        if (action === 'update_avatar') {
+            if (!profile_picture) {
+                return new Response(JSON.stringify({ status: 'error', message: 'Kein Bild angegeben.' }), { 
+                    status: 400, headers: { 'Content-Type': 'application/json' } 
+                });
+            }
             
-            return new Response(JSON.stringify({ status: 'success', message: 'Profilbild gespeichert.' }), {
-                headers: { 'Content-Type': 'application/json' }
-            });
-        } catch (err) {
-            return new Response(JSON.stringify({ status: 'error', message: 'Datenbank-Fehler: ' + err.message }), { 
-                status: 500, 
-                headers: { 'Content-Type': 'application/json' } 
-            });
-        }
-    }
-
-    if (action === 'delete_avatar') {
-        if (!email) {
-            return new Response(JSON.stringify({ status: 'error', message: 'Fehlende E-Mail.' }), { 
-                status: 400, 
-                headers: { 'Content-Type': 'application/json' } 
-            });
+            try {
+                await env.DB.prepare("UPDATE users SET profile_picture = ? WHERE email = ?")
+                    .bind(profile_picture, userEmail)
+                    .run();
+                
+                return new Response(JSON.stringify({ status: 'success', message: 'Profilbild gespeichert.' }), {
+                    headers: { 'Content-Type': 'application/json' }
+                });
+            } catch (err) {
+                return new Response(JSON.stringify({ status: 'error', message: 'Datenbank-Fehler: ' + err.message }), { 
+                    status: 500, headers: { 'Content-Type': 'application/json' } 
+                });
+            }
         }
 
-        try {
-            await env.DB.prepare("UPDATE users SET profile_picture = NULL WHERE email = ?")
-                .bind(email)
-                .run();
+        if (action === 'delete_avatar') {
+            try {
+                await env.DB.prepare("UPDATE users SET profile_picture = NULL WHERE email = ?")
+                    .bind(userEmail)
+                    .run();
 
-            return new Response(JSON.stringify({ status: 'success', message: 'Profilbild gelöscht.' }), {
-                headers: { 'Content-Type': 'application/json' }
-            });
-        } catch (err) {
-            return new Response(JSON.stringify({ status: 'error', message: err.message }), { 
-                status: 500, 
-                headers: { 'Content-Type': 'application/json' } 
-            });
+                return new Response(JSON.stringify({ status: 'success', message: 'Profilbild gelöscht.' }), {
+                    headers: { 'Content-Type': 'application/json' }
+                });
+            } catch (err) {
+                return new Response(JSON.stringify({ status: 'error', message: err.message }), { 
+                    status: 500, headers: { 'Content-Type': 'application/json' } 
+                });
+            }
         }
     }
 
