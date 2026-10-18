@@ -64,7 +64,7 @@
                         <div>
                             <label style="font-weight: 600; display: block; margin-bottom: 5px; font-size: 14px;">Sterne</label>
                             <select id="new-review-rating" class="form-control" style="padding: 10px; border-radius: 8px; border: 1.2px solid var(--border-color); background: var(--bg-dark); color: var(--text-main); width: 220px; outline: none;">
-                                <option value="5">★★★★★ (5 - Hervorragend)</option>
+                                <option value="5">★★★★★ (5 - Super)</option>
                                 <option value="4">★★★★☆ (4 - Gut)</option>
                                 <option value="3">★★★☆☆ (3 - Mittelmäßig)</option>
                                 <option value="2">★★☆☆☆ (2 - Nicht so gut)</option>
@@ -85,7 +85,7 @@
                                 <label style="font-weight: 600; display: block; margin-bottom: 6px; font-size: 14px; color: #16a34a;">+ Positiv</label>
                                 <div id="pros-inputs-container">
                                     <div class="dynamic-input-row">
-                                        <input type="text" class="pro-input" placeholder="Positiver Punkt">
+                                        <input type="text" class="pro-input" placeholder="positiver Punkt">
                                     </div>
                                 </div>
                                 <button type="button" class="btn-add-field" onclick="addDynamicInput('pros')">+ Weiteren Punkt hinzufügen</button>
@@ -94,7 +94,7 @@
                                 <label style="font-weight: 600; display: block; margin-bottom: 6px; font-size: 14px; color: #dc2626;">- Negativ</label>
                                 <div id="cons-inputs-container">
                                     <div class="dynamic-input-row">
-                                        <input type="text" class="con-input" placeholder="Negativer Punkt">
+                                        <input type="text" class="con-input" placeholder="negativer Punkt">
                                     </div>
                                 </div>
                                 <button type="button" class="btn-add-field" onclick="addDynamicInput('cons')">+ Weiteren Punkt hinzufügen</button>
@@ -442,8 +442,8 @@
                 ? 'background: rgba(212, 2, 2, 0.08); border: 1.2px solid var(--light-color); color: var(--light-color); font-weight: bold;' 
                 : 'background: var(--bg-card); border: 1.2px solid var(--border-color); color: var(--text-main);';
 
-            const yesText = isYesActive ? `👍 Ja ✓ (${r.helpful_yes || 0})` : `👍 Ja (${r.helpful_yes || 0})`;
-            const noText = isNoActive ? `👎 Nein ✓ (${r.helpful_no || 0})` : `👎 Nein (${r.helpful_no || 0})`;
+            const yesText = isYesActive ? `👍 Ja (${r.helpful_yes || 0})` : `Ja (${r.helpful_yes || 0})`;
+            const noText = isNoActive ? `👎 Nein (${r.helpful_no || 0})` : `Nein (${r.helpful_no || 0})`;
 
             let adminReplyHtml = '';
             if (r.admin_reply) {
@@ -474,7 +474,7 @@
                             </div>
                             <div>
                                 <strong style="font-size: 15px; display: block;">${r.customer_name}</strong>
-                                <span style="font-size: 11.5px; color: #16a34a; font-weight: 600;"><i class="fa-solid fa-circle-check"></i> Verifizierter Kauf</span>
+                                <span style="font-size: 11.5px; color: #16a34a; font-weight: 600;"><i class="fa-solid fa-circle-check"></i> Hat das Produkt gekauft</span>
                             </div>
                         </div>
                         <div style="color: #f59e0b; font-size: 15px;">${rStars}</div>
