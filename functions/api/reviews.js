@@ -67,12 +67,15 @@ export async function onRequestPost(context) {
         }
 
         if (data.action === 'vote') {
-            const { reviewId, type } = data;
-            if (type === 'yes') {
-                await env.DB.prepare(`UPDATE reviews SET helpful_yes = helpful_yes + 1 WHERE id = ?`).bind(reviewId).run();
-            } else if (type === 'no') {
-                await env.DB.prepare(`UPDATE reviews SET helpful_no = helpful_no + 1 WHERE id = ?`).bind(reviewId).run();
-            }
+            const { reviewId, type, delta } = data;
+            const col = type === 'yes' ? 'helpful_yes' : 'helpful_no';
+            
+            await env.DB.prepare(`
+                UPDATE reviews 
+                SET ${col} = MAX(0, ${col} + ?) 
+                WHERE id = ?
+            `).bind(delta, reviewId).run();
+
             return new Response(JSON.stringify({ success: true }), { headers: { 'Content-Type': 'application/json' } });
         }
 

@@ -430,6 +430,21 @@
             const prosHtml = prosArray.length > 0 ? `<div style="margin-top: 8px; display: flex; flex-direction: column; gap: 4px;">${prosArray.map(p => `<span style="color: #16a34a; font-size: 13.5px;"><i class="fa-solid fa-plus" style="font-size: 11px; margin-right: 4px;"></i> ${p}</span>`).join('')}</div>` : '';
             const consHtml = consArray.length > 0 ? `<div style="margin-top: 6px; display: flex; flex-direction: column; gap: 4px;">${consArray.map(c => `<span style="color: #dc2626; font-size: 13.5px;"><i class="fa-solid fa-minus" style="font-size: 11px; margin-right: 4px;"></i> ${c}</span>`).join('')}</div>` : '';
             
+            const userVote = localStorage.getItem('fabio3d_vote_' + r.id);
+            const isYesActive = userVote === 'yes';
+            const isNoActive = userVote === 'no';
+
+            const yesBtnStyle = isYesActive 
+                ? 'background: rgba(212, 2, 2, 0.08); border: 1.2px solid var(--light-color); color: var(--light-color); font-weight: bold;' 
+                : 'background: var(--bg-card); border: 1.2px solid var(--border-color); color: var(--text-main);';
+            
+            const noBtnStyle = isNoActive 
+                ? 'background: rgba(212, 2, 2, 0.08); border: 1.2px solid var(--light-color); color: var(--light-color); font-weight: bold;' 
+                : 'background: var(--bg-card); border: 1.2px solid var(--border-color); color: var(--text-main);';
+
+            const yesText = isYesActive ? `👍 Ja ✓ (${r.helpful_yes || 0})` : `👍 Ja (${r.helpful_yes || 0})`;
+            const noText = isNoActive ? `👎 Nein ✓ (${r.helpful_no || 0})` : `👎 Nein (${r.helpful_no || 0})`;
+
             let adminReplyHtml = '';
             if (r.admin_reply) {
                 adminReplyHtml = `
@@ -471,11 +486,11 @@
                     
                     <div style="margin-top: 15px; display: flex; align-items: center; gap: 15px; font-size: 13px; color: var(--text-muted);">
                         <span>War diese Bewertung hilfreich?</span>
-                        <button onclick="voteHelpful(${r.id}, 'yes')" style="background: var(--bg-card); border: 1.2px solid var(--border-color); padding: 4px 10px; border-radius: 6px; cursor: pointer; color: var(--text-main); font-size: 12px;">
-                            👍 Ja (${r.helpful_yes || 0})
+                        <button onclick="voteHelpful(${r.id}, 'yes')" style="${yesBtnStyle} padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 12.5px; transition: all 0.2s;">
+                            ${yesText}
                         </button>
-                        <button onclick="voteHelpful(${r.id}, 'no')" style="background: var(--bg-card); border: 1.2px solid var(--border-color); padding: 4px 10px; border-radius: 6px; cursor: pointer; color: var(--text-main); font-size: 12px;">
-                            👎 Nein (${r.helpful_no || 0})
+                        <button onclick="voteHelpful(${r.id}, 'no')" style="${noBtnStyle} padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 12.5px; transition: all 0.2s;">
+                            ${noText}
                         </button>
                     </div>
 
@@ -485,18 +500,44 @@
         }).join('');
     }
 
-    // Hilfreich-Vote absenden
     async function voteHelpful(reviewId, type) {
-        try {
-            const res = await fetch('/api/reviews', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ action: 'vote', reviewId, type })
-            });
-            if (res.ok) {
-                const urlParams = new URLSearchParams(window.location.search);
-                loadProductReviews(urlParams.get('id'));
+        const storageKey = 'fabio3d_vote_' + reviewId;
+        const currentVote = localStorage.getItem(storageKey);
+
+        let deltaYes = 0;
+        let deltaNo = 0;
+
+        if (currentVote === type) {
+            if (type === 'yes') deltaYes = -1;
+            if (type === 'no') deltaNo = -1;
+            localStorage.removeItem(storageKey);
+        } else {
+            if (currentVote) {
+                if (currentVote === 'yes') deltaYes = -1;
+                if (currentVote === 'no') deltaNo = -1;
             }
+            if (type === 'yes') deltaYes = 1;
+            if (type === 'no') deltaNo = 1;
+            localStorage.setItem(storageKey, type);
+        }
+
+        try {
+            if (deltaYes !== 0) {
+                await fetch('/api/reviews', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'vote', reviewId, type: 'yes', delta: deltaYes })
+                });
+            }
+            if (deltaNo !== 0) {
+                await fetch('/api/reviews', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'vote', reviewId, type: 'no', delta: deltaNo })
+                });
+            }
+            const urlParams = new URLSearchParams(window.location.search);
+            loadProductReviews(urlParams.get('id'));
         } catch (e) {
             console.error("Fehler beim Abstimmen", e);
         }
