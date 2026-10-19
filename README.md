@@ -14,7 +14,7 @@
 ---
 
 ##  Über das Projekt
-**Fabio3D** ist eine Plattform für den Verkauf von 3D-Druck-Produkten. Das Projekt setzt Vanilla JavaScript, CSS sowie serverlose Cloudflare Pages Functions in Kombination mit einer SQLite-Datenbank (Cloudflare D1).
+**Fabio3D** ist eine Plattform für den Verkauf von 3D-Druck-Produkten. Das Projekt vereint JavaScript, CSS sowie serverlose Cloudflare Pages Functions in Kombination mit einer SQLite-Datenbank (Cloudflare D1).
 
 ---
 
