@@ -59,11 +59,20 @@ function updateCartUI() {
     
     let subtotal = 0;
     let anzahlGesamt = 0;
-    const versandKosten = 5.90;
+    let hasOnlyGiftCards = cart.length > 0;
     
     cart.forEach(item => {
         anzahlGesamt += (item.quantity || 1);
+
+        const itemId = (item.id || '').toLowerCase();
+        const itemName = (item.name || '').toLowerCase();
+        const isGiftCard = itemId.includes('gift') || itemId.includes('gutschein') || itemName.includes('gutschein');
+        if (!isGiftCard) {
+            hasOnlyGiftCards = false;
+        }
     });
+
+    const versandKosten = hasOnlyGiftCards ? 0.00 : 5.90;
 
     if (countElement) {
         countElement.innerText = anzahlGesamt;

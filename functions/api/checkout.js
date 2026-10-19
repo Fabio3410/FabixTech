@@ -35,6 +35,7 @@ export async function onRequestPost(context) {
 
         let verifiedCart = [];
         let itemsSubtotalRappen = 0;
+        let hasOnlyGiftCards = true;
 
         for (const item of cart) {
             const variantId = item.id;
@@ -70,48 +71,66 @@ export async function onRequestPost(context) {
 
             itemsSubtotalRappen += echterPreisRappen * kundenMenge;
 
+            const isGiftCardItem = variantId.toLowerCase().includes('gift') || variantId.toLowerCase().includes('gutschein') || item.name.toLowerCase().includes('gutschein');
+            if (!isGiftCardItem) {
+                hasOnlyGiftCards = false;
+            }
+
             verifiedCart.push({
                 id: variantId,
                 name: item.name,
                 quantity: kundenMenge,
                 price: echterPreisFranken,
-                farbe: item.farbe || item.variant || 'Standard'
+                farbe: item.farbe || item.variant || 'Standard',
+                isGiftCard: isGiftCardItem
             });
         }
         
         let rabattRappen = 0;
         let angewendeterCode = null;
+        let usedGiftCardCode = null;
 
         if (promoCode && promoCode.trim() !== '') {
             const cleanCode = promoCode.trim().toUpperCase();
             
-            const promo = await context.env.DB.prepare(
-                "SELECT * FROM promo_codes WHERE code = ?"
+            const giftCard = await context.env.DB.prepare(
+                "SELECT * FROM gift_cards WHERE code = ? AND is_active = 1 AND current_balance > 0"
             ).bind(cleanCode).first();
 
-            if (!promo) {
-                return new Response(JSON.stringify({ 
-                    error: 'Der eingegebene Aktionscode ist nicht gültig.' 
-                }), { 
-                    status: 400,
-                    headers: { 'Content-Type': 'application/json' }
-                });
-            }
+            if (giftCard) {
+                const giftCardBalanceRappen = Math.round(giftCard.current_balance * 100);
+                rabattRappen = Math.min(itemsSubtotalRappen, giftCardBalanceRappen);
+                angewendeterCode = cleanCode;
+                usedGiftCardCode = cleanCode;
+            } else {
+                const promo = await context.env.DB.prepare(
+                    "SELECT * FROM promo_codes WHERE code = ?"
+                ).bind(cleanCode).first();
 
-            if (promo.type === 'percent') {
-                rabattRappen = Math.round((itemsSubtotalRappen * promo.value) / 100);
-            } else if (promo.type === 'fixed') {
-                rabattRappen = Math.round(promo.value * 100);
-            }
+                if (!promo) {
+                    return new Response(JSON.stringify({ 
+                        error: 'Der eingegebene Aktionscode oder Gutscheincode ist nicht gültig.' 
+                    }), { 
+                        status: 400,
+                        headers: { 'Content-Type': 'application/json' }
+                    });
+                }
 
-            if (rabattRappen > itemsSubtotalRappen) {
-                rabattRappen = itemsSubtotalRappen;
-            }
+                if (promo.type === 'percent') {
+                    rabattRappen = Math.round((itemsSubtotalRappen * promo.value) / 100);
+                } else if (promo.type === 'fixed') {
+                    rabattRappen = Math.round(promo.value * 100);
+                }
 
-            angewendeterCode = cleanCode;
+                if (rabattRappen > itemsSubtotalRappen) {
+                    rabattRappen = itemsSubtotalRappen;
+                }
+
+                angewendeterCode = cleanCode;
+            }
         }
 
-        const versandkostenRappen = 590;
+        const versandkostenRappen = hasOnlyGiftCards ? 0 : 590;
         const totalAmountRappen = (itemsSubtotalRappen - rabattRappen) + versandkostenRappen;
 
         const formattedAddress = shippingAddress 
@@ -120,11 +139,13 @@ export async function onRequestPost(context) {
 
         const sessionMetadata = {
             promoCode: angewendeterCode || 'Keiner',
+            usedGiftCard: usedGiftCardCode || '',
             rabatt: `${(rabattRappen / 100).toFixed(2)} CHF`,
             customer_name: shippingAddress?.name || '',
             customer_email: customerEmail,
             shipping_address: formattedAddress,
-            shipping_note: shippingAddress?.shipping_note || ''
+            shipping_note: shippingAddress?.shipping_note || '',
+            isOnlyDigital: hasOnlyGiftCards ? 'true' : 'false'
         };
 
         verifiedCart.forEach((item, index) => {
@@ -133,7 +154,8 @@ export async function onRequestPost(context) {
                 name: item.name,
                 quantity: item.quantity,
                 price: item.price,
-                farbe: item.farbe
+                farbe: item.farbe,
+                isGiftCard: item.isGiftCard
             });
         });
 
@@ -142,7 +164,7 @@ export async function onRequestPost(context) {
             currency: 'chf',
             automatic_payment_methods: { enabled: true },
             metadata: sessionMetadata,
-            shipping: shippingAddress ? {
+            shipping: shippingAddress && !hasOnlyGiftCards ? {
                 name: shippingAddress.name,
                 address: {
                     line1: shippingAddress.street,

@@ -444,681 +444,681 @@
         </div>
     </div>
 
-<script>
-document.addEventListener('DOMContentLoaded', () => {
-    loadOrders();
-    addVariantField();
-    loadDashboardStats();
-    loadStockManager();
-});
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        loadOrders();
+        addVariantField();
+        loadDashboardStats();
+        loadStockManager();
+    });
 
-async function loadPromoCodes() {
-    const container = document.getElementById('promo-codes-list');
-    try {
-        const token = getSessionToken();
-        const headers = { 'Content-Type': 'application/json' };
-        if (token) headers['Authorization'] = `Bearer ${token}`;
+    async function loadPromoCodes() {
+        const container = document.getElementById('promo-codes-list');
+        try {
+            const token = getSessionToken();
+            const headers = { 'Content-Type': 'application/json' };
+            if (token) headers['Authorization'] = `Bearer ${token}`;
 
-        const res = await fetch('/api/promo-codes', { headers });
-        if (!res.ok) throw new Error();
-        const codes = await res.json();
+            const res = await fetch('/api/promo-codes', { headers });
+            if (!res.ok) throw new Error();
+            const codes = await res.json();
 
-        if (!codes || codes.length === 0) {
-            container.innerHTML = '<p style="text-align:center; color: var(--text-muted);">Keine aktiven Aktionscodes vorhanden.</p>';
-            return;
-        }
+            if (!codes || codes.length === 0) {
+                container.innerHTML = '<p style="text-align:center; color: var(--text-muted);">Keine aktiven Aktionscodes vorhanden.</p>';
+                return;
+            }
 
-        let html = `<table style="width:100%; border-collapse:collapse; font-size:14px;">
-            <thead>
-                <tr style="border-bottom:2px solid var(--border); text-align:left;">
-                    <th style="padding:8px;">Code</th>
-                    <th style="padding:8px;">Typ & Wert</th>
-                    <th style="padding:8px; text-align:right;">Aktion</th>
-                </tr>
-            </thead>
-            <tbody>`;
+            let html = `<table style="width:100%; border-collapse:collapse; font-size:14px;">
+                <thead>
+                    <tr style="border-bottom:2px solid var(--border); text-align:left;">
+                        <th style="padding:8px;">Code</th>
+                        <th style="padding:8px;">Typ & Wert</th>
+                        <th style="padding:8px; text-align:right;">Aktion</th>
+                    </tr>
+                </thead>
+                <tbody>`;
 
-        codes.forEach(c => {
-            const valDisplay = c.type === 'fixed' ? `CHF ${(c.value / 100).toFixed(2)} Rabatt` : `${c.value}% Rabatt`;
-            html += `
-                <tr style="border-bottom:1px solid var(--border);">
-                    <td style="padding:8px;"><strong>${c.code}</strong></td>
-                    <td style="padding:8px;">${valDisplay}</td>
-                    <td style="padding:8px; text-align:right;">
-                        <button onclick="deletePromoCode('${c.code}')" style="background:#d40202; padding:6px 12px; font-size:12px;">Löschen</button>
-                    </td>
-                </tr>`;
-        });
-
-        html += `</tbody></table>`;
-        container.innerHTML = html;
-    } catch (e) {
-        container.innerHTML = '<p style="text-align:center; color:var(--text-muted);">Fehler beim Laden der Codes.</p>';
-    }
-}
-
-async function createPromoCode(event) {
-    event.preventDefault();
-    const code = document.getElementById('promo-code-input').value.trim();
-    const type = document.getElementById('promo-type-input').value;
-    const value = parseFloat(document.getElementById('promo-value-input').value);
-
-    if (!code || isNaN(value)) {
-        alert("Bitte alle Felder korrekt ausfüllen.");
-        return;
-    }
-
-    const token = getSessionToken();
-    const headers = { 'Content-Type': 'application/json' };
-    if (token) headers['Authorization'] = `Bearer ${token}`;
-
-    try {
-        const res = await fetch('/api/promo-codes', {
-            method: 'POST',
-            headers,
-            body: JSON.stringify({ code, type, value })
-        });
-
-        if (res.ok) {
-            alert("Aktionscode erfolgreich gespeichert!");
-            document.getElementById('create-promo-form').reset();
-            loadPromoCodes();
-        } else {
-            alert("Fehler beim Speichern des Codes.");
-        }
-    } catch (e) {
-        alert("Verbindungsfehler zum Server.");
-    }
-}
-
-async function deletePromoCode(code) {
-    if (!confirm(`Möchtest du den Code "${code}" wirklich löschen?`)) return;
-
-    const token = getSessionToken();
-    const headers = { 'Content-Type': 'application/json' };
-    if (token) headers['Authorization'] = `Bearer ${token}`;
-
-    try {
-        const res = await fetch(`/api/promo-codes?code=${encodeURIComponent(code)}`, {
-            method: 'DELETE',
-            headers
-        });
-
-        if (res.ok) {
-            loadPromoCodes();
-        } else {
-            alert("Fehler beim Löschen.");
-        }
-    } catch (e) {
-        alert("Verbindungsfehler.");
-    }
-}
-
-async function loadDashboardStats() {
-    try {
-        const res = await fetch('/api/stats');
-        if (!res.ok) return;
-        const data = await res.json();
-
-        document.getElementById('stat-revenue').innerText = `CHF ${Number(data.revenue || 0).toFixed(2)}`;
-        document.getElementById('stat-orders').innerText = data.totalOrders || 0;
-        document.getElementById('stat-products').innerText = data.productsCount || 0;
-    } catch (e) {
-        console.error("Fehler beim Laden der Statistiken:", e);
-    }
-}
-
-async function loadStockManager() {
-    const container = document.getElementById('stock-manager-list');
-    try {
-        const res = await fetch('/api/products');
-        const products = await res.json();
-
-        let html = `<table style="width:100%; border-collapse:collapse; font-size:14px;">
-            <thead>
-                <tr style="border-bottom:2px solid var(--border); text-align:left;">
-                    <th style="padding:8px;">Variante</th>
-                    <th style="padding:8px;">Produkt</th>
-                    <th style="padding:8px;">Bestand</th>
-                    <th style="padding:8px;">Aktion</th>
-                </tr>
-            </thead>
-            <tbody>`;
-
-        products.forEach(p => {
-            p.variants.forEach(v => {
+            codes.forEach(c => {
+                const valDisplay = c.type === 'fixed' ? `CHF ${(c.value / 100).toFixed(2)} Rabatt` : `${c.value}% Rabatt`;
                 html += `
                     <tr style="border-bottom:1px solid var(--border);">
-                        <td style="padding:8px;"><strong>${v.name}</strong><br><small style="color:var(--text-muted);">${v.id}</small></td>
-                        <td style="padding:8px;">${p.title}</td>
-                        <td style="padding:8px;">
-                            <input type="number" id="stock-input-${v.id}" value="${v.stock || 0}" style="width:70px; padding:6px; border-radius:4px; border:1px solid var(--border);">
-                        </td>
-                        <td style="padding:8px;">
-                            <button onclick="updateVariantStock('${v.id}')" style="padding:6px 12px; font-size:12px;">Speichern</button>
+                        <td style="padding:8px;"><strong>${c.code}</strong></td>
+                        <td style="padding:8px;">${valDisplay}</td>
+                        <td style="padding:8px; text-align:right;">
+                            <button onclick="deletePromoCode('${c.code}')" style="background:#d40202; padding:6px 12px; font-size:12px;">Löschen</button>
                         </td>
                     </tr>`;
             });
-        });
 
-        html += `</tbody></table>`;
-        container.innerHTML = html;
-    } catch (e) {
-        container.innerHTML = '<p style="color:var(--text-muted);">Fehler beim Laden der Bestände.</p>';
+            html += `</tbody></table>`;
+            container.innerHTML = html;
+        } catch (e) {
+            container.innerHTML = '<p style="text-align:center; color:var(--text-muted);">Fehler beim Laden der Codes.</p>';
+        }
     }
-}
 
-async function loadProductSortList() {
-    const container = document.getElementById('product-sort-list');
-    try {
-        const res = await fetch('/api/products');
-        const products = await res.json();
+    async function createPromoCode(event) {
+        event.preventDefault();
+        const code = document.getElementById('promo-code-input').value.trim();
+        const type = document.getElementById('promo-type-input').value;
+        const value = parseFloat(document.getElementById('promo-value-input').value);
 
-        if (!products || products.length === 0) {
-            container.innerHTML = '<p style="text-align:center; color: var(--text-muted);">Keine Produkte gefunden.</p>';
+        if (!code || isNaN(value)) {
+            alert("Bitte alle Felder korrekt ausfüllen.");
             return;
         }
 
-        let html = '';
-        products.forEach((p, index) => {
-            html += `
-                <div class="sortable-item" draggable="true" data-base-id="${p.baseId}">
-                    <div style="display: flex; align-items: center; gap: 12px;">
-                        <i class="fa-solid fa-grip-vertical" style="color: var(--text-muted);"></i>
-                        <span style="font-weight: bold; min-width: 24px;">${index + 1}.</span>
-                        <span>${p.title}</span>
-                        <small style="color: var(--text-muted);">(${p.baseId})</small>
-                    </div>
-                    <span style="font-size: 12px; color: var(--text-muted);">${p.category || ''}</span>
-                </div>
-            `;
-        });
-        container.innerHTML = html;
-        initDragAndDrop();
-    } catch (e) {
-        container.innerHTML = '<p style="text-align:center; color: var(--text-muted);">Fehler beim Laden der Produkte.</p>';
-    }
-}
-
-function initDragAndDrop() {
-    const container = document.getElementById('product-sort-list');
-    let draggedItem = null;
-
-    container.querySelectorAll('.sortable-item').forEach(item => {
-        item.addEventListener('dragstart', function() {
-            draggedItem = this;
-            setTimeout(() => this.classList.add('dragging'), 0);
-        });
-
-        item.addEventListener('dragend', function() {
-            this.classList.remove('dragging');
-            draggedItem = null;
-            updateSortNumbers();
-        });
-
-        item.addEventListener('dragover', function(e) {
-            e.preventDefault();
-            const bounding = this.getBoundingClientRect();
-            const offset = e.clientY - bounding.top;
-            const middle = bounding.height / 2;
-
-            if (offset > middle) {
-                container.insertBefore(draggedItem, this.nextSibling);
-            } else {
-                container.insertBefore(draggedItem, this);
-            }
-        });
-    });
-}
-
-function updateSortNumbers() {
-    const items = document.querySelectorAll('#product-sort-list .sortable-item');
-    items.forEach((item, index) => {
-        const numSpan = item.querySelector('span:nth-child(2)');
-        if (numSpan) numSpan.innerText = `${index + 1}.`;
-    });
-}
-
-async function saveProductOrder() {
-    const items = document.querySelectorAll('#product-sort-list .sortable-item');
-    const orderedIds = Array.from(items).map(item => item.getAttribute('data-base-id'));
-
-    const token = getSessionToken();
-    const headers = { 'Content-Type': 'application/json' };
-    if (token) headers['Authorization'] = `Bearer ${token}`;
-
-    try {
-        const res = await fetch('/api/products', {
-            method: 'POST',
-            headers: headers,
-            body: JSON.stringify({ action: 'reorder', orderedIds })
-        });
-
-        const text = await res.text();
-        const data = text ? JSON.parse(text) : {};
-
-        if (res.ok) {
-            alert("Produkt-Reihenfolge erfolgreich gespeichert!");
-            loadProductSortList();
-        } else {
-            alert("Fehler beim Speichern: " + (data.message || "Unbekannter Fehler"));
-        }
-    } catch (e) {
-        console.error("Fehler:", e);
-        alert("Verbindungsfehler zum Server.");
-    }
-}
-
-async function updateVariantStock(variantId) {
-    const newStock = document.getElementById(`stock-input-${variantId}`).value;
-
-    try {
-        const res = await fetch('/api/stock', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ variantId, stock: newStock })
-        });
-
-        if (res.ok) {
-            alert("Lagerbestand aktualisiert!");
-        } else {
-            alert("Fehler beim Speichern.");
-        }
-    } catch (e) {
-        alert("Verbindungsfehler.");
-    }
-}
-
-function switchAdminTab(tab) {
-    const ordersTab = document.getElementById('tab-orders');
-    const stockTab = document.getElementById('tab-stock');
-    const settingsTab = document.getElementById('tab-settings');
-
-    const btnOrders = document.getElementById('btn-tab-orders');
-    const btnStock = document.getElementById('btn-tab-stock');
-    const btnSettings = document.getElementById('btn-tab-settings');
-
-    ordersTab.style.display = 'none';
-    stockTab.style.display = 'none';
-    settingsTab.style.display = 'none';
-
-    btnOrders.style.background = '#334155';
-    btnStock.style.background = '#334155';
-    btnSettings.style.background = '#334155';
-
-    if (tab === 'orders') {
-        ordersTab.style.display = 'block';
-        btnOrders.style.background = 'var(--primary)';
-    } else if (tab === 'stock') {
-        stockTab.style.display = 'block';
-        btnStock.style.background = 'var(--primary)';
-        loadStockManager();
-    } else if (tab === 'settings') {
-        settingsTab.style.display = 'block';
-        btnSettings.style.background = 'var(--primary)';
-        loadVersionSettings();
-        loadProductSortList();
-        loadPromoCodes();
-    }
-}
-
-let variantCount = 0;
-function addVariantField() {
-    variantCount++;
-    const container = document.getElementById('variants-container');
-    const div = document.createElement('div');
-    div.className = 'variant-box';
-    div.id = `variant-box-${variantCount}`;
-    
-    div.innerHTML = `
-        <button type="button" class="btn-remove-variant" onclick="removeVariantField(${variantCount})">Entfernen</button>
-        <div class="form-grid">
-            <div class="form-group">
-                <label>Varianten ID*</label>
-                <input type="text" class="var-id" required placeholder="gandalf_staff_mit_beleuchtung">
-            </div>
-            <div class="form-group">
-                <label>Varianten Name*</label>
-                <input type="text" class="var-name" required placeholder="Mit Beleuchtung (3 LEDs)">
-            </div>
-        </div>
-        <div class="form-grid">
-            <div class="form-group">
-                <label>Preis (CHF)*</label>
-                <input type="number" step="0.05" class="var-price" required placeholder="39.95">
-            </div>
-            <div class="form-group">
-                <label>Bilder (Kommagetrennt)*</label>
-                <input type="text" class="var-images" required placeholder="images/Gandalf-1.png, images/Gandalf-2.png">
-            </div>
-        </div>
-    `;
-    container.appendChild(div);
-}
-
-function removeVariantField(id) {
-    const box = document.getElementById(`variant-box-${id}`);
-    if (box) box.remove();
-}
-
-async function createNewProduct(event) {
-    event.preventDefault();
-
-    const variants = [];
-    document.querySelectorAll('.variant-box').forEach(box => {
-        const id = box.querySelector('.var-id').value.trim();
-        const name = box.querySelector('.var-name').value.trim();
-        const price = parseFloat(box.querySelector('.var-price').value);
-        const imagesRaw = box.querySelector('.var-images').value.trim();
-        
-        const images = imagesRaw.split(',').map(img => img.trim()).filter(img => img.length > 0);
-
-        if (id && name && !isNaN(price)) {
-            variants.push({ id, name, price, images });
-        }
-    });
-
-    if (variants.length === 0) {
-        alert("Bitte erstelle mindestens eine gültige Variante!");
-        return;
-    }
-
-    const payload = {
-        baseId: document.getElementById('prod-base-id').value.trim(),
-        title: document.getElementById('prod-title').value.trim(),
-        category: document.getElementById('prod-category').value.trim(),
-        creator: document.getElementById('prod-creator').value.trim(),
-        link: document.getElementById('prod-link').value.trim(),
-        material: document.getElementById('prod-material').value.trim(),
-        quality: document.getElementById('prod-quality').value.trim(),
-        infill: document.getElementById('prod-infill').value.trim(),
-        longDescription: document.getElementById('prod-long-desc').value.trim(),
-        variants: variants
-    };
-
-    const token = getSessionToken();
-    const headers = { 'Content-Type': 'application/json' };
-    if (token) headers['Authorization'] = `Bearer ${token}`;
-
-    try {
-        const res = await fetch('/api/products', {
-            method: 'POST',
-            headers: headers,
-            body: JSON.stringify(payload)
-        });
-
-        if (res.ok) {
-            alert("Produkt erfolgreich in D1 erstellt!");
-            document.getElementById('create-product-form').reset();
-            document.getElementById('variants-container').innerHTML = '';
-            addVariantField();
-            loadProductSortList();
-        } else {
-            const err = await res.json();
-            alert("Fehler beim Speichern: " + (err.message || "Unbekannter Fehler"));
-        }
-    } catch (e) {
-        console.error("Fehler:", e);
-        alert("Verbindungsfehler zum Server.");
-    }
-}
-
-function getSessionToken() {
-    const user = JSON.parse(localStorage.getItem('user') || '{}');
-    return user.session_id || localStorage.getItem('session_id') || '';
-}
-
-async function loadVersionSettings() {
-    try {
-        const res = await fetch('/api/version');
-        if (!res.ok) return;
-        const data = await res.json();
-        document.getElementById('version-num-input').value = data.versionNumber || '1.0.0';
-        document.getElementById('version-stage-select').value = data.versionStage || '';
-        updateVersionPreview();
-    } catch (err) {
-        console.error("Fehler beim Laden der Version:", err);
-    }
-}
-
-function updateVersionPreview() {
-    const num = document.getElementById('version-num-input').value.trim() || '1.0.0';
-    const stage = document.getElementById('version-stage-select').value;
-    document.getElementById('version-preview').innerText = `Version ${num}${stage ? ' ' + stage : ''}`;
-}
-
-document.getElementById('version-num-input').addEventListener('input', updateVersionPreview);
-document.getElementById('version-stage-select').addEventListener('change', updateVersionPreview);
-
-async function saveVersionSettings() {
-    const versionNumber = document.getElementById('version-num-input').value.trim() || '1.0.0';
-    const versionStage = document.getElementById('version-stage-select').value;
-
-    const token = getSessionToken();
-    const headers = { 'Content-Type': 'application/json' };
-    if (token) headers['Authorization'] = `Bearer ${token}`;
-
-    const res = await fetch('/api/version', {
-        method: 'POST',
-        headers: headers,
-        body: JSON.stringify({ versionNumber, versionStage })
-    });
-
-    if (res.ok) alert('Website-Version erfolgreich aktualisiert!');
-    else alert('Fehler beim Speichern der Version.');
-}
-
-async function loadOrders() {
-    const container = document.getElementById('orders-list');
-    const filterValue = document.getElementById('order-view-filter')?.value || 'active';
-
-    try {
         const token = getSessionToken();
         const headers = { 'Content-Type': 'application/json' };
         if (token) headers['Authorization'] = `Bearer ${token}`;
 
-        const res = await fetch('/api/orders', { method: 'GET', credentials: 'include', headers });
-        if (res.status === 401 || res.status === 403) {
-            window.location.href = '/';
-            return;
-        }
-
-        if (!res.ok) throw new Error(`Server-Status ${res.status}`);
-
-        const orders = await res.json();
-        container.innerHTML = '';
-
-        if (!orders || orders.length === 0) {
-            container.innerHTML = '<p style="text-align:center; color: var(--text-muted);">Noch keine Bestellungen vorhanden.</p>';
-            return;
-        }
-
-        const now = new Date();
-        const thirtyDaysInMs = 30 * 24 * 60 * 60 * 1000;
-        const filteredOrders = orders.filter(order => {
-            if (filterValue === 'all') return true;
-
-            const orderDate = new Date(order.created_at || Date.now());
-            const isOlderThan30Days = (now - orderDate) > thirtyDaysInMs;
-            const isCompleted = ['Versendet', 'Zugestellt', 'Storniert'].includes(order.status);
-
-            if (isCompleted && isOlderThan30Days) {
-                return false;
-            }
-            return true;
-        });
-
-        if (filteredOrders.length === 0) {
-            container.innerHTML = '<p style="text-align:center; color: var(--text-muted);">Keine aktiven Bestellungen in den letzten 30 Tagen.</p>';
-            return;
-        }
-
-        filteredOrders.forEach(order => {
-            let subtotal = 0;
-            
-            const groupedItemsMap = {};
-            (order.items || []).forEach(i => {
-                const key = (i.product_name || '') + '___' + (i.variant || 'Standard');
-                const qty = Number(i.quantity) || 1;
-                if (groupedItemsMap[key]) {
-                    groupedItemsMap[key].quantity += qty;
-                } else {
-                    groupedItemsMap[key] = { 
-                        product_name: i.product_name, 
-                        variant: i.variant || 'Standard', 
-                        price: Number(i.price) || 0, 
-                        quantity: qty 
-                    };
-                }
+        try {
+            const res = await fetch('/api/promo-codes', {
+                method: 'POST',
+                headers,
+                body: JSON.stringify({ code, type, value })
             });
 
-            const itemsHtml = Object.values(groupedItemsMap).map(i => {
-                const itemTotal = i.quantity * i.price;
-                subtotal += itemTotal;
-                return `
-                    <li style="display:flex; justify-content:space-between; padding:4px 0;">
-                        <span><strong>${i.quantity}x</strong> ${i.product_name} (${i.variant})</span>
-                        <span>CHF ${itemTotal.toFixed(2)}</span>
-                    </li>
-                `;
-            }).join('');
-
-            const currentStatus = order.status || 'Offen';
-            const formattedDate = order.created_at ? new Date(order.created_at).toLocaleString('de-CH', { timeZone: 'Europe/Zurich' }) : '';
-            const totalAmount = Number(order.total_amount || 0);
-
-            let discount = Number(order.discount_amount || 0);
-
-            container.innerHTML += `
-                <div class="order-card">
-                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-                        <div>
-                            <strong style="font-size:16px;">Bestellung #${order.id}</strong>
-                            ${formattedDate ? `<div style="font-size:12px; color:var(--text-muted); margin-top:2px;">${formattedDate}</div>` : ''}
-                        </div>
-                        <select onchange="updateOrderStatus('${order.id}', this.value)" style="padding:6px 10px; border-radius:6px; border:1px solid var(--border); background:var(--bg-body); color:var(--text-main); font-weight:bold; cursor:pointer;">
-                            <option value="Offen" ${currentStatus === 'Offen' ? 'selected' : ''}>Offen</option>
-                            <option value="In Bearbeitung" ${currentStatus === 'In Bearbeitung' ? 'selected' : ''}>In Bearbeitung</option>
-                            <option value="Versendet" ${currentStatus === 'Versendet' ? 'selected' : ''}>Versendet</option>
-                            <option value="Zugestellt" ${currentStatus === 'Zugestellt' ? 'selected' : ''}>Zugestellt</option>
-                            <option value="Storniert" ${currentStatus === 'Storniert' ? 'selected' : ''}>Storniert</option>
-                        </select>
-                    </div>
-
-                    <div style="background:var(--bg-body); padding:12px; border-radius:6px; margin-bottom:12px; font-size:13px; line-height:1.6;">
-                        <div><strong>Kunde:</strong> ${order.customer_name || 'Kein Name'} (${order.customer_email || 'Keine E-Mail'})</div>
-                        <div><strong>Adresse:</strong> ${order.shipping_address || 'Keine Adresse angegeben'}</div>${order.shipping_note ? `<div style="margin-top: 6px; color: var(--primary);"><strong>Lieferhinweis:</strong> ${order.shipping_note}</div>` : ''}
-                    </div>
-
-                    <ul style="background:var(--bg-body); padding:12px; border-radius:6px; list-style:none; margin:0;">
-                        ${itemsHtml}
-                        
-                        <div style="border-top:1px solid var(--border); margin-top:8px; padding-top:8px;">
-                            <li style="display:flex; justify-content:space-between; padding:2px 0;">
-                                <span>Zwischensumme:</span>
-                                <span>CHF ${subtotal.toFixed(2)}</span>
-                            </li>
-                            
-                            ${order.promo_code && order.promo_code !== 'Keiner' ? `
-                            <li style="display:flex; justify-content:space-between; padding:2px 0; color:var(--primary);">
-                                <span>Aktionscode (${order.promo_code}):</span>
-                                <span>- CHF ${discount.toFixed(2)}</span>
-                            </li>
-                            ` : ''}
-
-                            <li style="display:flex; justify-content:space-between; padding:2px 0; color:var(--text-main);">
-                                <span>Versand:</span>
-                                <span>CHF 5.90</span>
-                            </li>
-
-                            <li style="display:flex; justify-content:space-between; padding:4px 0; margin-top:4px; font-size:15px;">
-                                <span><strong>Gesamttotal:</strong></span>
-                                <span style="color:var(--primary); font-weight:bold;">CHF ${totalAmount.toFixed(2)}</span>
-                            </li>
-                        </div>
-                    </ul>
-                </div>
-            `;
-        });
-    } catch (err) {
-        container.innerHTML = '<p style="text-align:center; color: var(--text-muted);">Verbindungsfehler zum Server.</p>';
-    }
-}
-
-async function updateOrderStatus(orderId, newStatus) {
-    const token = getSessionToken();
-    const headers = { 'Content-Type': 'application/json' };
-    if (token) headers['Authorization'] = `Bearer ${token}`;
-
-    try {
-        const res = await fetch('/api/orders', {
-            method: 'PUT',
-            headers: headers,
-            body: JSON.stringify({ orderId, status: newStatus })
-        });
-
-        if (res.ok) {
-            alert(`Status für Bestellung #${orderId} erfolgreich auf "${newStatus}" geändert.`);
-        } else {
-            const err = await res.json();
-            alert("Fehler beim Aktualisieren: " + (err.message || err.error || "Unbekannter Fehler"));
+            if (res.ok) {
+                alert("Aktionscode erfolgreich gespeichert!");
+                document.getElementById('create-promo-form').reset();
+                loadPromoCodes();
+            } else {
+                alert("Fehler beim Speichern des Codes.");
+            }
+        } catch (e) {
+            alert("Verbindungsfehler zum Server.");
         }
-    } catch (e) {
-        console.error("Fehler:", e);
-        alert("Verbindungsfehler zum Server.");
-    }
-}
-
-async function confirmAndDeleteByTitle() {
-    const titleInput = document.getElementById('delete-prod-title').value.trim();
-    
-    if (!titleInput) {
-        alert("Bitte gib einen Produkttitel oder eine Base ID ein!");
-        return;
     }
 
-    try {
-        const res = await fetch('/api/products');
-        if (!res.ok) throw new Error("Produkte konnten nicht geladen werden.");
-        
-        const products = await res.json();
-        
-        const product = products.find(p => 
-            p.title.toLowerCase() === titleInput.toLowerCase() || 
-            p.baseId.toLowerCase() === titleInput.toLowerCase()
-        );
-
-        if (!product) {
-            alert(`Kein Produkt mit dem Namen "${titleInput}" gefunden.`);
-            return;
-        }
-
-        const confirmed = confirm(`Möchtest du das Produkt "${product.title}" (ID: ${product.baseId}) wirklich löschen?`);
-        if (!confirmed) return;
+    async function deletePromoCode(code) {
+        if (!confirm(`Möchtest du den Code "${code}" wirklich löschen?`)) return;
 
         const token = getSessionToken();
         const headers = { 'Content-Type': 'application/json' };
         if (token) headers['Authorization'] = `Bearer ${token}`;
 
-        const deleteRes = await fetch(`/api/products?id=${product.baseId}`, {
-            method: 'DELETE',
-            headers: headers
+        try {
+            const res = await fetch(`/api/promo-codes?code=${encodeURIComponent(code)}`, {
+                method: 'DELETE',
+                headers
+            });
+
+            if (res.ok) {
+                loadPromoCodes();
+            } else {
+                alert("Fehler beim Löschen.");
+            }
+        } catch (e) {
+            alert("Verbindungsfehler.");
+        }
+    }
+
+    async function loadDashboardStats() {
+        try {
+            const res = await fetch('/api/stats');
+            if (!res.ok) return;
+            const data = await res.json();
+
+            document.getElementById('stat-revenue').innerText = `CHF ${Number(data.revenue || 0).toFixed(2)}`;
+            document.getElementById('stat-orders').innerText = data.totalOrders || 0;
+            document.getElementById('stat-products').innerText = data.productsCount || 0;
+        } catch (e) {
+            console.error("Fehler beim Laden der Statistiken:", e);
+        }
+    }
+
+    async function loadStockManager() {
+        const container = document.getElementById('stock-manager-list');
+        try {
+            const res = await fetch('/api/products');
+            const products = await res.json();
+
+            let html = `<table style="width:100%; border-collapse:collapse; font-size:14px;">
+                <thead>
+                    <tr style="border-bottom:2px solid var(--border); text-align:left;">
+                        <th style="padding:8px;">Variante</th>
+                        <th style="padding:8px;">Produkt</th>
+                        <th style="padding:8px;">Bestand</th>
+                        <th style="padding:8px;">Aktion</th>
+                    </tr>
+                </thead>
+                <tbody>`;
+
+            products.forEach(p => {
+                p.variants.forEach(v => {
+                    html += `
+                        <tr style="border-bottom:1px solid var(--border);">
+                            <td style="padding:8px;"><strong>${v.name}</strong><br><small style="color:var(--text-muted);">${v.id}</small></td>
+                            <td style="padding:8px;">${p.title}</td>
+                            <td style="padding:8px;">
+                                <input type="number" id="stock-input-${v.id}" value="${v.stock || 0}" style="width:70px; padding:6px; border-radius:4px; border:1px solid var(--border);">
+                            </td>
+                            <td style="padding:8px;">
+                                <button onclick="updateVariantStock('${v.id}')" style="padding:6px 12px; font-size:12px;">Speichern</button>
+                            </td>
+                        </tr>`;
+                });
+            });
+
+            html += `</tbody></table>`;
+            container.innerHTML = html;
+        } catch (e) {
+            container.innerHTML = '<p style="color:var(--text-muted);">Fehler beim Laden der Bestände.</p>';
+        }
+    }
+
+    async function loadProductSortList() {
+        const container = document.getElementById('product-sort-list');
+        try {
+            const res = await fetch('/api/products');
+            const products = await res.json();
+
+            if (!products || products.length === 0) {
+                container.innerHTML = '<p style="text-align:center; color: var(--text-muted);">Keine Produkte gefunden.</p>';
+                return;
+            }
+
+            let html = '';
+            products.forEach((p, index) => {
+                html += `
+                    <div class="sortable-item" draggable="true" data-base-id="${p.baseId}">
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <i class="fa-solid fa-grip-vertical" style="color: var(--text-muted);"></i>
+                            <span style="font-weight: bold; min-width: 24px;">${index + 1}.</span>
+                            <span>${p.title}</span>
+                            <small style="color: var(--text-muted);">(${p.baseId})</small>
+                        </div>
+                        <span style="font-size: 12px; color: var(--text-muted);">${p.category || ''}</span>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+            initDragAndDrop();
+        } catch (e) {
+            container.innerHTML = '<p style="text-align:center; color: var(--text-muted);">Fehler beim Laden der Produkte.</p>';
+        }
+    }
+
+    function initDragAndDrop() {
+        const container = document.getElementById('product-sort-list');
+        let draggedItem = null;
+
+        container.querySelectorAll('.sortable-item').forEach(item => {
+            item.addEventListener('dragstart', function() {
+                draggedItem = this;
+                setTimeout(() => this.classList.add('dragging'), 0);
+            });
+
+            item.addEventListener('dragend', function() {
+                this.classList.remove('dragging');
+                draggedItem = null;
+                updateSortNumbers();
+            });
+
+            item.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                const bounding = this.getBoundingClientRect();
+                const offset = e.clientY - bounding.top;
+                const middle = bounding.height / 2;
+
+                if (offset > middle) {
+                    container.insertBefore(draggedItem, this.nextSibling);
+                } else {
+                    container.insertBefore(draggedItem, this);
+                }
+            });
+        });
+    }
+
+    function updateSortNumbers() {
+        const items = document.querySelectorAll('#product-sort-list .sortable-item');
+        items.forEach((item, index) => {
+            const numSpan = item.querySelector('span:nth-child(2)');
+            if (numSpan) numSpan.innerText = `${index + 1}.`;
+        });
+    }
+
+    async function saveProductOrder() {
+        const items = document.querySelectorAll('#product-sort-list .sortable-item');
+        const orderedIds = Array.from(items).map(item => item.getAttribute('data-base-id'));
+
+        const token = getSessionToken();
+        const headers = { 'Content-Type': 'application/json' };
+        if (token) headers['Authorization'] = `Bearer ${token}`;
+
+        try {
+            const res = await fetch('/api/products', {
+                method: 'POST',
+                headers: headers,
+                body: JSON.stringify({ action: 'reorder', orderedIds })
+            });
+
+            const text = await res.text();
+            const data = text ? JSON.parse(text) : {};
+
+            if (res.ok) {
+                alert("Produkt-Reihenfolge erfolgreich gespeichert!");
+                loadProductSortList();
+            } else {
+                alert("Fehler beim Speichern: " + (data.message || "Unbekannter Fehler"));
+            }
+        } catch (e) {
+            console.error("Fehler:", e);
+            alert("Verbindungsfehler zum Server.");
+        }
+    }
+
+    async function updateVariantStock(variantId) {
+        const newStock = document.getElementById(`stock-input-${variantId}`).value;
+
+        try {
+            const res = await fetch('/api/stock', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ variantId, stock: newStock })
+            });
+
+            if (res.ok) {
+                alert("Lagerbestand aktualisiert!");
+            } else {
+                alert("Fehler beim Speichern.");
+            }
+        } catch (e) {
+            alert("Verbindungsfehler.");
+        }
+    }
+
+    function switchAdminTab(tab) {
+        const ordersTab = document.getElementById('tab-orders');
+        const stockTab = document.getElementById('tab-stock');
+        const settingsTab = document.getElementById('tab-settings');
+
+        const btnOrders = document.getElementById('btn-tab-orders');
+        const btnStock = document.getElementById('btn-tab-stock');
+        const btnSettings = document.getElementById('btn-tab-settings');
+
+        ordersTab.style.display = 'none';
+        stockTab.style.display = 'none';
+        settingsTab.style.display = 'none';
+
+        btnOrders.style.background = '#334155';
+        btnStock.style.background = '#334155';
+        btnSettings.style.background = '#334155';
+
+        if (tab === 'orders') {
+            ordersTab.style.display = 'block';
+            btnOrders.style.background = 'var(--primary)';
+        } else if (tab === 'stock') {
+            stockTab.style.display = 'block';
+            btnStock.style.background = 'var(--primary)';
+            loadStockManager();
+        } else if (tab === 'settings') {
+            settingsTab.style.display = 'block';
+            btnSettings.style.background = 'var(--primary)';
+            loadVersionSettings();
+            loadProductSortList();
+            loadPromoCodes();
+        }
+    }
+
+    let variantCount = 0;
+    function addVariantField() {
+        variantCount++;
+        const container = document.getElementById('variants-container');
+        const div = document.createElement('div');
+        div.className = 'variant-box';
+        div.id = `variant-box-${variantCount}`;
+        
+        div.innerHTML = `
+            <button type="button" class="btn-remove-variant" onclick="removeVariantField(${variantCount})">Entfernen</button>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Varianten ID*</label>
+                    <input type="text" class="var-id" required placeholder="gandalf_staff_mit_beleuchtung">
+                </div>
+                <div class="form-group">
+                    <label>Varianten Name*</label>
+                    <input type="text" class="var-name" required placeholder="Mit Beleuchtung (3 LEDs)">
+                </div>
+            </div>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Preis (CHF)*</label>
+                    <input type="number" step="0.05" class="var-price" required placeholder="39.95">
+                </div>
+                <div class="form-group">
+                    <label>Bilder (Kommagetrennt)*</label>
+                    <input type="text" class="var-images" required placeholder="images/Gandalf-1.png, images/Gandalf-2.png">
+                </div>
+            </div>
+        `;
+        container.appendChild(div);
+    }
+
+    function removeVariantField(id) {
+        const box = document.getElementById(`variant-box-${id}`);
+        if (box) box.remove();
+    }
+
+    async function createNewProduct(event) {
+        event.preventDefault();
+
+        const variants = [];
+        document.querySelectorAll('.variant-box').forEach(box => {
+            const id = box.querySelector('.var-id').value.trim();
+            const name = box.querySelector('.var-name').value.trim();
+            const price = parseFloat(box.querySelector('.var-price').value);
+            const imagesRaw = box.querySelector('.var-images').value.trim();
+            
+            const images = imagesRaw.split(',').map(img => img.trim()).filter(img => img.length > 0);
+
+            if (id && name && !isNaN(price)) {
+                variants.push({ id, name, price, images });
+            }
         });
 
-        if (deleteRes.ok) {
-            alert(`Das Produkt "${product.title}" wurde erfolgreich gelöscht!`);
-            document.getElementById('delete-prod-title').value = '';
-            loadProductSortList();
-        } else {
-            const err = await deleteRes.json();
-            alert("Fehler beim Löschen: " + (err.error || err.message || "Unbekannter Fehler"));
+        if (variants.length === 0) {
+            alert("Bitte erstelle mindestens eine gültige Variante!");
+            return;
         }
-    } catch (err) {
-        console.error("Fehler beim Löschen:", err);
-        alert("Verbindungsfehler zum Server.");
+
+        const payload = {
+            baseId: document.getElementById('prod-base-id').value.trim(),
+            title: document.getElementById('prod-title').value.trim(),
+            category: document.getElementById('prod-category').value.trim(),
+            creator: document.getElementById('prod-creator').value.trim(),
+            link: document.getElementById('prod-link').value.trim(),
+            material: document.getElementById('prod-material').value.trim(),
+            quality: document.getElementById('prod-quality').value.trim(),
+            infill: document.getElementById('prod-infill').value.trim(),
+            longDescription: document.getElementById('prod-long-desc').value.trim(),
+            variants: variants
+        };
+
+        const token = getSessionToken();
+        const headers = { 'Content-Type': 'application/json' };
+        if (token) headers['Authorization'] = `Bearer ${token}`;
+
+        try {
+            const res = await fetch('/api/products', {
+                method: 'POST',
+                headers: headers,
+                body: JSON.stringify(payload)
+            });
+
+            if (res.ok) {
+                alert("Produkt erfolgreich in D1 erstellt!");
+                document.getElementById('create-product-form').reset();
+                document.getElementById('variants-container').innerHTML = '';
+                addVariantField();
+                loadProductSortList();
+            } else {
+                const err = await res.json();
+                alert("Fehler beim Speichern: " + (err.message || "Unbekannter Fehler"));
+            }
+        } catch (e) {
+            console.error("Fehler:", e);
+            alert("Verbindungsfehler zum Server.");
+        }
     }
-}
-</script>
+
+    function getSessionToken() {
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
+        return user.session_id || localStorage.getItem('session_id') || '';
+    }
+
+    async function loadVersionSettings() {
+        try {
+            const res = await fetch('/api/version');
+            if (!res.ok) return;
+            const data = await res.json();
+            document.getElementById('version-num-input').value = data.versionNumber || '1.0.0';
+            document.getElementById('version-stage-select').value = data.versionStage || '';
+            updateVersionPreview();
+        } catch (err) {
+            console.error("Fehler beim Laden der Version:", err);
+        }
+    }
+
+    function updateVersionPreview() {
+        const num = document.getElementById('version-num-input').value.trim() || '1.0.0';
+        const stage = document.getElementById('version-stage-select').value;
+        document.getElementById('version-preview').innerText = `Version ${num}${stage ? ' ' + stage : ''}`;
+    }
+
+    document.getElementById('version-num-input').addEventListener('input', updateVersionPreview);
+    document.getElementById('version-stage-select').addEventListener('change', updateVersionPreview);
+
+    async function saveVersionSettings() {
+        const versionNumber = document.getElementById('version-num-input').value.trim() || '1.0.0';
+        const versionStage = document.getElementById('version-stage-select').value;
+
+        const token = getSessionToken();
+        const headers = { 'Content-Type': 'application/json' };
+        if (token) headers['Authorization'] = `Bearer ${token}`;
+
+        const res = await fetch('/api/version', {
+            method: 'POST',
+            headers: headers,
+            body: JSON.stringify({ versionNumber, versionStage })
+        });
+
+        if (res.ok) alert('Website-Version erfolgreich aktualisiert!');
+        else alert('Fehler beim Speichern der Version.');
+    }
+
+    async function loadOrders() {
+        const container = document.getElementById('orders-list');
+        const filterValue = document.getElementById('order-view-filter')?.value || 'active';
+
+        try {
+            const token = getSessionToken();
+            const headers = { 'Content-Type': 'application/json' };
+            if (token) headers['Authorization'] = `Bearer ${token}`;
+
+            const res = await fetch('/api/orders', { method: 'GET', credentials: 'include', headers });
+            if (res.status === 401 || res.status === 403) {
+                window.location.href = '/';
+                return;
+            }
+
+            if (!res.ok) throw new Error(`Server-Status ${res.status}`);
+
+            const orders = await res.json();
+            container.innerHTML = '';
+
+            if (!orders || orders.length === 0) {
+                container.innerHTML = '<p style="text-align:center; color: var(--text-muted);">Noch keine Bestellungen vorhanden.</p>';
+                return;
+            }
+
+            const now = new Date();
+            const thirtyDaysInMs = 30 * 24 * 60 * 60 * 1000;
+            const filteredOrders = orders.filter(order => {
+                if (filterValue === 'all') return true;
+
+                const orderDate = new Date(order.created_at || Date.now());
+                const isOlderThan30Days = (now - orderDate) > thirtyDaysInMs;
+                const isCompleted = ['Versendet', 'Zugestellt', 'Storniert'].includes(order.status);
+
+                if (isCompleted && isOlderThan30Days) {
+                    return false;
+                }
+                return true;
+            });
+
+            if (filteredOrders.length === 0) {
+                container.innerHTML = '<p style="text-align:center; color: var(--text-muted);">Keine aktiven Bestellungen in den letzten 30 Tagen.</p>';
+                return;
+            }
+
+            filteredOrders.forEach(order => {
+                let subtotal = 0;
+                
+                const groupedItemsMap = {};
+                (order.items || []).forEach(i => {
+                    const key = (i.product_name || '') + '___' + (i.variant || 'Standard');
+                    const qty = Number(i.quantity) || 1;
+                    if (groupedItemsMap[key]) {
+                        groupedItemsMap[key].quantity += qty;
+                    } else {
+                        groupedItemsMap[key] = { 
+                            product_name: i.product_name, 
+                            variant: i.variant || 'Standard', 
+                            price: Number(i.price) || 0, 
+                            quantity: qty 
+                        };
+                    }
+                });
+
+                const itemsHtml = Object.values(groupedItemsMap).map(i => {
+                    const itemTotal = i.quantity * i.price;
+                    subtotal += itemTotal;
+                    return `
+                        <li style="display:flex; justify-content:space-between; padding:4px 0;">
+                            <span><strong>${i.quantity}x</strong> ${i.product_name} (${i.variant})</span>
+                            <span>CHF ${itemTotal.toFixed(2)}</span>
+                        </li>
+                    `;
+                }).join('');
+
+                const currentStatus = order.status || 'Offen';
+                const formattedDate = order.created_at ? new Date(order.created_at).toLocaleString('de-CH', { timeZone: 'Europe/Zurich' }) : '';
+                const totalAmount = Number(order.total_amount || 0);
+
+                let discount = Number(order.discount_amount || 0);
+
+                container.innerHTML += `
+                    <div class="order-card">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                            <div>
+                                <strong style="font-size:16px;">Bestellung #${order.id}</strong>
+                                ${formattedDate ? `<div style="font-size:12px; color:var(--text-muted); margin-top:2px;">${formattedDate}</div>` : ''}
+                            </div>
+                            <select onchange="updateOrderStatus('${order.id}', this.value)" style="padding:6px 10px; border-radius:6px; border:1px solid var(--border); background:var(--bg-body); color:var(--text-main); font-weight:bold; cursor:pointer;">
+                                <option value="Offen" ${currentStatus === 'Offen' ? 'selected' : ''}>Offen</option>
+                                <option value="In Bearbeitung" ${currentStatus === 'In Bearbeitung' ? 'selected' : ''}>In Bearbeitung</option>
+                                <option value="Versendet" ${currentStatus === 'Versendet' ? 'selected' : ''}>Versendet</option>
+                                <option value="Zugestellt" ${currentStatus === 'Zugestellt' ? 'selected' : ''}>Zugestellt</option>
+                                <option value="Storniert" ${currentStatus === 'Storniert' ? 'selected' : ''}>Storniert</option>
+                            </select>
+                        </div>
+
+                        <div style="background:var(--bg-body); padding:12px; border-radius:6px; margin-bottom:12px; font-size:13px; line-height:1.6;">
+                            <div><strong>Kunde:</strong> ${order.customer_name || 'Kein Name'} (${order.customer_email || 'Keine E-Mail'})</div>
+                            <div><strong>Adresse:</strong> ${order.shipping_address || 'Keine Adresse angegeben'}</div>${order.shipping_note ? `<div style="margin-top: 6px; color: var(--primary);"><strong>Lieferhinweis:</strong> ${order.shipping_note}</div>` : ''}
+                        </div>
+
+                        <ul style="background:var(--bg-body); padding:12px; border-radius:6px; list-style:none; margin:0;">
+                            ${itemsHtml}
+                            
+                            <div style="border-top:1px solid var(--border); margin-top:8px; padding-top:8px;">
+                                <li style="display:flex; justify-content:space-between; padding:2px 0;">
+                                    <span>Zwischensumme:</span>
+                                    <span>CHF ${subtotal.toFixed(2)}</span>
+                                </li>
+                                
+                                ${order.promo_code && order.promo_code !== 'Keiner' ? `
+                                <li style="display:flex; justify-content:space-between; padding:2px 0; color:var(--primary);">
+                                    <span>Aktionscode (${order.promo_code}):</span>
+                                    <span>- CHF ${discount.toFixed(2)}</span>
+                                </li>
+                                ` : ''}
+
+                                <li style="display:flex; justify-content:space-between; padding:2px 0; color:var(--text-main);">
+                                    <span>Versand:</span>
+                                    <span>CHF 5.90</span>
+                                </li>
+
+                                <li style="display:flex; justify-content:space-between; padding:4px 0; margin-top:4px; font-size:15px;">
+                                    <span><strong>Gesamttotal:</strong></span>
+                                    <span style="color:var(--primary); font-weight:bold;">CHF ${totalAmount.toFixed(2)}</span>
+                                </li>
+                            </div>
+                        </ul>
+                    </div>
+                `;
+            });
+        } catch (err) {
+            container.innerHTML = '<p style="text-align:center; color: var(--text-muted);">Verbindungsfehler zum Server.</p>';
+        }
+    }
+
+    async function updateOrderStatus(orderId, newStatus) {
+        const token = getSessionToken();
+        const headers = { 'Content-Type': 'application/json' };
+        if (token) headers['Authorization'] = `Bearer ${token}`;
+
+        try {
+            const res = await fetch('/api/orders', {
+                method: 'PUT',
+                headers: headers,
+                body: JSON.stringify({ orderId, status: newStatus })
+            });
+
+            if (res.ok) {
+                alert(`Status für Bestellung #${orderId} erfolgreich auf "${newStatus}" geändert.`);
+            } else {
+                const err = await res.json();
+                alert("Fehler beim Aktualisieren: " + (err.message || err.error || "Unbekannter Fehler"));
+            }
+        } catch (e) {
+            console.error("Fehler:", e);
+            alert("Verbindungsfehler zum Server.");
+        }
+    }
+
+    async function confirmAndDeleteByTitle() {
+        const titleInput = document.getElementById('delete-prod-title').value.trim();
+        
+        if (!titleInput) {
+            alert("Bitte gib einen Produkttitel oder eine Base ID ein!");
+            return;
+        }
+
+        try {
+            const res = await fetch('/api/products');
+            if (!res.ok) throw new Error("Produkte konnten nicht geladen werden.");
+            
+            const products = await res.json();
+            
+            const product = products.find(p => 
+                p.title.toLowerCase() === titleInput.toLowerCase() || 
+                p.baseId.toLowerCase() === titleInput.toLowerCase()
+            );
+
+            if (!product) {
+                alert(`Kein Produkt mit dem Namen "${titleInput}" gefunden.`);
+                return;
+            }
+
+            const confirmed = confirm(`Möchtest du das Produkt "${product.title}" (ID: ${product.baseId}) wirklich löschen?`);
+            if (!confirmed) return;
+
+            const token = getSessionToken();
+            const headers = { 'Content-Type': 'application/json' };
+            if (token) headers['Authorization'] = `Bearer ${token}`;
+
+            const deleteRes = await fetch(`/api/products?id=${product.baseId}`, {
+                method: 'DELETE',
+                headers: headers
+            });
+
+            if (deleteRes.ok) {
+                alert(`Das Produkt "${product.title}" wurde erfolgreich gelöscht!`);
+                document.getElementById('delete-prod-title').value = '';
+                loadProductSortList();
+            } else {
+                const err = await deleteRes.json();
+                alert("Fehler beim Löschen: " + (err.error || err.message || "Unbekannter Fehler"));
+            }
+        } catch (err) {
+            console.error("Fehler beim Löschen:", err);
+            alert("Verbindungsfehler zum Server.");
+        }
+    }
+    </script>
 <script src="/script.js" defer></script>
 </body>
 </html>

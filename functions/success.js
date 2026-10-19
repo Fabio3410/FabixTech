@@ -26,6 +26,9 @@ export async function onRequestGet(context) {
     const rabattText = paymentIntent.metadata?.rabatt || '0.00';
     const rabattWert = parseFloat(rabattText);
 
+    const isOnlyDigital = paymentIntent.metadata?.isOnlyDigital === 'true';
+    const shippingCost = isOnlyDigital ? 0.00 : 5.90;
+
     let rabattHtml = '';
     if (rabattWert > 0 && promoCode && promoCode !== 'Keiner') {
       rabattHtml = `
@@ -48,11 +51,13 @@ export async function onRequestGet(context) {
             }
         });
     }
-const existingOrder = await context.env.DB.prepare(
+
+    const existingOrder = await context.env.DB.prepare(
         "SELECT id FROM orders WHERE payment_intent_id = ?"
     ).bind(paymentIntentId).first();
 
     let orderId = "";
+    let generatedGiftCards = [];
 
     if (!existingOrder) {
         orderId = "ORD-" + Date.now();
@@ -89,10 +94,36 @@ const existingOrder = await context.env.DB.prepare(
                 item.quantity,
                 item.price
             ).run();
+
+            const isGiftCardItem = item.isGiftCard || item.id.toLowerCase().includes('gift') || item.id.toLowerCase().includes('gutschein') || item.name.toLowerCase().includes('gutschein');
+            
+            if (isGiftCardItem) {
+                for (let q = 0; q < item.quantity; q++) {
+                    const randomPart = crypto.randomUUID().replace(/-/g, '').substring(0, 8).toUpperCase();
+                    const giftCode = `FABIO-${randomPart.substring(0,4)}-${randomPart.substring(4,8)}`;
+                    const cardValue = parseFloat(item.price);
+
+                    try {
+                        await context.env.DB.prepare(`
+                            INSERT INTO gift_cards (code, initial_balance, current_balance, purchased_by)
+                            VALUES (?, ?, ?, ?)
+                        `).bind(giftCode, cardValue, cardValue, kundeEmail).run();
+
+                        generatedGiftCards.push({
+                            code: giftCode,
+                            value: cardValue,
+                            title: item.name
+                        });
+                    } catch (gcErr) {
+                        console.error("Fehler beim Erstellen der Geschenkkarte in D1:", gcErr);
+                    }
+                }
+            }
         }
 
         for (const item of items) {
-            if (item.id && item.quantity) {
+            const isGiftCardItem = item.isGiftCard || item.id.toLowerCase().includes('gift') || item.id.toLowerCase().includes('gutschein') || item.name.toLowerCase().includes('gutschein');
+            if (item.id && item.quantity && !isGiftCardItem) {
                 await context.env.DB.prepare(
                     "UPDATE product_variants SET stock = stock - ? WHERE id = ?"
                 ).bind(item.quantity, item.id).run();
@@ -102,7 +133,6 @@ const existingOrder = await context.env.DB.prepare(
         if (kundeEmail && kundeEmail !== 'Keine E-Mail') {
             try {
                 const subtotal = items.reduce((sum, i) => sum + ((i.price * i.quantity) / 100), 0);
-                const shippingCost = 5.90;
 
                 const itemsEmailHtml = items.map(i => `
                     <tr>
@@ -122,6 +152,21 @@ const existingOrder = await context.env.DB.prepare(
                     </tr>
                 ` : '';
 
+                let giftCardsEmailHtml = '';
+                if (generatedGiftCards.length > 0) {
+                    giftCardsEmailHtml = `
+                        <div style="background: #0f172a; color: #ffffff; padding: 20px; border-radius: 12px; margin: 20px 0; text-align: center; border: 2px solid #d40202;">
+                            <h3 style="color: #d40202; margin-top: 0;">Deine Gutscheincodes</h3>
+                            ${generatedGiftCards.map(gc => `
+                                <div style="margin-bottom: 12px;">
+                                    <div style="font-size: 18px; font-weight: bold; letter-spacing: 2px; color: #ffffff; background: rgba(255,255,255,0.1); padding: 8px; border-radius: 6px;">${gc.code}</div>
+                                    <div style="font-size: 13px; color: #94a3b8; margin-top: 4px;">Wert: CHF ${gc.value.toFixed(2)}</div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    `;
+                }
+
                 const emailHtmlContent = `
                     <div style="font-family: 'Inter', Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 30px; border: 1px solid #e2e8f0; border-radius: 16px; background-color: #ffffff;">
                         <div style="text-align: center; border-bottom: 2px solid #f1f5f9; padding-bottom: 20px; margin-bottom: 20px;">
@@ -130,7 +175,9 @@ const existingOrder = await context.env.DB.prepare(
                         </div>
 
                         <p style="font-size: 15px; color: #334155;">Hallo <strong>${kundeName || 'Kunde'}</strong>,</p>
-                        <p style="font-size: 14px; color: #475569; line-height: 1.5;">wir haben deine Bestellung <strong>#${orderId}</strong> erfolgreich erhalten und kümmern uns ab sofort um den 3D-Druck deiner Wunsch-Modelle.</p>
+                        <p style="font-size: 14px; color: #475569; line-height: 1.5;">wir haben deine Bestellung <strong>#${orderId}</strong> erfolgreich erhalten.</p>
+
+                        ${giftCardsEmailHtml}
 
                         <h3 style="font-size: 16px; color: #1e293b; margin-top: 25px; margin-bottom: 10px;">Bestellübersicht</h3>
                         <table style="width: 100%; border-collapse: collapse; margin-bottom: 15px;">
@@ -152,10 +199,6 @@ const existingOrder = await context.env.DB.prepare(
                                 <td style="padding: 12px 0; border-top: 2px solid #e2e8f0; text-align: right; color: #d40202; font-size: 18px; font-weight: 800;">CHF ${gesamtBetrag} ${waehrung}</td>
                             </tr>
                         </table>
-
-                        <div style="background-color: #f8fafc; border-radius: 8px; padding: 15px; text-align: center; margin-bottom: 20px;">
-                            <p style="font-size: 13px; color: #64748b; margin: 0;">Du wirst per E-Mail benachrichtigt, sobald sich der Status deiner Bestellung ändert.</p>
-                        </div>
 
                         <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 20px 0;">
                         <p style="font-size: 12px; color: #94a3b8; text-align: center; margin: 0;">Fabio3D &bull; Hochwertiger 3D-Druck</p>
@@ -179,6 +222,13 @@ const existingOrder = await context.env.DB.prepare(
                 console.error("Fehler beim Senden der Bestellbestätigungs-E-Mail:", emailErr);
             }
         }
+    } else {
+        try {
+            const { results } = await context.env.DB.prepare(
+                "SELECT code, initial_balance as value FROM gift_cards WHERE purchased_by = ? ORDER BY id DESC LIMIT 5"
+            ).bind(kundeEmail).all();
+            if (results) generatedGiftCards = results;
+        } catch (e) {}
     }
 
     const artikelListeHtml = items.map(item => {
@@ -204,6 +254,29 @@ const existingOrder = await context.env.DB.prepare(
         </div>
         `;
     }).join('');
+
+    let giftCardCardsHtml = '';
+    if (generatedGiftCards.length > 0) {
+        giftCardCardsHtml = generatedGiftCards.map(gc => `
+            <div class="gift-card-box" style="background: linear-gradient(135deg, #0f172a, #1e293b); color: #fff; padding: 24px; border-radius: 16px; text-align: center; margin: 20px 0; border: 2px solid #d40202; box-shadow: 0 10px 25px rgba(0,0,0,0.2);">
+                <h3 style="color: #d40202; margin: 0; font-size: 20px; letter-spacing: 1px;">FABIO3D GESCHENKKARTE</h3>
+                <p style="font-size: 12px; color: #94a3b8; margin: 4px 0 15px 0;">Dein digitaler Gutschein für 3D-Druck-Modelle</p>
+                
+                <div style="font-size: 24px; font-weight: 900; letter-spacing: 3px; background: rgba(212,2,2,0.15); padding: 12px; border-radius: 8px; border: 1px dashed #d40202; color: #ffffff; margin: 12px 0;">
+                    ${gc.code}
+                </div>
+                
+                <p style="font-size: 16px; font-weight: bold; margin: 10px 0;">Wert: CHF ${Number(gc.value).toFixed(2)}</p>
+                <p style="font-size: 11px; color: #64748b; margin: 0;">Einlösbar im Checkout auf fabio3d.ch</p>
+            </div>
+        `).join('') + `
+            <div style="text-align: center; margin-bottom: 20px;">
+                <button onclick="window.print()" style="background: #334155; color: #fff; border: none; padding: 8px 16px; border-radius: 8px; font-size: 13px; font-weight: bold; cursor: pointer;">
+                    Gutschein drucken oder als PDF speichern
+                </button>
+            </div>
+        `;
+    }
 
     const html = `
     <!DOCTYPE html>
@@ -257,7 +330,7 @@ const existingOrder = await context.env.DB.prepare(
                 border-radius: 16px; 
                 box-shadow: 0 10px 30px rgba(0,0,0,0.1); 
                 border: 1px solid var(--border-color);
-                max-width: 400px; 
+                max-width: 440px; 
                 width: 90%; 
             }
 
@@ -265,6 +338,12 @@ const existingOrder = await context.env.DB.prepare(
             .btn { display: block; text-align: center; background: #d40202; color: white; padding: 12px; border-radius: 8px; text-decoration: none; margin-top: 20px; font-weight: bold; }
             .icon { display: flex; justify-content: center; align-items: center; width: 56px; height: 56px; background-color: var(--icon-bg); border-radius: 50%; margin: 0 auto 24px auto; }
             .icon img { width: 56px; height: 56px; }
+
+            @media print {
+                body * { visibility: hidden; }
+                .gift-card-box, .gift-card-box * { visibility: visible; }
+                .gift-card-box { position: absolute; left: 0; top: 0; width: 100%; }
+            }
         </style>
     </head>
     <body>
@@ -273,12 +352,14 @@ const existingOrder = await context.env.DB.prepare(
             <h1>${begruessungText}</h1>
             <p style="text-align: center; color: var(--text-muted);">Deine Zahlung war erfolgreich.</p>
             
+            ${giftCardCardsHtml}
+
             <div style="margin-top: 20px;">
                 ${artikelListeHtml}
                 ${rabattHtml}
                 <div style="display: flex; justify-content: space-between; color: var(--text-muted); font-size: 13px; margin-bottom: 2px;">
                   <span>Versand</span>
-                  <span>5.90 ${waehrung}</span>
+                  <span>${shippingCost.toFixed(2)} ${waehrung}</span>
                 </div>
                 <div style="display: flex; justify-content: space-between; font-weight: bold; color: var(--text-main); margin-top: 10px;">
                     <span>Gesamt</span>
