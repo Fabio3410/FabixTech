@@ -23,6 +23,7 @@ export async function onRequestGet(context) {
     const gesamtBetrag = (paymentIntent.amount / 100).toFixed(2);
     const waehrung = paymentIntent.currency.toUpperCase();
     const promoCode = paymentIntent.metadata?.promoCode;
+    const usedGiftCard = paymentIntent.metadata?.usedGiftCard;
     const rabattText = paymentIntent.metadata?.rabatt || '0.00';
     const rabattWert = parseFloat(rabattText);
 
@@ -83,6 +84,15 @@ export async function onRequestGet(context) {
             promoCode || 'Keiner'
         ).run();
 
+        if (usedGiftCard && rabattWert > 0) {
+            await context.env.DB.prepare(`
+                UPDATE gift_cards 
+                SET current_balance = MAX(0, current_balance - ?),
+                    is_active = CASE WHEN (current_balance - ?) <= 0 THEN 0 ELSE 1 END
+                WHERE code = ?
+            `).bind(rabattWert, rabattWert, usedGiftCard).run();
+        }
+
         for (const item of items) {
             await context.env.DB.prepare(`
                 INSERT INTO order_items (order_id, product_name, variant, quantity, price)
@@ -115,7 +125,7 @@ export async function onRequestGet(context) {
                             title: item.name
                         });
                     } catch (gcErr) {
-                        console.error("Fehler beim Erstellen der Geschenkkarte in D1:", gcErr);
+                        console.error("Fehler beim Erstellen der Geschenkkarte:", gcErr);
                     }
                 }
             }
@@ -127,99 +137,6 @@ export async function onRequestGet(context) {
                 await context.env.DB.prepare(
                     "UPDATE product_variants SET stock = stock - ? WHERE id = ?"
                 ).bind(item.quantity, item.id).run();
-            }
-        }
-
-        if (kundeEmail && kundeEmail !== 'Keine E-Mail') {
-            try {
-                const subtotal = items.reduce((sum, i) => sum + ((i.price * i.quantity) / 100), 0);
-
-                const itemsEmailHtml = items.map(i => `
-                    <tr>
-                        <td style="padding: 10px 0; border-bottom: 1px solid #e2e8f0; color: #1e293b; font-size: 14px;">
-                            <strong>${i.quantity}x</strong> ${i.name} <span style="color: #64748b; font-size: 12px;">(${i.farbe || 'Standard'})</span>
-                        </td>
-                        <td style="padding: 10px 0; border-bottom: 1px solid #e2e8f0; text-align: right; color: #1e293b; font-size: 14px; font-weight: 600;">
-                            CHF ${((i.price * i.quantity) / 100).toFixed(2)}
-                        </td>
-                    </tr>
-                `).join('');
-
-                const discountEmailRow = rabattWert > 0 ? `
-                    <tr>
-                        <td style="padding: 8px 0; color: #16a34a; font-size: 14px;">Rabatt ${promoCode && promoCode !== 'Keiner' ? '(' + promoCode + ')' : ''}</td>
-                        <td style="padding: 8px 0; text-align: right; color: #16a34a; font-size: 14px; font-weight: 600;">- CHF ${rabattWert.toFixed(2)}</td>
-                    </tr>
-                ` : '';
-
-                let giftCardsEmailHtml = '';
-                if (generatedGiftCards.length > 0) {
-                    giftCardsEmailHtml = `
-                        <div style="background: #0f172a; color: #ffffff; padding: 20px; border-radius: 12px; margin: 20px 0; text-align: center; border: 2px solid #d40202;">
-                            <h3 style="color: #d40202; margin-top: 0;">Deine Gutscheincodes</h3>
-                            ${generatedGiftCards.map(gc => `
-                                <div style="margin-bottom: 12px;">
-                                    <div style="font-size: 18px; font-weight: bold; letter-spacing: 2px; color: #ffffff; background: rgba(255,255,255,0.1); padding: 8px; border-radius: 6px;">${gc.code}</div>
-                                    <div style="font-size: 13px; color: #94a3b8; margin-top: 4px;">Wert: CHF ${gc.value.toFixed(2)}</div>
-                                </div>
-                            `).join('')}
-                        </div>
-                    `;
-                }
-
-                const emailHtmlContent = `
-                    <div style="font-family: 'Inter', Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 30px; border: 1px solid #e2e8f0; border-radius: 16px; background-color: #ffffff;">
-                        <div style="text-align: center; border-bottom: 2px solid #f1f5f9; padding-bottom: 20px; margin-bottom: 20px;">
-                            <h2 style="color: #1e293b; margin: 0; font-size: 24px; font-weight: 800;">FABIO<span style="color: #d40202;">3D</span></h2>
-                            <p style="color: #64748b; font-size: 14px; margin-top: 5px;">Vielen Dank für deine Bestellung!</p>
-                        </div>
-
-                        <p style="font-size: 15px; color: #334155;">Hallo <strong>${kundeName || 'Kunde'}</strong>,</p>
-                        <p style="font-size: 14px; color: #475569; line-height: 1.5;">wir haben deine Bestellung <strong>#${orderId}</strong> erfolgreich erhalten.</p>
-
-                        ${giftCardsEmailHtml}
-
-                        <h3 style="font-size: 16px; color: #1e293b; margin-top: 25px; margin-bottom: 10px;">Bestellübersicht</h3>
-                        <table style="width: 100%; border-collapse: collapse; margin-bottom: 15px;">
-                            ${itemsEmailHtml}
-                        </table>
-
-                        <table style="width: 100%; border-collapse: collapse; margin-bottom: 25px;">
-                            <tr>
-                                <td style="padding: 6px 0; color: #64748b; font-size: 14px;">Zwischensumme</td>
-                                <td style="padding: 6px 0; text-align: right; color: #334155; font-size: 14px;">CHF ${subtotal.toFixed(2)}</td>
-                            </tr>
-                            ${discountEmailRow}
-                            <tr>
-                                <td style="padding: 6px 0; color: #64748b; font-size: 14px;">Versandkosten</td>
-                                <td style="padding: 6px 0; text-align: right; color: #334155; font-size: 14px;">CHF ${shippingCost.toFixed(2)}</td>
-                            </tr>
-                            <tr>
-                                <td style="padding: 12px 0; border-top: 2px solid #e2e8f0; color: #1e293b; font-size: 16px; font-weight: bold;">Gesamttotal</td>
-                                <td style="padding: 12px 0; border-top: 2px solid #e2e8f0; text-align: right; color: #d40202; font-size: 18px; font-weight: 800;">CHF ${gesamtBetrag} ${waehrung}</td>
-                            </tr>
-                        </table>
-
-                        <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 20px 0;">
-                        <p style="font-size: 12px; color: #94a3b8; text-align: center; margin: 0;">Fabio3D &bull; Hochwertiger 3D-Druck</p>
-                    </div>
-                `;
-
-                const senderEmail = "info@fabio3d.ch";
-                const rawEmail = [
-                    "From: Fabio3D <" + senderEmail + ">",
-                    "To: " + kundeEmail,
-                    "Subject: Bestellbestätigung | Fabio3D",
-                    "MIME-Version: 1.0",
-                    "Content-Type: text/html; charset=utf-8",
-                    "",
-                    emailHtmlContent
-                ].join("\r\n");
-
-                const emailMsg = new EmailMessage(senderEmail, kundeEmail, rawEmail);
-                await context.env.SEB_EMAIL.send(emailMsg);
-            } catch (emailErr) {
-                console.error("Fehler beim Senden der Bestellbestätigungs-E-Mail:", emailErr);
             }
         }
     } else {
@@ -258,21 +175,21 @@ export async function onRequestGet(context) {
     let giftCardCardsHtml = '';
     if (generatedGiftCards.length > 0) {
         giftCardCardsHtml = generatedGiftCards.map(gc => `
-            <div class="gift-card-box" style="background: linear-gradient(135deg, #0f172a, #1e293b); color: #fff; padding: 24px; border-radius: 16px; text-align: center; margin: 20px 0; border: 2px solid #d40202; box-shadow: 0 10px 25px rgba(0,0,0,0.2);">
-                <h3 style="color: #d40202; margin: 0; font-size: 20px; letter-spacing: 1px;">FABIO3D GESCHENKKARTE</h3>
-                <p style="font-size: 12px; color: #94a3b8; margin: 4px 0 15px 0;">Dein digitaler Gutschein für 3D-Druck-Modelle</p>
+            <div class="gift-card-box">
+                <div class="gift-card-brand">FABIO<span>3D</span></div>
+                <div class="gift-card-subtitle">DIGITALER GESCHENKGUTSCHEIN</div>
                 
-                <div style="font-size: 24px; font-weight: 900; letter-spacing: 3px; background: rgba(212,2,2,0.15); padding: 12px; border-radius: 8px; border: 1px dashed #d40202; color: #ffffff; margin: 12px 0;">
-                    ${gc.code}
+                <div class="gift-card-code-wrapper">
+                    <span class="gift-card-code">${gc.code}</span>
                 </div>
                 
-                <p style="font-size: 16px; font-weight: bold; margin: 10px 0;">Wert: CHF ${Number(gc.value).toFixed(2)}</p>
-                <p style="font-size: 11px; color: #64748b; margin: 0;">Einlösbar im Checkout auf fabio3d.ch</p>
+                <div class="gift-card-amount">Wert: CHF ${Number(gc.value).toFixed(2)}</div>
+                <div class="gift-card-footer-text">Einlösbar im Checkout auf fabio3d.ch</div>
             </div>
         `).join('') + `
-            <div style="text-align: center; margin-bottom: 20px;">
-                <button onclick="window.print()" style="background: #334155; color: #fff; border: none; padding: 8px 16px; border-radius: 8px; font-size: 13px; font-weight: bold; cursor: pointer;">
-                    Gutschein drucken oder als PDF speichern
+            <div class="no-print" style="text-align: center; margin-bottom: 20px;">
+                <button onclick="window.print()" class="btn-print">
+                    Gutschein als PDF / Papier drucken
                 </button>
             </div>
         `;
@@ -286,10 +203,6 @@ export async function onRequestGet(context) {
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Danke für deinen Einkauf!</title>
         <link rel="icon" type="image/png" href="/favicon/favicon-96x96.png" sizes="96x96"/>
-        <link rel="icon" type="image/svg+xml" href="/favicon/favicon.svg"/>
-        <link rel="shortcut icon" href="/favicon/favicon.ico"/>
-        <link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png"/>
-        <link rel="manifest" href="/favicon/site.webmanifest"/>
         <script>
             const savedTheme = localStorage.getItem('theme') || 'light';
             document.documentElement.setAttribute('data-theme', savedTheme);
@@ -302,6 +215,9 @@ export async function onRequestGet(context) {
                 --text-muted: #64748b;
                 --border-color: #e2e8f0;
                 --icon-bg: #e3faf2;
+                --gc-bg: #ffffff;
+                --gc-text: #0f172a;
+                --gc-border: #d40202;
             }
 
             html[data-theme="dark"] {
@@ -311,10 +227,13 @@ export async function onRequestGet(context) {
                 --text-muted: #94a3b8;
                 --border-color: #334155;
                 --icon-bg: #068d0d;
+                --gc-bg: #0f172a;
+                --gc-text: #ffffff;
+                --gc-border: #d40202;
             }
 
             body { 
-                font-family: sans-serif; 
+                font-family: 'Inter', sans-serif; 
                 background: var(--bg-body); 
                 color: var(--text-main); 
                 display: flex; 
@@ -322,6 +241,7 @@ export async function onRequestGet(context) {
                 align-items: center; 
                 min-height: 100vh; 
                 margin: 0; 
+                padding: 20px 0;
             }
 
             .card { 
@@ -336,25 +256,58 @@ export async function onRequestGet(context) {
 
             h1 { text-align: center; font-size: 22px; color: var(--text-main); }
             .btn { display: block; text-align: center; background: #d40202; color: white; padding: 12px; border-radius: 8px; text-decoration: none; margin-top: 20px; font-weight: bold; }
+            .btn-print { background: var(--bg-body); color: var(--text-main); border: 1px solid var(--border-color); padding: 10px 18px; border-radius: 8px; font-size: 13px; font-weight: bold; cursor: pointer; transition: all 0.2s; }
+            .btn-print:hover { border-color: #d40202; color: #d40202; }
+
             .icon { display: flex; justify-content: center; align-items: center; width: 56px; height: 56px; background-color: var(--icon-bg); border-radius: 50%; margin: 0 auto 24px auto; }
             .icon img { width: 56px; height: 56px; }
 
+            .gift-card-box {
+                background: var(--gc-bg);
+                color: var(--gc-text);
+                padding: 24px;
+                border-radius: 16px;
+                text-align: center;
+                margin: 20px 0;
+                border: 2px solid var(--gc-border);
+                box-shadow: 0 8px 20px rgba(0,0,0,0.06);
+            }
+            .gift-card-brand { font-size: 22px; font-weight: 900; letter-spacing: 1px; color: var(--gc-text); }
+            .gift-card-brand span { color: #d40202; }
+            .gift-card-subtitle { font-size: 11px; color: var(--text-muted); letter-spacing: 1.5px; margin: 4px 0 16px 0; font-weight: bold; }
+            .gift-card-code-wrapper { background: rgba(212, 2, 2, 0.08); padding: 12px; border-radius: 8px; border: 1px dashed #d40202; margin: 12px 0; }
+            .gift-card-code { font-size: 22px; font-weight: 900; letter-spacing: 3px; color: #d40202; }
+            .gift-card-amount { font-size: 16px; font-weight: bold; margin-top: 10px; }
+            .gift-card-footer-text { font-size: 11px; color: var(--text-muted); margin-top: 4px; }
+
             @media print {
-                body * { visibility: hidden; }
-                .gift-card-box, .gift-card-box * { visibility: visible; }
-                .gift-card-box { position: absolute; left: 0; top: 0; width: 100%; }
+                body { background: #ffffff !important; color: #000000 !important; display: block !important; padding: 0 !important; }
+                .card { box-shadow: none !important; border: none !important; width: 100% !important; max-width: 100% !important; padding: 0 !important; }
+                .no-print, .icon, h1, p, .btn, .item, .item-price, button { display: none !important; }
+                .gift-card-box { 
+                    border: 2px solid #000000 !important; 
+                    background: #ffffff !important; 
+                    color: #000000 !important; 
+                    width: 80% !important; 
+                    margin: 40px auto !important; 
+                    padding: 40px !important; 
+                    page-break-inside: avoid;
+                }
+                .gift-card-brand { color: #000000 !important; font-size: 28px !important; }
+                .gift-card-code-wrapper { border: 2px dashed #000000 !important; background: #f8fafc !important; }
+                .gift-card-code { color: #000000 !important; font-size: 26px !important; }
             }
         </style>
     </head>
     <body>
         <div class="card">
-            <div class="icon"><img src="../images/success.png" alt="Erfolg"></div>
-            <h1>${begruessungText}</h1>
-            <p style="text-align: center; color: var(--text-muted);">Deine Zahlung war erfolgreich.</p>
+            <div class="icon no-print"><img src="../images/success.png" alt="Erfolg"></div>
+            <h1 class="no-print">${begruessungText}</h1>
+            <p class="no-print" style="text-align: center; color: var(--text-muted);">Deine Zahlung war erfolgreich.</p>
             
             ${giftCardCardsHtml}
 
-            <div style="margin-top: 20px;">
+            <div class="no-print" style="margin-top: 20px;">
                 ${artikelListeHtml}
                 ${rabattHtml}
                 <div style="display: flex; justify-content: space-between; color: var(--text-muted); font-size: 13px; margin-bottom: 2px;">
@@ -367,7 +320,7 @@ export async function onRequestGet(context) {
                 </div>
             </div>
             
-            <a href="/" class="btn">Zurück zur Startseite</a>
+            <a href="/" class="btn no-print">Zurück zur Startseite</a>
         </div>
         <script>
             localStorage.removeItem('fabio3d_cart');
@@ -376,9 +329,7 @@ export async function onRequestGet(context) {
     </body>
     </html>`;
 
-    return new Response(html, {
-      headers: { 'Content-Type': 'text/html; charset=utf-8' },
-    });
+    return new Response(html, { headers: { 'Content-Type': 'text/html; charset=utf-8' } });
 
   } catch (error) {
     return new Response("Fehler: " + error.message, { status: 500 });

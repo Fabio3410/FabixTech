@@ -21,16 +21,11 @@ export async function onRequestPost(context) {
         let customerEmail = shippingAddress?.email || '';
         if (sessionId) {
             const user = await context.env.DB.prepare("SELECT email FROM users WHERE session_id = ?").bind(sessionId).first();
-            if (user && user.email) {
-                customerEmail = user.email;
-            }
+            if (user && user.email) customerEmail = user.email;
         }
 
         if (!cart || !Array.isArray(cart) || cart.length === 0) {
-            return new Response(JSON.stringify({ error: 'Dein Warenkorb ist leer.' }), {
-                status: 400,
-                headers: { 'Content-Type': 'application/json' }
-            });
+            return new Response(JSON.stringify({ error: 'Dein Warenkorb ist leer.' }), { status: 400 });
         }
 
         let verifiedCart = [];
@@ -40,41 +35,23 @@ export async function onRequestPost(context) {
         for (const item of cart) {
             const variantId = item.id;
             const kundenMenge = parseInt(item.quantity) || 1;
-
             if (!variantId) continue;
 
-            const result = await context.env.DB.prepare(
-                "SELECT stock, price FROM product_variants WHERE id = ?"
-            ).bind(variantId).first();
-            
-            if (!result) {
-                return new Response(JSON.stringify({ 
-                    error: `Das Produkt wurde nicht gefunden.` 
-                }), { 
-                    status: 400,
-                    headers: { 'Content-Type': 'application/json' }
-                });
-            }
+            const result = await context.env.DB.prepare("SELECT stock, price FROM product_variants WHERE id = ?").bind(variantId).first();
+            if (!result) return new Response(JSON.stringify({ error: `Produkt nicht gefunden.` }), { status: 400 });
 
             const aktuellerBestand = parseInt(result.stock) || 0;
             const echterPreisFranken = parseFloat(result.price) || 0;
             const echterPreisRappen = Math.round(echterPreisFranken * 100);
 
             if (aktuellerBestand < kundenMenge) {
-                return new Response(JSON.stringify({ 
-                    error: `Das Produkt "${item.name}" ist leider nicht mehr in der ausgewählten Anzahl verfügbar.` 
-                }), { 
-                    status: 400,
-                    headers: { 'Content-Type': 'application/json' }
-                });
+                return new Response(JSON.stringify({ error: `Produkt "${item.name}" ausverkauft.` }), { status: 400 });
             }
 
             itemsSubtotalRappen += echterPreisRappen * kundenMenge;
 
             const isGiftCardItem = variantId.toLowerCase().includes('gift') || variantId.toLowerCase().includes('gutschein') || item.name.toLowerCase().includes('gutschein');
-            if (!isGiftCardItem) {
-                hasOnlyGiftCards = false;
-            }
+            if (!isGiftCardItem) hasOnlyGiftCards = false;
 
             verifiedCart.push({
                 id: variantId,
@@ -90,6 +67,9 @@ export async function onRequestPost(context) {
         let angewendeterCode = null;
         let usedGiftCardCode = null;
 
+        const versandkostenRappen = hasOnlyGiftCards ? 0 : 590;
+        const bruttoGesamtRappen = itemsSubtotalRappen + versandkostenRappen;
+
         if (promoCode && promoCode.trim() !== '') {
             const cleanCode = promoCode.trim().toUpperCase();
             
@@ -99,39 +79,28 @@ export async function onRequestPost(context) {
 
             if (giftCard) {
                 const giftCardBalanceRappen = Math.round(giftCard.current_balance * 100);
-                rabattRappen = Math.min(itemsSubtotalRappen, giftCardBalanceRappen);
+                rabattRappen = Math.min(bruttoGesamtRappen, giftCardBalanceRappen);
                 angewendeterCode = cleanCode;
                 usedGiftCardCode = cleanCode;
             } else {
-                const promo = await context.env.DB.prepare(
-                    "SELECT * FROM promo_codes WHERE code = ?"
-                ).bind(cleanCode).first();
-
-                if (!promo) {
-                    return new Response(JSON.stringify({ 
-                        error: 'Der eingegebene Aktionscode oder Gutscheincode ist nicht gültig.' 
-                    }), { 
-                        status: 400,
-                        headers: { 'Content-Type': 'application/json' }
-                    });
-                }
+                const promo = await context.env.DB.prepare("SELECT * FROM promo_codes WHERE code = ?").bind(cleanCode).first();
+                if (!promo) return new Response(JSON.stringify({ error: 'Code ungültig.' }), { status: 400 });
 
                 if (promo.type === 'percent') {
                     rabattRappen = Math.round((itemsSubtotalRappen * promo.value) / 100);
                 } else if (promo.type === 'fixed') {
                     rabattRappen = Math.round(promo.value * 100);
                 }
-
-                if (rabattRappen > itemsSubtotalRappen) {
-                    rabattRappen = itemsSubtotalRappen;
-                }
-
+                rabattRappen = Math.min(bruttoGesamtRappen, rabattRappen);
                 angewendeterCode = cleanCode;
             }
         }
 
-        const versandkostenRappen = hasOnlyGiftCards ? 0 : 590;
-        const totalAmountRappen = (itemsSubtotalRappen - rabattRappen) + versandkostenRappen;
+        let totalAmountRappen = bruttoGesamtRappen - rabattRappen;
+        
+        if (totalAmountRappen > 0 && totalAmountRappen < 100) {
+            totalAmountRappen = 100;
+        }
 
         const formattedAddress = shippingAddress 
             ? `${shippingAddress.street}, ${shippingAddress.zip} ${shippingAddress.city}, CH`
@@ -159,6 +128,17 @@ export async function onRequestPost(context) {
             });
         });
 
+        if (totalAmountRappen === 0) {
+            return new Response(JSON.stringify({ 
+                freeOrder: true,
+                subtotal: itemsSubtotalRappen / 100,
+                discount: rabattRappen / 100,
+                shipping: versandkostenRappen / 100,
+                total: 0,
+                appliedCode: angewendeterCode
+            }), { status: 200, headers: { 'Content-Type': 'application/json' } });
+        }
+
         const paymentIntent = await stripe.paymentIntents.create({
             amount: totalAmountRappen,
             currency: 'chf',
@@ -166,12 +146,7 @@ export async function onRequestPost(context) {
             metadata: sessionMetadata,
             shipping: shippingAddress && !hasOnlyGiftCards ? {
                 name: shippingAddress.name,
-                address: {
-                    line1: shippingAddress.street,
-                    postal_code: shippingAddress.zip,
-                    city: shippingAddress.city,
-                    country: 'CH'
-                }
+                address: { line1: shippingAddress.street, postal_code: shippingAddress.zip, city: shippingAddress.city, country: 'CH' }
             } : undefined
         });
 
@@ -182,16 +157,10 @@ export async function onRequestPost(context) {
             shipping: versandkostenRappen / 100,
             total: totalAmountRappen / 100,
             appliedCode: angewendeterCode
-        }), {
-            status: 200,
-            headers: { 'Content-Type': 'application/json' }
-        });
+        }), { status: 200, headers: { 'Content-Type': 'application/json' } });
 
     } catch (error) {
         console.error("Stripe Fehler:", error);
-        return new Response(JSON.stringify({ error: error.message }), {
-            status: 500,
-            headers: { 'Content-Type': 'application/json' }
-        });
+        return new Response(JSON.stringify({ error: error.message }), { status: 500 });
     }
 }
