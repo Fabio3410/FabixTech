@@ -16,26 +16,46 @@ function addToCart(id, name, price, variant, maxStock) {
     const bestehenderArtikel = cart.find(item => item.id === id);
     const stockLimit = parseInt(maxStock) || 0;
 
-    if (bestehenderArtikel) {
-        if (stockLimit > 0) bestehenderArtikel.maxStock = stockLimit;
+    const isGiftCard = (id || '').toLowerCase().includes('gift') || 
+                       (id || '').toLowerCase().includes('gutschein') || 
+                       (name || '').toLowerCase().includes('gutschein');
 
-        if (bestehenderArtikel.maxStock && bestehenderArtikel.quantity >= bestehenderArtikel.maxStock) {
-            alert(`Es sind nur noch ${bestehenderArtikel.maxStock} Stück von dieser Variante auf Lager.`);
+    if (isGiftCard) {
+        let currentTotalGiftCards = 0;
+        cart.forEach(item => {
+            const iId = (item.id || '').toLowerCase();
+            const iName = (item.name || '').toLowerCase();
+            if (iId.includes('gift') || iId.includes('gutschein') || iName.includes('gutschein')) {
+                currentTotalGiftCards += (item.quantity || 1);
+            }
+        });
+
+        if (currentTotalGiftCards >= 5) {
+            alert("Du darfst nur 5 Geschenkkarten aufs mal bestellen.");
             return;
         }
-        bestehenderArtikel.quantity = (bestehenderArtikel.quantity || 1) + 1;
     } else {
-        if (stockLimit <= 0) {
+        if (stockLimit <= 0 && !bestehenderArtikel) {
             alert("Dieses Produkt ist aktuell ausverkauft.");
             return;
         }
+        if (bestehenderArtikel && bestehenderArtikel.maxStock && bestehenderArtikel.quantity >= bestehenderArtikel.maxStock) {
+            alert(`Es sind nur noch ${bestehenderArtikel.maxStock} Stück von dieser Variante auf Lager.`);
+            return;
+        }
+    }
+
+    if (bestehenderArtikel) {
+        if (stockLimit > 0) bestehenderArtikel.maxStock = stockLimit;
+        bestehenderArtikel.quantity = (bestehenderArtikel.quantity || 1) + 1;
+    } else {
         cart.push({ 
             id, 
             name, 
             price, 
             variant: selectedVariant, 
             quantity: 1, 
-            maxStock: stockLimit 
+            maxStock: isGiftCard ? 5 : stockLimit 
         });
     }
 
@@ -530,16 +550,36 @@ window.decreaseQuantity = function(productId) {
 
 window.increaseQuantity = function(productId) {
     const item = cart.find(item => item.id === productId);
-    if (item) {
+    if (!item) return;
+
+    const itemId = (item.id || '').toLowerCase();
+    const itemName = (item.name || '').toLowerCase();
+    const isGiftCard = itemId.includes('gift') || itemId.includes('gutschein') || itemName.includes('gutschein');
+
+    if (isGiftCard) {
+        let currentTotalGiftCards = 0;
+        cart.forEach(cartItem => {
+            const cId = (cartItem.id || '').toLowerCase();
+            const cName = (cartItem.name || '').toLowerCase();
+            if (cId.includes('gift') || cId.includes('gutschein') || cName.includes('gutschein')) {
+                currentTotalGiftCards += (cartItem.quantity || 1);
+            }
+        });
+
+        if (currentTotalGiftCards >= 5) {
+            alert("Du darfst nur 5 Geschenkkarten aufs mal bestellen.");
+            return;
+        }
+    } else {
         if (item.maxStock !== undefined && item.maxStock > 0 && item.quantity >= item.maxStock) {
             alert(`Es sind nur noch ${item.maxStock} Stück von dieser Variante auf Lager.`);
             return;
         }
-
-        item.quantity = (item.quantity || 1) + 1;
-        saveCartToStorage();
-        updateCartUI();
     }
+
+    item.quantity = (item.quantity || 1) + 1;
+    saveCartToStorage();
+    updateCartUI();
 };
 
 window.initCheckoutPage = initCheckoutPage;
