@@ -15,7 +15,6 @@ async function renderShop() {
 
         allProductsCache = productsDB;
 
-        // Produkte & Geschenkkarten filtern
         const regularProducts = productsDB.filter(p => (p.category || '').toUpperCase() !== 'GESCHENKKARTE' && !p.baseId.toLowerCase().includes('gift') && !p.title.toLowerCase().includes('gutschein'));
         const giftCards = productsDB.filter(p => (p.category || '').toUpperCase() === 'GESCHENKKARTE' || p.baseId.toLowerCase().includes('gift') || p.title.toLowerCase().includes('gutschein'));
 
@@ -41,7 +40,6 @@ async function renderShop() {
 }
 
 function displayProducts(regularProducts, giftCards) {
-    // Gezielt das Haupt-Grid ansprechen (ohne giftcard-grid)
     const mainGrid = document.querySelector('.product-grid:not(.giftcard-grid)');
     const giftcardSection = document.getElementById('giftcard-section');
     const giftcardGrid = document.querySelector('.giftcard-grid');
@@ -128,3 +126,5 @@ function filterProducts(category) {
         displayProducts(filtered, giftCards);
     }
 }
+
+document.addEventListener('DOMContentLoaded', renderShop);
