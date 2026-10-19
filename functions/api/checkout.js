@@ -30,72 +30,71 @@ export async function onRequestPost(context) {
         } catch (e) {}
 
         if (action === 'confirm_free_order') {
-            const { shippingAddress: addr, items, usedGiftCard, rabattWert } = requestData;
+            if (!shippingAddress || !shippingAddress.email) {
+                return new Response(JSON.stringify({ error: "Ungültige Adresse." }), { status: 400 });
+            }
+
+            let serverTotal = 0;
+            for (const item of cart) {
+                const productVariant = await context.env.DB.prepare(
+                    "SELECT price FROM product_variants WHERE id = ?"
+                ).bind(item.id).first();
+
+                if (!productVariant) {
+                    return new Response(JSON.stringify({ error: "Ungültiges Produkt im Warenkorb." }), { status: 400 });
+                }
+
+                serverTotal += productVariant.price * (item.quantity || 1);
+            }
+
+            const hasOnlyGiftCards = cart.every(i => i.isGiftCard || i.name.toLowerCase().includes('gutschein'));
+            const shippingCost = hasOnlyGiftCards ? 0 : 5.90;
+            serverTotal += shippingCost;
+
+            let verifiedDiscount = 0;
+            if (usedGiftCard && usedGiftCard !== 'KEINER') {
+                const gc = await context.env.DB.prepare(
+                    "SELECT current_balance, is_active FROM gift_cards WHERE code = ?"
+                ).bind(usedGiftCard).first();
+
+                if (!gc || gc.is_active === 0 || gc.current_balance <= 0) {
+                    return new Response(JSON.stringify({ error: "Ungültiger oder abgelaufener Gutschein." }), { status: 400 });
+                }
+
+                verifiedDiscount = Math.min(serverTotal, gc.current_balance);
+            }
+
+            const finalTotal = Math.max(0, serverTotal - verifiedDiscount);
+
+            if (finalTotal > 0.01) {
+                return new Response(JSON.stringify({ error: "Die Bestellung ist nicht kostenlos. Zahlung erforderlich." }), { status: 400 });
+            }
+
             const orderId = "ORD-" + Date.now();
             
             await context.env.DB.prepare(`
-                INSERT INTO orders (id, payment_intent_id, customer_name, customer_email, shipping_address, shipping_note, total_amount, discount_amount, promo_code, status)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'offen')
+                INSERT INTO orders (id, customer_name, customer_email, shipping_address, total_amount, discount_amount, promo_code, status)
+                VALUES (?, ?, ?, ?, ?, ?, ?, 'offen')
             `).bind(
                 orderId,
-                'FREE-' + Date.now(),
-                addr?.name || 'Kunde',
-                addr?.email || customerEmail,
-                `${addr?.street || ''}, ${addr?.zip || ''} ${addr?.city || ''}, CH`,
-                addr?.shipping_note || '',
-                0,
-                rabattWert || 0,
-                usedGiftCard || 'Gutschein'
+                shippingAddress.name,
+                shippingAddress.email,
+                `${shippingAddress.street}, ${shippingAddress.zip} ${shippingAddress.city}`,
+                finalTotal,
+                verifiedDiscount,
+                usedGiftCard || 'Keiner'
             ).run();
 
-            if (usedGiftCard && rabattWert > 0) {
+            if (usedGiftCard && verifiedDiscount > 0) {
                 await context.env.DB.prepare(`
                     UPDATE gift_cards 
-                    SET current_balance = MAX(0, current_balance - ?),
+                    SET current_balance = current_balance - ?,
                         is_active = CASE WHEN (current_balance - ?) <= 0 THEN 0 ELSE 1 END
                     WHERE code = ?
-                `).bind(rabattWert, rabattWert, usedGiftCard).run();
+                `).bind(verifiedDiscount, verifiedDiscount, usedGiftCard).run();
             }
 
-            if (items && Array.isArray(items)) {
-                for (const item of items) {
-                    await context.env.DB.prepare(`
-                        INSERT INTO order_items (order_id, product_name, variant, quantity, price)
-                        VALUES (?, ?, ?, ?, ?)
-                    `).bind(
-                        orderId,
-                        item.name,
-                        item.farbe || item.variant || 'Standard',
-                        item.quantity,
-                        item.price
-                    ).run();
-
-                    const isGiftCardItem = item.isGiftCard || (item.id && item.id.toLowerCase().includes('gift')) || item.name.toLowerCase().includes('gutschein');
-                    
-                    if (isGiftCardItem) {
-                        for (let q = 0; q < item.quantity; q++) {
-                            const randomPart = crypto.randomUUID().replace(/-/g, '').substring(0, 8).toUpperCase();
-                            const giftCode = `FABIO-${randomPart.substring(0,4)}-${randomPart.substring(4,8)}`;
-                            const cardValue = parseFloat(item.price);
-
-                            try {
-                                await context.env.DB.prepare(`
-                                    INSERT INTO gift_cards (code, initial_balance, current_balance, purchased_by, order_id)
-                                    VALUES (?, ?, ?, ?, ?)
-                                `).bind(giftCode, cardValue, cardValue, addr?.email || customerEmail, orderId).run();
-                            } catch (gcErr) {
-                                console.error("Fehler beim Erstellen der Geschenkkarte:", gcErr);
-                            }
-                        }
-                    } else if (item.id && item.quantity) {
-                        await context.env.DB.prepare(
-                            "UPDATE product_variants SET stock = stock - ? WHERE id = ?"
-                        ).bind(item.quantity, item.id).run();
-                    }
-                }
-            }
-
-            return new Response(JSON.stringify({ success: true, orderId }), { status: 200, headers: { 'Content-Type': 'application/json' } });
+            return new Response(JSON.stringify({ success: true, orderId }), { status: 200 });
         }
 
         if (!cart || !Array.isArray(cart) || cart.length === 0) {
