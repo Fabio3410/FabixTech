@@ -417,6 +417,14 @@
             </div>
 
             <div class="order-card">
+                <h3 style="margin-top: 0; margin-bottom: 15px;">Gutschein-Datenbank bereinigen</h3>
+                <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 15px;">Löscht alle inaktiven Gutscheine, die vollständig aufgebraucht wurden.</p>
+                <button type="button" onclick="cleanExpiredGiftCards()" style="background: #d40202; width: 100%;">
+                    <i class="fa-solid fa-broom"></i> Abgelaufene Gutscheine löschen
+                </button>
+            </div>
+
+            <div class="order-card">
                 <h3 style="margin-top: 0; margin-bottom: 15px;">Website Version Einstellungen</h3>
             
                 <div style="margin-bottom: 15px;">
@@ -1115,6 +1123,32 @@
             }
         } catch (err) {
             console.error("Fehler beim Löschen:", err);
+            alert("Verbindungsfehler zum Server.");
+        }
+    }
+
+    async function cleanExpiredGiftCards() {
+        if (!confirm("Möchtest du alle inaktiven Gutscheine aus der Datenbank löschen?")) return;
+
+        const token = getSessionToken();
+        const headers = { 'Content-Type': 'application/json' };
+        if (token) headers['Authorization'] = `Bearer ${token}`;
+
+        try {
+            const res = await fetch('/api/clean-giftcards', {
+                method: 'POST',
+                headers: headers
+            });
+
+            const data = await res.json();
+
+            if (res.ok && data.success) {
+                alert(data.message);
+            } else {
+                alert("Fehler: " + (data.error || "Unbekannter Fehler"));
+            }
+        } catch (e) {
+            console.error("Fehler:", e);
             alert("Verbindungsfehler zum Server.");
         }
     }

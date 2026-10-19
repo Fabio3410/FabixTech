@@ -321,7 +321,6 @@ export async function onRequestGet(context) {
             .gift-card-amount { font-size: 16px; font-weight: bold; margin-top: 10px; }
             .gift-card-footer-text { font-size: 11px; color: var(--text-muted); margin-top: 4px; }
 
-            /* VERBESSERTES DRUCK-LAYOUT: Keine 2 Seiten mehr */
             @media print {
                 body { background: #ffffff !important; color: #000000 !important; display: block !important; padding: 0 !important; margin: 0 !important; }
                 .card { box-shadow: none !important; border: none !important; width: 100% !important; max-width: 100% !important; padding: 0 !important; margin: 0 !important; }
@@ -354,11 +353,11 @@ export async function onRequestGet(context) {
 
             <div class="no-print" style="margin-top: 20px;">
                 ${artikelListeHtml}
-                ${rabattHtml}
                 <div style="display: flex; justify-content: space-between; color: var(--text-muted); font-size: 13px; margin-bottom: 2px;">
                   <span>Versand</span>
                   <span>${shippingCost.toFixed(2)} ${waehrung}</span>
                 </div>
+                ${rabattHtml}
                 <div style="display: flex; justify-content: space-between; font-weight: bold; color: var(--text-main); margin-top: 10px;">
                     <span>Gesamt</span>
                     <span>${gesamtBetrag} ${waehrung}</span>

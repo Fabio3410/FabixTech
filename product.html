@@ -183,6 +183,18 @@
                         onclick="jumpToSlide(this, ${index}); updatePrice(this)">${v.name}</button>
             `).join('');
 
+            const isGiftCard = (product.category || '').toUpperCase() === 'GESCHENKKARTE' || 
+                               product.baseId.toLowerCase().includes('gift') || 
+                               product.title.toLowerCase().includes('gutschein');
+
+            const techSpecsHtml = isGiftCard ? '' : `
+                <div class="tech-specs">
+                    <span class="spec"><b>Material:</b> ${product.material || '-'}</span>
+                    <span class="spec"><b>Qualität:</b> ${product.quality || '-'}</span>
+                    <span class="spec"><b>Infill:</b> ${product.infill || '-'}</span>
+                </div>
+            `;
+
             document.getElementById('product-detail-container').innerHTML = `
                 <h1>${product.title}</h1>
                 <div id="header-rating-container" style="display: flex; align-items: center; gap: 8px; margin-top: -5px; margin-bottom: 15px; grid-column: 1 / -1;">
@@ -200,11 +212,7 @@
                         <button class="arrow prev" id="slides-arrow">&#10094;</button>
                         <button class="arrow next" id="slides-arrow">&#10095;</button>
                     </div>
-                    <div class="tech-specs">
-                        <span class="spec"><b>Material:</b> ${product.material}</span>
-                        <span class="spec"><b>Qualität:</b> ${product.quality}</span>
-                        <span class="spec"><b>Infill:</b> ${product.infill}</span>
-                    </div>
+                    ${techSpecsHtml}
                 </div>
                 <div class="product-info">
                     <span class="prod-category">${product.category}</span>
@@ -237,7 +245,7 @@
                     <button class="btn-buy" data-id="${defaultVariant.id}" onclick="addProductFromCard(this)">In den Warenkorb</button>
                 </div>
             `;
-            
+
             if (typeof initSliders === 'function') initSliders();
             if (typeof checkSliderArrows === 'function') checkSliderArrows();
             if (typeof fetchAllStocks === 'function') fetchAllStocks();
@@ -607,7 +615,7 @@
             const res = await fetch('/api/reviews', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
+                body: JSON.stringify({ action: 'add', ...payload })
             });
 
             if (res.ok) {

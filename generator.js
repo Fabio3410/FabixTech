@@ -15,7 +15,10 @@ async function renderShop() {
 
         allProductsCache = productsDB;
 
-        const categories = ['Alle', ...new Set(productsDB.map(p => p.category).filter(Boolean))];
+        const regularProducts = productsDB.filter(p => (p.category || '').toUpperCase() !== 'GESCHENKKARTE' && !p.baseId.toLowerCase().includes('gift') && !p.title.toLowerCase().includes('gutschein'));
+        const giftCards = productsDB.filter(p => (p.category || '').toUpperCase() === 'GESCHENKKARTE' || p.baseId.toLowerCase().includes('gift') || p.title.toLowerCase().includes('gutschein'));
+
+        const categories = ['Alle', ...new Set(regularProducts.map(p => p.category).filter(Boolean))];
         const filterContainer = document.getElementById('category-filter-container');
         
         if (filterContainer) {
@@ -30,22 +33,41 @@ async function renderShop() {
             `;
         }
 
-        displayProducts(productsDB);
+        displayProducts(regularProducts, giftCards);
     } catch (err) {
         console.error("Fehler beim Laden der Produkte:", err);
     }
 }
 
-function displayProducts(products) {
+function displayProducts(regularProducts, giftCards) {
     const grid = document.querySelector('.product-grid');
+    const giftcardSection = document.getElementById('giftcard-section');
+    const giftcardGrid = document.querySelector('.giftcard-grid');
+
     if (!grid) return;
 
-    if (products.length === 0) {
+    if (regularProducts.length === 0) {
         grid.innerHTML = "<p style='text-align: center; width: 100%; color: var(--text-muted);'>Keine Produkte in dieser Kategorie gefunden.</p>";
-        return;
+    } else {
+        grid.innerHTML = renderProductCards(regularProducts);
     }
 
-    grid.innerHTML = products.map(prod => {
+    if (giftcardSection && giftcardGrid) {
+        if (giftCards && giftCards.length > 0) {
+            giftcardSection.style.display = 'block';
+            giftcardGrid.innerHTML = renderProductCards(giftCards);
+        } else {
+            giftcardSection.style.display = 'none';
+        }
+    }
+    
+    if (typeof initSliders === 'function') initSliders();
+    if (typeof checkSliderArrows === 'function') checkSliderArrows();
+    if (typeof fetchAllStocks === 'function') fetchAllStocks();
+}
+
+function renderProductCards(products) {
+    return products.map(prod => {
         const allImages = [...new Set(prod.variants.flatMap(v => v.images))].join(', ');
         const defaultVariant = prod.variants[0];
         
@@ -91,43 +113,16 @@ function displayProducts(products) {
             </div>
         </div>`;
     }).join('');
-    
-    if (typeof initSliders === 'function') initSliders();
-    if (typeof checkSliderArrows === 'function') checkSliderArrows();
-    if (typeof fetchAllStocks === 'function') fetchAllStocks();
 }
 
 function filterProducts(category) {
+    const giftCards = allProductsCache.filter(p => (p.category || '').toUpperCase() === 'GESCHENKKARTE' || p.baseId.toLowerCase().includes('gift') || p.title.toLowerCase().includes('gutschein'));
+    
     if (category === 'Alle') {
-        displayProducts(allProductsCache);
+        const regularProducts = allProductsCache.filter(p => (p.category || '').toUpperCase() !== 'GESCHENKKARTE' && !p.baseId.toLowerCase().includes('gift') && !p.title.toLowerCase().includes('gutschein'));
+        displayProducts(regularProducts, giftCards);
     } else {
-        const filtered = allProductsCache.filter(p => p.category === category);
-        displayProducts(filtered);
+        const filtered = allProductsCache.filter(p => p.category === category && (p.category || '').toUpperCase() !== 'GESCHENKKARTE');
+        displayProducts(filtered, giftCards);
     }
 }
-
-function updateMainButtonStock(produktKarte) {
-    const activeVariantBtn = produktKarte.querySelector('.variant-btn.active');
-    const cartButton = produktKarte.querySelector('.btn-buy');
-    const alertBox = produktKarte.querySelector('#stock-alert-box');
-    
-    if (!activeVariantBtn || !cartButton) return;
-    const stockAttr = activeVariantBtn.getAttribute('data-stock') || activeVariantBtn.getAttribute('data-max-stock') || "0";
-    const aktuellerBestand = parseInt(stockAttr);
-    
-    if (alertBox) {
-        if (aktuellerBestand <= 0) {
-            cartButton.disabled = true;
-            cartButton.innerText = "Ausverkauft";
-            cartButton.removeAttribute('data-max-stock');
-            alertBox.classList.add('show');
-        } else {
-            cartButton.disabled = false;
-            cartButton.innerText = "In den Warenkorb";
-            cartButton.setAttribute('data-max-stock', aktuellerBestand);
-            alertBox.classList.remove('show');
-        }
-    }
-}
-
-document.addEventListener('DOMContentLoaded', renderShop);
