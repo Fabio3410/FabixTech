@@ -9,7 +9,8 @@ function parseCookie(cookieString, key) {
 export async function onRequestPost(context) {
     try {
         const stripe = new Stripe(context.env.STRIPE_SECRET_KEY);
-        const { cart, promoCode, shippingAddress } = await context.request.json();
+        const requestData = await context.request.json();
+        const { cart, promoCode, shippingAddress, action } = requestData;
         const cookieHeader = context.request.headers.get('Cookie') || '';
         const authHeader = context.request.headers.get('Authorization') || '';
 
@@ -22,6 +23,48 @@ export async function onRequestPost(context) {
         if (sessionId) {
             const user = await context.env.DB.prepare("SELECT email FROM users WHERE session_id = ?").bind(sessionId).first();
             if (user && user.email) customerEmail = user.email;
+        }
+
+        if (action === 'confirm_free_order') {
+            const { paymentIntentId, shippingAddress: addr, items, usedGiftCard, rabattWert } = requestData;
+            const orderId = "ORD-" + Date.now();
+            
+            await context.env.DB.prepare(`
+                INSERT INTO orders (id, payment_intent_id, customer_name, customer_email, shipping_address, shipping_note, total_amount, discount_amount, promo_code, status)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'offen')
+            `).bind(
+                orderId,
+                paymentIntentId || 'FREE-' + Date.now(),
+                addr?.name || 'Kunde',
+                addr?.email || customerEmail,
+                `${addr?.street || ''}, ${addr?.zip || ''} ${addr?.city || ''}, CH`,
+                addr?.shipping_note || '',
+                0,
+                rabattWert || 0,
+                usedGiftCard || 'Gutschein'
+            ).run();
+
+            if (usedGiftCard && rabattWert > 0) {
+                await context.env.DB.prepare(`
+                    UPDATE gift_cards 
+                    SET current_balance = MAX(0, current_balance - ?),
+                        is_active = CASE WHEN (current_balance - ?) <= 0 THEN 0 ELSE 1 END
+                    WHERE code = ?
+                `).bind(rabattWert, rabattWert, usedGiftCard).run();
+            }
+
+            if (items && Array.isArray(items)) {
+                for (const item of items) {
+                    const isGiftCardItem = item.isGiftCard || (item.id && item.id.toLowerCase().includes('gift')) || item.name.toLowerCase().includes('gutschein');
+                    if (item.id && item.quantity && !isGiftCardItem) {
+                        await context.env.DB.prepare(
+                            "UPDATE product_variants SET stock = stock - ? WHERE id = ?"
+                        ).bind(item.quantity, item.id).run();
+                    }
+                }
+            }
+
+            return new Response(JSON.stringify({ success: true, orderId }), { status: 200, headers: { 'Content-Type': 'application/json' } });
         }
 
         if (!cart || !Array.isArray(cart) || cart.length === 0) {
@@ -98,8 +141,20 @@ export async function onRequestPost(context) {
 
         let totalAmountRappen = bruttoGesamtRappen - rabattRappen;
         
-        if (totalAmountRappen > 0 && totalAmountRappen < 100) {
-            totalAmountRappen = 100;
+        if (totalAmountRappen === 0) {
+            return new Response(JSON.stringify({ 
+                freeOrder: true,
+                subtotal: itemsSubtotalRappen / 100,
+                discount: rabattRappen / 100,
+                shipping: versandkostenRappen / 100,
+                total: 0,
+                appliedCode: angewendeterCode,
+                usedGiftCard: usedGiftCardCode
+            }), { status: 200, headers: { 'Content-Type': 'application/json' } });
+        }
+
+        if (totalAmountRappen < 50) {
+            totalAmountRappen = 50;
         }
 
         const formattedAddress = shippingAddress 
@@ -128,17 +183,6 @@ export async function onRequestPost(context) {
             });
         });
 
-        if (totalAmountRappen === 0) {
-            return new Response(JSON.stringify({ 
-                freeOrder: true,
-                subtotal: itemsSubtotalRappen / 100,
-                discount: rabattRappen / 100,
-                shipping: versandkostenRappen / 100,
-                total: 0,
-                appliedCode: angewendeterCode
-            }), { status: 200, headers: { 'Content-Type': 'application/json' } });
-        }
-
         const paymentIntent = await stripe.paymentIntents.create({
             amount: totalAmountRappen,
             currency: 'chf',
@@ -156,7 +200,8 @@ export async function onRequestPost(context) {
             discount: rabattRappen / 100,
             shipping: versandkostenRappen / 100,
             total: totalAmountRappen / 100,
-            appliedCode: angewendeterCode
+            appliedCode: angewendeterCode,
+            usedGiftCard: usedGiftCardCode
         }), { status: 200, headers: { 'Content-Type': 'application/json' } });
 
     } catch (error) {

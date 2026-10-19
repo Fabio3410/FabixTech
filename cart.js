@@ -260,6 +260,69 @@ async function initCheckoutPage(promoCode = null) {
         }
 
         const paymentElementDiv = document.getElementById('payment-element');
+        const paymentSectionHeading = paymentElementDiv ? paymentElementDiv.previousElementSibling : null;
+
+        if (data.freeOrder) {
+            if (paymentElementDiv) {
+                paymentElementDiv.innerHTML = '<div style="background: rgba(22, 163, 74, 0.1); border: 1px solid #16a34a; padding: 12px; border-radius: 8px; color: #16a34a; font-weight: 600; text-align: center;">Dein Gutschein deckt den gesamten Betrag ab! Keine Zahlung erforderlich.</div>';
+            }
+            if (paymentSectionHeading) paymentSectionHeading.style.display = 'none';
+
+            const submitBtn = document.getElementById('submit-btn');
+            if (submitBtn) {
+                submitBtn.innerText = 'Kostenlos bestellen';
+            }
+
+            form.onsubmit = async (e) => {
+                e.preventDefault();
+                const turnstileToken = document.querySelector('[name="cf-turnstile-response"]')?.value;
+                if (!turnstileToken) {
+                    showAlert('Bitte bestätige, dass du kein Bot bist.', 'Fehler');
+                    return;
+                }
+
+                if (submitBtn) {
+                    submitBtn.disabled = true;
+                    submitBtn.innerText = 'Wird verarbeitet...';
+                }
+
+                try {
+                    const freeRes = await fetch('/api/checkout', {
+                        method: 'POST',
+                        headers: headers,
+                        body: JSON.stringify({
+                            action: 'confirm_free_order',
+                            usedGiftCard: data.usedGiftCard,
+                            rabattWert: data.discount,
+                            items: formattedCart,
+                            shippingAddress: {
+                                name: document.getElementById('name')?.value || '',
+                                email: document.getElementById('email')?.value || '',
+                                street: document.getElementById('street')?.value || '',
+                                zip: document.getElementById('zip')?.value || '',
+                                city: document.getElementById('city')?.value || '',
+                                shipping_note: document.getElementById('shipping-note')?.value || ''
+                            }
+                        })
+                    });
+                    const freeData = await freeRes.json();
+                    if (freeData.success) {
+                        localStorage.removeItem('cart');
+                        localStorage.removeItem('fabio3d_cart');
+                        window.location.href = `/success?free_order_id=${freeData.orderId}`;
+                    } else {
+                        alert(freeData.error || 'Fehler beim Bestellen.');
+                        if (submitBtn) { submitBtn.disabled = false; submitBtn.innerText = 'Kostenlos bestellen'; }
+                    }
+                } catch (err) {
+                    console.error(err);
+                    alert('Verbindungsfehler.');
+                    if (submitBtn) { submitBtn.disabled = false; submitBtn.innerText = 'Kostenlos bestellen'; }
+                }
+            };
+            return;
+        }
+
         if (paymentElementDiv) {
             paymentElementDiv.innerHTML = ''; 
         }
