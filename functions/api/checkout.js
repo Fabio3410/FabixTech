@@ -25,8 +25,12 @@ export async function onRequestPost(context) {
             if (user && user.email) customerEmail = user.email;
         }
 
+        try {
+            await context.env.DB.prepare("ALTER TABLE gift_cards ADD COLUMN order_id TEXT").run();
+        } catch (e) {}
+
         if (action === 'confirm_free_order') {
-            const { paymentIntentId, shippingAddress: addr, items, usedGiftCard, rabattWert } = requestData;
+            const { shippingAddress: addr, items, usedGiftCard, rabattWert } = requestData;
             const orderId = "ORD-" + Date.now();
             
             await context.env.DB.prepare(`
@@ -34,7 +38,7 @@ export async function onRequestPost(context) {
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'offen')
             `).bind(
                 orderId,
-                paymentIntentId || 'FREE-' + Date.now(),
+                'FREE-' + Date.now(),
                 addr?.name || 'Kunde',
                 addr?.email || customerEmail,
                 `${addr?.street || ''}, ${addr?.zip || ''} ${addr?.city || ''}, CH`,
@@ -55,8 +59,35 @@ export async function onRequestPost(context) {
 
             if (items && Array.isArray(items)) {
                 for (const item of items) {
+                    await context.env.DB.prepare(`
+                        INSERT INTO order_items (order_id, product_name, variant, quantity, price)
+                        VALUES (?, ?, ?, ?, ?)
+                    `).bind(
+                        orderId,
+                        item.name,
+                        item.farbe || item.variant || 'Standard',
+                        item.quantity,
+                        item.price
+                    ).run();
+
                     const isGiftCardItem = item.isGiftCard || (item.id && item.id.toLowerCase().includes('gift')) || item.name.toLowerCase().includes('gutschein');
-                    if (item.id && item.quantity && !isGiftCardItem) {
+                    
+                    if (isGiftCardItem) {
+                        for (let q = 0; q < item.quantity; q++) {
+                            const randomPart = crypto.randomUUID().replace(/-/g, '').substring(0, 8).toUpperCase();
+                            const giftCode = `FABIO-${randomPart.substring(0,4)}-${randomPart.substring(4,8)}`;
+                            const cardValue = parseFloat(item.price);
+
+                            try {
+                                await context.env.DB.prepare(`
+                                    INSERT INTO gift_cards (code, initial_balance, current_balance, purchased_by, order_id)
+                                    VALUES (?, ?, ?, ?, ?)
+                                `).bind(giftCode, cardValue, cardValue, addr?.email || customerEmail, orderId).run();
+                            } catch (gcErr) {
+                                console.error("Fehler beim Erstellen der Geschenkkarte:", gcErr);
+                            }
+                        }
+                    } else if (item.id && item.quantity) {
                         await context.env.DB.prepare(
                             "UPDATE product_variants SET stock = stock - ? WHERE id = ?"
                         ).bind(item.quantity, item.id).run();
