@@ -1,15 +1,20 @@
 let allProductsCache = [];
 
 async function renderShop() {
-    const grid = document.querySelector('.product-grid:not(.giftcard-grid)');
-    if (!grid) return;
+    const mainGrid = document.querySelector('.product-grid:not(.giftcard-grid)');
+    if (!mainGrid) return;
     
     try {
-        const res = await fetch('/api/products');
-        const productsDB = await res.json();
+        const [resProducts, resSections] = await Promise.all([
+            fetch('/api/products'),
+            fetch('/api/sections')
+        ]);
+
+        const productsDB = await resProducts.json();
+        const sectionsDB = resSections.ok ? await resSections.json() : [];
 
         if (!productsDB || productsDB.length === 0) {
-            grid.innerHTML = "<p>Keine Produkte vorhanden.</p>";
+            mainGrid.innerHTML = "<p style='text-align:center;'>Keine Produkte vorhanden.</p>";
             return;
         }
 
@@ -18,32 +23,73 @@ async function renderShop() {
         const regularProducts = productsDB.filter(p => (p.category || '').toUpperCase() !== 'GESCHENKKARTE' && !p.baseId.toLowerCase().includes('gift') && !p.title.toLowerCase().includes('gutschein'));
         const giftCards = productsDB.filter(p => (p.category || '').toUpperCase() === 'GESCHENKKARTE' || p.baseId.toLowerCase().includes('gift') || p.title.toLowerCase().includes('gutschein'));
 
-        const categories = ['Alle', ...new Set(regularProducts.map(p => p.category).filter(Boolean))];
-        const filterContainer = document.getElementById('category-filter-container');
-        
-        if (filterContainer) {
-            filterContainer.innerHTML = `
-                <div style="position: relative; display: inline-block; width: 240px;">
-                    <i class="fa-solid fa-filter" style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--text-muted); pointer-events: none; font-size: 13px;"></i>
-                    <select id="category-select" onchange="filterProducts(this.value)" style="width: 100%; padding: 10px 36px 10px 38px; border-radius: 10px; border: 1.2px solid var(--border-color); background: var(--bg-card); color: var(--text-main); font-size: 14px; font-weight: 500; appearance: none; cursor: pointer; outline: none; box-shadow: var(--shadow-sm); transition: border-color 0.2s;">
-                        ${categories.map(cat => `<option value="${cat}" style="background: var(--bg-card); color: var(--text-main);">${cat === 'Alle' ? 'Alle Kategorien' : cat}</option>`).join('')}
-                    </select>
-                    <i class="fa-solid fa-chevron-down" style="position: absolute; right: 14px; top: 50%; transform: translateY(-50%); color: var(--text-muted); pointer-events: none; font-size: 11px;"></i>
+        const shopPage = document.getElementById('shop-page');
+        if (sectionsDB && sectionsDB.length > 0 && shopPage) {
+            renderDynamicSections(sectionsDB, regularProducts);
+        } else {
+            renderCategoryFilter(regularProducts);
+            displayProducts(regularProducts, giftCards);
+        }
+
+        renderGiftCards(giftCards);
+
+    } catch (err) {
+        console.error("Fehler beim Laden des Shops:", err);
+    }
+}
+
+function renderCategoryFilter(regularProducts) {
+    const categories = ['Alle', ...new Set(regularProducts.map(p => p.category).filter(Boolean))];
+    const filterContainer = document.getElementById('category-filter-container');
+    
+    if (filterContainer) {
+        filterContainer.innerHTML = `
+            <div style="position: relative; display: inline-block; width: 240px;">
+                <i class="fa-solid fa-filter" style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--text-muted); pointer-events: none; font-size: 13px;"></i>
+                <select id="category-select" onchange="filterProducts(this.value)" style="width: 100%; padding: 10px 36px 10px 38px; border-radius: 10px; border: 1.2px solid var(--border-color); background: var(--bg-card); color: var(--text-main); font-size: 14px; font-weight: 500; appearance: none; cursor: pointer; outline: none; box-shadow: var(--shadow-sm); transition: border-color 0.2s;">
+                    ${categories.map(cat => `<option value="${cat}" style="background: var(--bg-card); color: var(--text-main);">${cat === 'Alle' ? 'Alle Kategorien' : cat}</option>`).join('')}
+                </select>
+                <i class="fa-solid fa-chevron-down" style="position: absolute; right: 14px; top: 50%; transform: translateY(-50%); color: var(--text-muted); pointer-events: none; font-size: 11px;"></i>
+            </div>
+        `;
+    }
+}
+
+function renderDynamicSections(sections, allProducts) {
+    const filterContainer = document.getElementById('category-filter-container');
+    if (filterContainer) filterContainer.style.display = 'none';
+
+    const mainGrid = document.querySelector('.product-grid:not(.giftcard-grid)');
+    if (!mainGrid) return;
+
+    let sectionsHtml = '';
+
+    sections.forEach(sec => {
+        const secProducts = allProducts.filter(p => sec.productIds && sec.productIds.includes(p.baseId));
+        if (secProducts.length > 0) {
+            sectionsHtml += `
+                <div class="shop-section-block" style="margin-bottom: 50px;">
+                    <div class="shop-header" style="text-align: left; margin-bottom: 20px;">
+                        <h2 style="font-size: 22px;">${sec.title}</h2>
+                        ${sec.description ? `<p style="font-size: 14px; color: var(--text-muted);">${sec.description}</p>` : ''}
+                    </div>
+                    <div class="product-grid">
+                        ${renderProductCards(secProducts)}
+                    </div>
                 </div>
             `;
         }
+    });
 
-        displayProducts(regularProducts, giftCards);
-    } catch (err) {
-        console.error("Fehler beim Laden der Produkte:", err);
+    if (sectionsHtml === '') {
+        mainGrid.innerHTML = renderProductCards(allProducts);
+    } else {
+        mainGrid.outerHTML = `<div id="dynamic-sections-container">${sectionsHtml}</div>`;
     }
 }
 
 function displayProducts(regularProducts, giftCards) {
     const mainGrid = document.querySelector('.product-grid:not(.giftcard-grid)');
-    const giftcardSection = document.getElementById('giftcard-section');
-    const giftcardGrid = document.querySelector('.giftcard-grid');
-
     if (!mainGrid) return;
 
     if (regularProducts.length === 0) {
@@ -51,6 +97,11 @@ function displayProducts(regularProducts, giftCards) {
     } else {
         mainGrid.innerHTML = renderProductCards(regularProducts);
     }
+}
+
+function renderGiftCards(giftCards) {
+    const giftcardSection = document.getElementById('giftcard-section');
+    const giftcardGrid = document.querySelector('.giftcard-grid');
 
     if (giftcardSection && giftcardGrid) {
         if (giftCards && giftCards.length > 0) {
@@ -69,7 +120,7 @@ function displayProducts(regularProducts, giftCards) {
 function renderProductCards(products) {
     return products.map(prod => {
         const allImages = [...new Set(prod.variants.flatMap(v => v.images))].join(', ');
-        const defaultVariant = prod.variants[0];
+        const defaultVariant = prod.variants[0] || { price: 0, images: [''] };
         
         const variantsHtml = prod.variants.map((v, index) => `
             <button class="variant-btn ${index === 0 ? 'active' : ''}" 

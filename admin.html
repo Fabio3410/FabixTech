@@ -1205,13 +1205,15 @@
         try {
             const [resSec, resProd] = await Promise.all([
                 fetch('/api/sections'),
-                fetch('/api/products')
+                fetch('/api/products?all=true')
             ]);
 
             const sections = await resSec.json();
             const products = await resProd.json();
 
-            selectContainer.innerHTML = products.map(p => `<option value="${p.baseId}">${p.title} (${p.baseId})</option>`).join('');
+            if (selectContainer) {
+                selectContainer.innerHTML = products.map(p => `<option value="${p.baseId}">${p.title} (${p.baseId})</option>`).join('');
+            }
 
             if (sections.length === 0) {
                 listContainer.innerHTML = '<p style="color: var(--text-muted);">Noch keine Abschnitte erstellt.</p>';
@@ -1226,23 +1228,40 @@
                             </div>
                         </div>
                         <p style="font-size: 13px; color: var(--text-muted); margin: 5px 0;">${s.description || 'Keine Beschreibung'}</p>
-                        <small style="color: var(--text-muted);">Enthaltene Produkte: ${s.productIds.length} Stück</small>
+                        <small style="color: var(--text-muted);">Enthaltene Produkte: ${s.productIds ? s.productIds.length : 0} Stück</small>
                     </div>
                 `).join('');
             }
 
-            visibilityContainer.innerHTML = products.map(p => `
-                <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--border);">
-                    <span><strong>${p.title}</strong> <small style="color: var(--text-muted);">(${p.baseId})</small></span>
-                    <label style="cursor: pointer; font-size: 13px;">
-                        <input type="checkbox" ${p.isActive !== 0 ? 'checked' : ''} onchange="toggleProductActive('${p.baseId}', this.checked)">
-                        Aktiv im Shop
-                    </label>
-                </div>
-            `).join('');
+            if (visibilityContainer) {
+                visibilityContainer.innerHTML = products.map(p => `
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--border);">
+                        <span><strong>${p.title}</strong> <small style="color: var(--text-muted);">(${p.baseId})</small></span>
+                        <label style="cursor: pointer; font-size: 13px;">
+                            <input type="checkbox" ${p.isActive ? 'checked' : ''} onchange="toggleProductActive('${p.baseId}', this.checked)">
+                            Aktiv im Shop
+                        </label>
+                    </div>
+                `).join('');
+            }
 
         } catch (e) {
-            console.error(e);
+            console.error("Fehler beim Laden der Abschnitte:", e);
+        }
+    }
+
+    async function toggleProductActive(baseId, isActive) {
+        const token = getSessionToken();
+        try {
+            const res = await fetch('/api/sections', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                body: JSON.stringify({ action: 'toggle_product_status', baseId, isActive })
+            });
+            if (!res.ok) throw new Error("Fehler beim Aktualisieren");
+        } catch (err) {
+            alert("Status konnte nicht geändert werden.");
+            loadSectionsAdmin();
         }
     }
 
@@ -1289,15 +1308,6 @@
             headers: { 'Authorization': `Bearer ${token}` }
         });
         loadSectionsAdmin();
-    }
-
-    async function toggleProductActive(baseId, isActive) {
-        const token = getSessionToken();
-        await fetch('/api/sections', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-            body: JSON.stringify({ action: 'toggle_product_status', baseId, isActive })
-        });
     }
     </script>
 <script src="/script.js" defer></script>

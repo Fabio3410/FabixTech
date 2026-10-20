@@ -36,11 +36,16 @@ export async function onRequestOptions() {
     return new Response(null, { headers: corsHeaders });
 }
 
-export async function onRequestGet({ env }) {
+export async function onRequestGet({ request, env }) {
     try {
-        const { results: products } = await env.DB.prepare(
-            "SELECT * FROM products ORDER BY sort_order ASC, created_at DESC"
-        ).all();
+        const url = new URL(request.url);
+        const includeInactive = url.searchParams.get('all') === 'true';
+
+        const sql = includeInactive 
+            ? "SELECT * FROM products ORDER BY sort_order ASC, created_at DESC" 
+            : "SELECT * FROM products WHERE is_active = 1 OR is_active IS NULL ORDER BY sort_order ASC, created_at DESC";
+
+        const { results: products } = await env.DB.prepare(sql).all();
         const { results: variants } = await env.DB.prepare("SELECT * FROM product_variants").all();
 
         const formattedProducts = products.map(p => {
@@ -65,6 +70,7 @@ export async function onRequestGet({ env }) {
                 infill: p.infill,
                 longDescription: p.long_description,
                 sortOrder: p.sort_order || 0,
+                isActive: p.is_active !== 0,
                 variants: productVariants
             };
         });
