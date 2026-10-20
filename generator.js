@@ -2,8 +2,8 @@ let allProductsCache = [];
 let allSectionsCache = [];
 
 async function renderShop() {
-    const mainGrid = document.querySelector('.product-grid:not(.giftcard-grid)');
-    if (!mainGrid) return;
+    const container = document.getElementById('dynamic-sections-container');
+    if (!container) return;
     
     try {
         const [resProducts, resSections] = await Promise.all([
@@ -15,7 +15,7 @@ async function renderShop() {
         const sectionsDB = resSections.ok ? await resSections.json() : [];
 
         if (!productsDB || productsDB.length === 0) {
-            mainGrid.innerHTML = "<p style='text-align:center;'>Keine Produkte vorhanden.</p>";
+            container.innerHTML = "<p style='text-align:center;'>Keine Produkte vorhanden.</p>";
             return;
         }
 

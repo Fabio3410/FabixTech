@@ -137,8 +137,25 @@ export async function onRequestGet(context) {
                 
                 if (isGiftCardItem) {
                     for (let q = 0; q < item.quantity; q++) {
-                        const randomPart = crypto.randomUUID().replace(/-/g, '').substring(0, 8).toUpperCase();
-                        const giftCode = `FABIO-${randomPart.substring(0,4)}-${randomPart.substring(4,8)}`;
+                        let giftCode = '';
+                        let isUnique = false;
+                        let maxAttempts = 10;
+
+                        while (!isUnique && maxAttempts > 0) {
+                            const randomPart = crypto.randomUUID().replace(/-/g, '').substring(0, 8).toUpperCase();
+                            giftCode = `FABIO-${randomPart.substring(0,4)}-${randomPart.substring(4,8)}`;
+
+                            const existing = await context.env.DB.prepare(
+                                "SELECT code FROM gift_cards WHERE code = ?"
+                            ).bind(giftCode).first();
+
+                            if (!existing) {
+                                isUnique = true;
+                            } else {
+                                maxAttempts--;
+                            }
+                        }
+
                         const cardValue = parseFloat(item.price);
 
                         try {

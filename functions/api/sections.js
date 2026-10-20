@@ -62,6 +62,20 @@ export async function onRequestPost(context) {
             return new Response(JSON.stringify({ success: true }), { headers: corsHeaders });
         }
 
+        if (data.action === 'reorder_sections') {
+            if (!data.orderedIds || !Array.isArray(data.orderedIds)) {
+                return new Response(JSON.stringify({ error: "orderedIds fehlt" }), { status: 400, headers: corsHeaders });
+            }
+
+            const statements = data.orderedIds.map((id, index) => {
+                return env.DB.prepare("UPDATE shop_sections SET sort_order = ? WHERE id = ?")
+                    .bind(index, id);
+            });
+
+            await env.DB.batch(statements);
+            return new Response(JSON.stringify({ success: true, message: "Reihenfolge gespeichert!" }), { headers: corsHeaders });
+        }
+
         const res = await env.DB.prepare(`
             INSERT INTO shop_sections (title, description, sort_order, is_active)
             VALUES (?, ?, ?, 1)
