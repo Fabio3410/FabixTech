@@ -69,12 +69,15 @@ function renderDynamicSections(selectedCategory, allProducts) {
 
             if (secProducts.length > 0) {
                 sectionsHtml += `
-                    <div class="shop-section-block" style="margin-bottom: 50px;">
-                        <div class="shop-header" style="text-align: left; margin-bottom: 20px;">
-                            <h2 style="font-size: 22px;">${sec.title}</h2>
-                            ${sec.description ? `<p style="font-size: 14px; color: var(--text-muted);">${sec.description}</p>` : ''}
+                    <div class="shop-section-block" style="margin-bottom: 60px; width: 100%; max-width: 1200px; margin-left: auto; margin-right: auto; padding: 0 20px;">
+                        <div class="shop-header" style="text-align: left; margin-bottom: 24px;">
+                            <h2 style="font-size: 28px; font-weight: 800; color: var(--text-main); letter-spacing: -0.5px; position: relative; padding-bottom: 8px; margin: 0;">
+                                ${sec.title}
+                                <span style="display: block; width: 45px; height: 3px; background: var(--primary, #d40202); margin-top: 8px; border-radius: 2px;"></span>
+                            </h2>
+                            ${sec.description ? `<p style="font-size: 15px; color: var(--text-muted); margin-top: 8px; margin-bottom: 0;">${sec.description}</p>` : ''}
                         </div>
-                        <div class="product-grid">
+                        <div class="product-grid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px;">
                             ${renderProductCards(secProducts)}
                         </div>
                     </div>
