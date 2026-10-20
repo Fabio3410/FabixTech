@@ -23,13 +23,9 @@ async function renderShop() {
         allSectionsCache = sectionsDB;
 
         const regularProducts = productsDB.filter(p => (p.category || '').toUpperCase() !== 'GESCHENKKARTE' && !p.baseId.toLowerCase().includes('gift') && !p.title.toLowerCase().includes('gutschein'));
-        const giftCards = productsDB.filter(p => (p.category || '').toUpperCase() === 'GESCHENKKARTE' || p.baseId.toLowerCase().includes('gift') || p.title.toLowerCase().includes('gutschein'));
 
         renderCategoryFilter(regularProducts);
-
-        renderDynamicSections('Alle', regularProducts);
-
-        renderGiftCards(giftCards);
+        renderDynamicSections('Alle', productsDB);
 
     } catch (err) {
         console.error("Fehler beim Laden des Shops:", err);
@@ -55,8 +51,8 @@ function renderCategoryFilter(regularProducts) {
 }
 
 function filterSectionsByCategory(category) {
-    const regularProducts = allProductsCache.filter(p => (p.category || '').toUpperCase() !== 'GESCHENKKARTE' && !p.baseId.toLowerCase().includes('gift') && !p.title.toLowerCase().includes('gutschein'));
-    renderDynamicSections(category, regularProducts);
+    const targetProducts = category === 'Alle' ? allProductsCache : allProductsCache.filter(p => p.category === category);
+    renderDynamicSections(category, targetProducts);
 }
 
 function renderDynamicSections(selectedCategory, allProducts) {
@@ -70,7 +66,7 @@ function renderDynamicSections(selectedCategory, allProducts) {
             let secProducts = allProducts.filter(p => sec.productIds && sec.productIds.includes(p.baseId));
             
             if (selectedCategory !== 'Alle') {
-                secProducts = secProducts.filter(p => p.category === selectedCategory);
+                secProducts = secProducts.filter(p => p.category === selectedCategory || (sec.productIds && sec.productIds.includes(p.baseId)));
             }
 
             if (secProducts.length > 0) {
@@ -98,20 +94,6 @@ function renderDynamicSections(selectedCategory, allProducts) {
     if (typeof initSliders === 'function') initSliders();
     if (typeof checkSliderArrows === 'function') checkSliderArrows();
     if (typeof fetchAllStocks === 'function') fetchAllStocks();
-}
-
-function renderGiftCards(giftCards) {
-    const giftcardSection = document.getElementById('giftcard-section');
-    const giftcardGrid = document.querySelector('.giftcard-grid');
-
-    if (giftcardSection && giftcardGrid) {
-        if (giftCards && giftCards.length > 0) {
-            giftcardSection.style.display = 'block';
-            giftcardGrid.innerHTML = renderProductCards(giftCards);
-        } else {
-            giftcardSection.style.display = 'none';
-        }
-    }
 }
 
 function renderProductCards(products) {
