@@ -77,7 +77,7 @@ function renderDynamicSections(selectedCategory, allProducts) {
                             </h2>
                             ${sec.description ? `<p style="font-size: 15px; color: var(--text-muted); margin-top: 8px; margin-bottom: 0;">${sec.description}</p>` : ''}
                         </div>
-                        <div class="product-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px;">
+                        <div class="product-grid" style="display: flex; flex-wrap: wrap; gap: 24px; justify-content: flex-start;">
                             ${renderProductCards(secProducts)}
                         </div>
                     </div>
@@ -113,7 +113,7 @@ function renderProductCards(products) {
         `).join('');
 
         return `
-        <div class="product-card" data-category="${prod.category}">
+        <div class="product-card" data-category="${prod.category}" style="flex: 1 1 320px; max-width: 360px; min-width: 280px;">
             <div class="slider-container">
                 <div class="slides">
                     <a href="product.html?id=${prod.baseId}" class="product-img-link">
