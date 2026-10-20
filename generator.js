@@ -22,9 +22,7 @@ async function renderShop() {
         allProductsCache = productsDB;
         allSectionsCache = sectionsDB;
 
-        const regularProducts = productsDB.filter(p => (p.category || '').toUpperCase() !== 'GESCHENKKARTE' && !p.baseId.toLowerCase().includes('gift') && !p.title.toLowerCase().includes('gutschein'));
-
-        renderCategoryFilter(regularProducts);
+        renderCategoryFilter(productsDB);
         renderDynamicSections('Alle', productsDB);
 
     } catch (err) {
@@ -32,8 +30,8 @@ async function renderShop() {
     }
 }
 
-function renderCategoryFilter(regularProducts) {
-    const categories = ['Alle', ...new Set(regularProducts.map(p => p.category).filter(Boolean))];
+function renderCategoryFilter(allProducts) {
+    const categories = ['Alle', ...new Set(allProducts.map(p => p.category).filter(Boolean))];
     const filterContainer = document.getElementById('category-filter-container');
     
     if (filterContainer) {
@@ -66,7 +64,7 @@ function renderDynamicSections(selectedCategory, allProducts) {
             let secProducts = allProducts.filter(p => sec.productIds && sec.productIds.includes(p.baseId));
             
             if (selectedCategory !== 'Alle') {
-                secProducts = secProducts.filter(p => p.category === selectedCategory || (sec.productIds && sec.productIds.includes(p.baseId)));
+                secProducts = secProducts.filter(p => p.category === selectedCategory);
             }
 
             if (secProducts.length > 0) {
