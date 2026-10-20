@@ -777,18 +777,22 @@
         const ordersTab = document.getElementById('tab-orders');
         const stockTab = document.getElementById('tab-stock');
         const settingsTab = document.getElementById('tab-settings');
+        const sectionsTab = document.getElementById('tab-sections');
 
         const btnOrders = document.getElementById('btn-tab-orders');
         const btnStock = document.getElementById('btn-tab-stock');
         const btnSettings = document.getElementById('btn-tab-settings');
+        const btnSections = document.getElementById('btn-tab-sections');
 
         ordersTab.style.display = 'none';
         stockTab.style.display = 'none';
         settingsTab.style.display = 'none';
+        if (sectionsTab) sectionsTab.style.display = 'none';
 
         btnOrders.style.background = '#334155';
         btnStock.style.background = '#334155';
         btnSettings.style.background = '#334155';
+        if (btnSections) btnSections.style.background = '#334155';
 
         if (tab === 'orders') {
             ordersTab.style.display = 'block';
@@ -804,8 +808,8 @@
             loadProductSortList();
             loadPromoCodes();
         } else if (tab === 'sections') {
-            settingsTab.style.display = 'block';
-            btnSettings.style.background = 'var(--primary)';
+            if (sectionsTab) sectionsTab.style.display = 'block';
+            if (btnSections) btnSections.style.background = 'var(--primary)';
             loadSectionsAdmin();
         }
     }
