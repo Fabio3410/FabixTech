@@ -71,7 +71,7 @@ function renderDynamicSections(selectedCategory, allProducts) {
                 sectionsHtml += `
                     <div class="shop-section-block" style="margin-bottom: 60px; width: 100%; max-width: 1200px; margin-left: auto; margin-right: auto; padding: 0 20px;">
                         <div class="shop-header" style="text-align: left; margin-bottom: 24px;">
-                            <h2 style="font-size: 28px; font-weight: 800; color: var(--text-main); letter-spacing: -0.5px; position: relative; padding-bottom: 8px; margin: 0;">
+                            <h2 style="font-size: 40px; font-weight: 800; color: var(--text-main); letter-spacing: -0.5px; position: relative; padding-bottom: 8px; margin: 0;">
                                 ${sec.title}
                                 <span style="display: block; width: 45px; height: 3px; background: var(--primary, #d40202); margin-top: 8px; border-radius: 2px;"></span>
                             </h2>
