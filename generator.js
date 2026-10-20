@@ -113,7 +113,7 @@ function renderProductCards(products) {
         `).join('');
 
         return `
-        <div class="product-card" data-category="${prod.category}" style="flex: 1 1 320px; max-width: 360px; min-width: 280px;">
+        <div class="product-card" data-category="${prod.category}" style="flex: 1 1 350px; max-width: 380px; min-width: 350px;">
             <div class="slider-container">
                 <div class="slides">
                     <a href="product.html?id=${prod.baseId}" class="product-img-link">
