@@ -56,18 +56,22 @@ document.addEventListener('click', (event) => {
 
 function updatePrice(button) {
     const card = button.closest('.product-card, .product-card-detail-view');
-    const newPrice = button.getAttribute('data-price');
-    if (!card || !newPrice) return;
+    const rawPrice = button.getAttribute('data-price');
+    if (!card || !rawPrice) return;
+    
+    const numericPrice = parseFloat(rawPrice);
+    const formattedPrice = isNaN(numericPrice) ? rawPrice : numericPrice.toFixed(2).replace('.', ',');
+
     const priceElement = card.querySelector('.price');
     if (priceElement) {
-        priceElement.textContent = newPrice.replace('.', ',');
+        priceElement.textContent = formattedPrice;
     }
 
     const buyButton = card.querySelector('.btn-buy');
     if (buyButton) {
         const currentOnclick = buyButton.getAttribute('onclick');
         if (currentOnclick && currentOnclick.includes('addToCart')) {
-            const updatedOnclick = currentOnclick.replace(/([\d\.]+)\s*\)/, newPrice + ')');
+            const updatedOnclick = currentOnclick.replace(/([\d\.]+)\s*\)/, numericPrice + ')');
             buyButton.setAttribute('onclick', updatedOnclick);
         }
     }
