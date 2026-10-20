@@ -261,6 +261,7 @@
             <button id="btn-tab-orders" onclick="switchAdminTab('orders')" style="background: var(--primary);">Bestellungen</button>
             <button id="btn-tab-stock" onclick="switchAdminTab('stock')" style="background: #334155;">Bestand</button>
             <button id="btn-tab-settings" onclick="switchAdminTab('settings')" style="background: #334155;">Verwalten</button>
+            <button id="btn-tab-sections" onclick="switchAdminTab('sections')" style="background: #334155;">Abschnitte</button>
         </div>
 
         <div id="tab-orders">
@@ -448,6 +449,41 @@
                     <strong>Vorschau:</strong> <span id="version-preview" style="color: var(--primary); font-weight: bold;">Version 1.0.0</span>
                 </div>
                 <button onclick="saveVersionSettings()" style="background: #d40202;">Version speichern</button>
+            </div>
+        </div>
+
+        <div id="tab-sections" style="display: none;">
+            <div class="order-card">
+                <h3 style="margin-top: 0; margin-bottom: 15px;">Neuen Abschnitt erstellen</h3>
+                <form id="create-section-form" onsubmit="saveSection(event)">
+                    <input type="hidden" id="section-id">
+                    <div class="form-group">
+                        <label>Titel des Abschnitts*</label>
+                        <input type="text" id="section-title" required placeholder="z. B. Weihnachts-Special oder Bestseller">
+                    </div>
+                    <div class="form-group">
+                        <label>Kurze Beschreibung</label>
+                        <textarea id="section-desc" rows="2" placeholder="Kurzer Infotext zum Abschnitt..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Produkte in diesem Abschnitt auswählen:</label>
+                        <select id="section-products-select" multiple style="height: 140px; padding: 8px;">
+                        </select>
+                        <small style="color: var(--text-muted);">(Halte Strg gedrückt, um mehrere Produkte auszuwählen)</small>
+                    </div>
+                    <button type="submit" style="background: var(--primary); width: 100%;">Abschnitt speichern</button>
+                </form>
+            </div>
+
+            <div class="order-card">
+                <h3 style="margin-top: 0; margin-bottom: 15px;">Bestehende Abschnitte</h3>
+                <div id="sections-list"><p style="color: var(--text-muted);">Lade Abschnitte...</p></div>
+            </div>
+
+            <div class="order-card">
+                <h3 style="margin-top: 0; margin-bottom: 15px;">Produkt-Sichtbarkeit im Shop</h3>
+                <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 15px;">Deaktiviere Produkte, um sie aus dem Shop auszublenden, ohne sie zu löschen.</p>
+                <div id="product-visibility-list"></div>
             </div>
         </div>
     </div>
@@ -1151,6 +1187,109 @@
             console.error("Fehler:", e);
             alert("Verbindungsfehler zum Server.");
         }
+    }
+
+    async function loadSectionsAdmin() {
+        const listContainer = document.getElementById('sections-list');
+        const selectContainer = document.getElementById('section-products-select');
+        const visibilityContainer = document.getElementById('product-visibility-list');
+
+        try {
+            const [resSec, resProd] = await Promise.all([
+                fetch('/api/sections'),
+                fetch('/api/products')
+            ]);
+
+            const sections = await resSec.json();
+            const products = await resProd.json();
+
+            selectContainer.innerHTML = products.map(p => `<option value="${p.baseId}">${p.title} (${p.baseId})</option>`).join('');
+
+            if (sections.length === 0) {
+                listContainer.innerHTML = '<p style="color: var(--text-muted);">Noch keine Abschnitte erstellt.</p>';
+            } else {
+                listContainer.innerHTML = sections.map(s => `
+                    <div style="border: 1px solid var(--border); padding: 15px; border-radius: 8px; margin-bottom: 10px; background: var(--bg-body);">
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <strong>${s.title}</strong>
+                            <div>
+                                <button onclick='editSection(${JSON.stringify(s)})' style="padding: 4px 10px; font-size: 12px; background: #334155;">Bearbeiten</button>
+                                <button onclick="deleteSection(${s.id})" style="padding: 4px 10px; font-size: 12px; background: #d40202;">Löschen</button>
+                            </div>
+                        </div>
+                        <p style="font-size: 13px; color: var(--text-muted); margin: 5px 0;">${s.description || 'Keine Beschreibung'}</p>
+                        <small style="color: var(--text-muted);">Enthaltene Produkte: ${s.productIds.length} Stück</small>
+                    </div>
+                `).join('');
+            }
+
+            visibilityContainer.innerHTML = products.map(p => `
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--border);">
+                    <span><strong>${p.title}</strong> <small style="color: var(--text-muted);">(${p.baseId})</small></span>
+                    <label style="cursor: pointer; font-size: 13px;">
+                        <input type="checkbox" ${p.isActive !== 0 ? 'checked' : ''} onchange="toggleProductActive('${p.baseId}', this.checked)">
+                        Aktiv im Shop
+                    </label>
+                </div>
+            `).join('');
+
+        } catch (e) {
+            console.error(e);
+        }
+    }
+
+    async function saveSection(event) {
+        event.preventDefault();
+        const id = document.getElementById('section-id').value;
+        const title = document.getElementById('section-title').value.trim();
+        const description = document.getElementById('section-desc').value.trim();
+        const select = document.getElementById('section-products-select');
+        const productIds = Array.from(select.selectedOptions).map(opt => opt.value);
+
+        const token = getSessionToken();
+        const headers = { 'Content-Type': 'application/json' };
+        if (token) headers['Authorization'] = `Bearer ${token}`;
+
+        const method = id ? 'PUT' : 'POST';
+        const body = { id, title, description, productIds, isActive: 1 };
+
+        const res = await fetch('/api/sections', { method, headers, body: JSON.stringify(body) });
+        if (res.ok) {
+            alert("Abschnitt gespeichert!");
+            document.getElementById('create-section-form').reset();
+            document.getElementById('section-id').value = '';
+            loadSectionsAdmin();
+        }
+    }
+
+    function editSection(s) {
+        document.getElementById('section-id').value = s.id;
+        document.getElementById('section-title').value = s.title;
+        document.getElementById('section-desc').value = s.description;
+
+        const select = document.getElementById('section-products-select');
+        Array.from(select.options).forEach(opt => {
+            opt.selected = s.productIds.includes(opt.value);
+        });
+    }
+
+    async function deleteSection(id) {
+        if (!confirm("Abschnitt wirklich löschen?")) return;
+        const token = getSessionToken();
+        await fetch(`/api/sections?id=${id}`, {
+            method: 'DELETE',
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        loadSectionsAdmin();
+    }
+
+    async function toggleProductActive(baseId, isActive) {
+        const token = getSessionToken();
+        await fetch('/api/sections', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+            body: JSON.stringify({ action: 'toggle_product_status', baseId, isActive })
+        });
     }
     </script>
 <script src="/script.js" defer></script>
