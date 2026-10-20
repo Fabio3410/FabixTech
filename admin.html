@@ -803,6 +803,10 @@
             loadVersionSettings();
             loadProductSortList();
             loadPromoCodes();
+        } else if (tab === 'sections') {
+            settingsTab.style.display = 'block';
+            btnSettings.style.background = 'var(--primary)';
+            loadSectionsAdmin();
         }
     }
 
