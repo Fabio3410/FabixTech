@@ -1,4 +1,5 @@
 let allProductsCache = [];
+let allSectionsCache = [];
 
 async function renderShop() {
     const mainGrid = document.querySelector('.product-grid:not(.giftcard-grid)');
@@ -19,17 +20,14 @@ async function renderShop() {
         }
 
         allProductsCache = productsDB;
+        allSectionsCache = sectionsDB;
 
         const regularProducts = productsDB.filter(p => (p.category || '').toUpperCase() !== 'GESCHENKKARTE' && !p.baseId.toLowerCase().includes('gift') && !p.title.toLowerCase().includes('gutschein'));
         const giftCards = productsDB.filter(p => (p.category || '').toUpperCase() === 'GESCHENKKARTE' || p.baseId.toLowerCase().includes('gift') || p.title.toLowerCase().includes('gutschein'));
 
-        const shopPage = document.getElementById('shop-page');
-        if (sectionsDB && sectionsDB.length > 0 && shopPage) {
-            renderDynamicSections(sectionsDB, regularProducts);
-        } else {
-            renderCategoryFilter(regularProducts);
-            displayProducts(regularProducts, giftCards);
-        }
+        renderCategoryFilter(regularProducts);
+
+        renderDynamicSections('Alle', regularProducts);
 
         renderGiftCards(giftCards);
 
@@ -43,10 +41,11 @@ function renderCategoryFilter(regularProducts) {
     const filterContainer = document.getElementById('category-filter-container');
     
     if (filterContainer) {
+        filterContainer.style.display = 'flex';
         filterContainer.innerHTML = `
             <div style="position: relative; display: inline-block; width: 240px;">
                 <i class="fa-solid fa-filter" style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--text-muted); pointer-events: none; font-size: 13px;"></i>
-                <select id="category-select" onchange="filterProducts(this.value)" style="width: 100%; padding: 10px 36px 10px 38px; border-radius: 10px; border: 1.2px solid var(--border-color); background: var(--bg-card); color: var(--text-main); font-size: 14px; font-weight: 500; appearance: none; cursor: pointer; outline: none; box-shadow: var(--shadow-sm); transition: border-color 0.2s;">
+                <select id="category-select" onchange="filterSectionsByCategory(this.value)" style="width: 100%; padding: 10px 36px 10px 38px; border-radius: 10px; border: 1.2px solid var(--border-color); background: var(--bg-card); color: var(--text-main); font-size: 14px; font-weight: 500; appearance: none; cursor: pointer; outline: none; box-shadow: var(--shadow-sm); transition: border-color 0.2s;">
                     ${categories.map(cat => `<option value="${cat}" style="background: var(--bg-card); color: var(--text-main);">${cat === 'Alle' ? 'Alle Kategorien' : cat}</option>`).join('')}
                 </select>
                 <i class="fa-solid fa-chevron-down" style="position: absolute; right: 14px; top: 50%; transform: translateY(-50%); color: var(--text-muted); pointer-events: none; font-size: 11px;"></i>
@@ -55,48 +54,50 @@ function renderCategoryFilter(regularProducts) {
     }
 }
 
-function renderDynamicSections(sections, allProducts) {
-    const filterContainer = document.getElementById('category-filter-container');
-    if (filterContainer) filterContainer.style.display = 'none';
+function filterSectionsByCategory(category) {
+    const regularProducts = allProductsCache.filter(p => (p.category || '').toUpperCase() !== 'GESCHENKKARTE' && !p.baseId.toLowerCase().includes('gift') && !p.title.toLowerCase().includes('gutschein'));
+    renderDynamicSections(category, regularProducts);
+}
 
-    const mainGrid = document.querySelector('.product-grid:not(.giftcard-grid)');
-    if (!mainGrid) return;
+function renderDynamicSections(selectedCategory, allProducts) {
+    let container = document.getElementById('dynamic-sections-container');
+    if (!container) return;
 
     let sectionsHtml = '';
 
-    sections.forEach(sec => {
-        const secProducts = allProducts.filter(p => sec.productIds && sec.productIds.includes(p.baseId));
-        if (secProducts.length > 0) {
-            sectionsHtml += `
-                <div class="shop-section-block" style="margin-bottom: 50px;">
-                    <div class="shop-header" style="text-align: left; margin-bottom: 20px;">
-                        <h2 style="font-size: 22px;">${sec.title}</h2>
-                        ${sec.description ? `<p style="font-size: 14px; color: var(--text-muted);">${sec.description}</p>` : ''}
+    if (allSectionsCache && allSectionsCache.length > 0) {
+        allSectionsCache.forEach(sec => {
+            let secProducts = allProducts.filter(p => sec.productIds && sec.productIds.includes(p.baseId));
+            
+            if (selectedCategory !== 'Alle') {
+                secProducts = secProducts.filter(p => p.category === selectedCategory);
+            }
+
+            if (secProducts.length > 0) {
+                sectionsHtml += `
+                    <div class="shop-section-block" style="margin-bottom: 50px;">
+                        <div class="shop-header" style="text-align: left; margin-bottom: 20px;">
+                            <h2 style="font-size: 22px;">${sec.title}</h2>
+                            ${sec.description ? `<p style="font-size: 14px; color: var(--text-muted);">${sec.description}</p>` : ''}
+                        </div>
+                        <div class="product-grid">
+                            ${renderProductCards(secProducts)}
+                        </div>
                     </div>
-                    <div class="product-grid">
-                        ${renderProductCards(secProducts)}
-                    </div>
-                </div>
-            `;
-        }
-    });
+                `;
+            }
+        });
+    }
 
     if (sectionsHtml === '') {
-        mainGrid.innerHTML = renderProductCards(allProducts);
-    } else {
-        mainGrid.outerHTML = `<div id="dynamic-sections-container">${sectionsHtml}</div>`;
+        sectionsHtml = "<p style='text-align: center; width: 100%; color: var(--text-muted); padding: 30px 0;'>Keine Produkte in dieser Kategorie gefunden.</p>";
     }
-}
 
-function displayProducts(regularProducts, giftCards) {
-    const mainGrid = document.querySelector('.product-grid:not(.giftcard-grid)');
-    if (!mainGrid) return;
+    container.innerHTML = sectionsHtml;
 
-    if (regularProducts.length === 0) {
-        mainGrid.innerHTML = "<p style='text-align: center; width: 100%; color: var(--text-muted);'>Keine Produkte in dieser Kategorie gefunden.</p>";
-    } else {
-        mainGrid.innerHTML = renderProductCards(regularProducts);
-    }
+    if (typeof initSliders === 'function') initSliders();
+    if (typeof checkSliderArrows === 'function') checkSliderArrows();
+    if (typeof fetchAllStocks === 'function') fetchAllStocks();
 }
 
 function renderGiftCards(giftCards) {
@@ -111,10 +112,6 @@ function renderGiftCards(giftCards) {
             giftcardSection.style.display = 'none';
         }
     }
-    
-    if (typeof initSliders === 'function') initSliders();
-    if (typeof checkSliderArrows === 'function') checkSliderArrows();
-    if (typeof fetchAllStocks === 'function') fetchAllStocks();
 }
 
 function renderProductCards(products) {
@@ -164,18 +161,6 @@ function renderProductCards(products) {
             </div>
         </div>`;
     }).join('');
-}
-
-function filterProducts(category) {
-    const giftCards = allProductsCache.filter(p => (p.category || '').toUpperCase() === 'GESCHENKKARTE' || p.baseId.toLowerCase().includes('gift') || p.title.toLowerCase().includes('gutschein'));
-    
-    if (category === 'Alle') {
-        const regularProducts = allProductsCache.filter(p => (p.category || '').toUpperCase() !== 'GESCHENKKARTE' && !p.baseId.toLowerCase().includes('gift') && !p.title.toLowerCase().includes('gutschein'));
-        displayProducts(regularProducts, giftCards);
-    } else {
-        const filtered = allProductsCache.filter(p => p.category === category && (p.category || '').toUpperCase() !== 'GESCHENKKARTE');
-        displayProducts(filtered, giftCards);
-    }
 }
 
 document.addEventListener('DOMContentLoaded', renderShop);
