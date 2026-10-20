@@ -77,7 +77,7 @@ function renderDynamicSections(selectedCategory, allProducts) {
                             </h2>
                             ${sec.description ? `<p style="font-size: 15px; color: var(--text-muted); margin-top: 8px; margin-bottom: 0;">${sec.description}</p>` : ''}
                         </div>
-                        <div class="product-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 360px)); gap: 24px; justify-content: start;">
+                        <div class="product-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 350px)); gap: 24px; justify-content: start;">
                             ${renderProductCards(secProducts)}
                         </div>
                     </div>
