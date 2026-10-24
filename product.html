@@ -196,7 +196,7 @@
             `;
 
             const creatorLinksHtml = product.creatorLinks && product.creatorLinks.length > 0 ? `
-                <div style="padding: 16px;">
+                <div>
                     <h4 style="font-size: 14px; font-weight: 700; margin-bottom: 8px; color: var(--text-main);">Link zum Modell:</h4>
                     <ul style="margin: 0; padding-left: 20px; font-size: 13.5px; display: flex; flex-direction: column; gap: 4px;">
                         ${product.creatorLinks.map(cl => `<li><a href="${cl.url}" target="_blank" style="color: var(--light-color); text-decoration: none; font-weight: 600;">${cl.name || cl.url}</a> &#8599;</li>`).join('')}
