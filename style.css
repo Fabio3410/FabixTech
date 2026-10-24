@@ -48,7 +48,6 @@ html {
 }
 
 main {
-    padding-top: 85px; 
     min-height: calc(100vh - 150px);
 }
 

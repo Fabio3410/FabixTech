@@ -10,10 +10,11 @@ export async function onRequestPost(context) {
     try {
         const stripe = new Stripe(context.env.STRIPE_SECRET_KEY);
         const requestData = await context.request.json();
-        const { cart, promoCode, shippingAddress, action } = requestData;
+        const { cart: rawCart, items, promoCode, shippingAddress, action, usedGiftCard } = requestData;
+        const cart = rawCart || items;
         const cookieHeader = context.request.headers.get('Cookie') || '';
         const authHeader = context.request.headers.get('Authorization') || '';
-
+        
         let sessionId = parseCookie(cookieHeader, 'session_id');
         if (!sessionId && authHeader.startsWith('Bearer ')) {
             sessionId = authHeader.substring(7).trim();
