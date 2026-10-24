@@ -36,6 +36,7 @@ export async function onRequestPost(context) {
             }
 
             let serverTotal = 0;
+            let verifiedCart = [];
             for (const item of cart) {
                 const productVariant = await context.env.DB.prepare(
                     "SELECT price FROM product_variants WHERE id = ?"
@@ -45,10 +46,25 @@ export async function onRequestPost(context) {
                     return new Response(JSON.stringify({ error: "Ungültiges Produkt im Warenkorb." }), { status: 400 });
                 }
 
-                serverTotal += productVariant.price * (item.quantity || 1);
+                const itemPrice = parseFloat(productVariant.price);
+                const qty = parseInt(item.quantity) || 1;
+                serverTotal += itemPrice * qty;
+
+                const vId = (item.id || '').toLowerCase();
+                const iName = (item.name || '').toLowerCase();
+                const isGiftCardItem = item.isGiftCard || vId.includes('gift') || vId.includes('gutschein') || iName.includes('gift') || iName.includes('gutschein');
+
+                verifiedCart.push({
+                    id: item.id,
+                    name: item.name,
+                    quantity: qty,
+                    price: itemPrice,
+                    farbe: item.farbe || item.variant || 'Standard',
+                    isGiftCard: isGiftCardItem
+                });
             }
 
-            const hasOnlyGiftCards = cart.every(i => i.isGiftCard || i.name.toLowerCase().includes('gutschein'));
+            const hasOnlyGiftCards = verifiedCart.every(i => i.isGiftCard);
             const shippingCost = hasOnlyGiftCards ? 0 : 5.90;
             serverTotal += shippingCost;
 
@@ -89,10 +105,63 @@ export async function onRequestPost(context) {
             if (usedGiftCard && verifiedDiscount > 0) {
                 await context.env.DB.prepare(`
                     UPDATE gift_cards 
-                    SET current_balance = current_balance - ?,
+                    SET current_balance = MAX(0, current_balance - ?),
                         is_active = CASE WHEN (current_balance - ?) <= 0 THEN 0 ELSE 1 END
                     WHERE code = ?
                 `).bind(verifiedDiscount, verifiedDiscount, usedGiftCard).run();
+            }
+
+            for (const item of verifiedCart) {
+                await context.env.DB.prepare(`
+                    INSERT INTO order_items (order_id, product_name, variant, quantity, price)
+                    VALUES (?, ?, ?, ?, ?)
+                `).bind(
+                    orderId,
+                    item.name,
+                    item.farbe,
+                    item.quantity,
+                    item.price
+                ).run();
+
+                if (item.isGiftCard) {
+                    for (let q = 0; q < item.quantity; q++) {
+                        let giftCode = '';
+                        let isUnique = false;
+                        let maxAttempts = 10;
+
+                        while (!isUnique && maxAttempts > 0) {
+                            const randomPart = crypto.randomUUID().replace(/-/g, '').substring(0, 8).toUpperCase();
+                            giftCode = `FABIO-${randomPart.substring(0,4)}-${randomPart.substring(4,8)}`;
+
+                            const existing = await context.env.DB.prepare(
+                                "SELECT code FROM gift_cards WHERE code = ?"
+                            ).bind(giftCode).first();
+
+                            if (!existing) {
+                                isUnique = true;
+                            } else {
+                                maxAttempts--;
+                            }
+                        }
+
+                        const cardValue = parseFloat(item.price);
+
+                        try {
+                            await context.env.DB.prepare(`
+                                INSERT INTO gift_cards (code, initial_balance, current_balance, purchased_by, order_id)
+                                VALUES (?, ?, ?, ?, ?)
+                            `).bind(giftCode, cardValue, cardValue, shippingAddress.email, orderId).run();
+                        } catch (gcErr) {
+                            console.error("Fehler beim Erstellen der Geschenkkarte:", gcErr);
+                        }
+                    }
+                } else {
+                    if (item.id && item.quantity) {
+                        await context.env.DB.prepare(
+                            "UPDATE product_variants SET stock = stock - ? WHERE id = ?"
+                        ).bind(item.quantity, item.id).run();
+                    }
+                }
             }
 
             return new Response(JSON.stringify({ success: true, orderId }), { status: 200 });
@@ -124,7 +193,9 @@ export async function onRequestPost(context) {
 
             itemsSubtotalRappen += echterPreisRappen * kundenMenge;
 
-            const isGiftCardItem = variantId.toLowerCase().includes('gift') || variantId.toLowerCase().includes('gutschein') || item.name.toLowerCase().includes('gutschein');
+            const vId = variantId.toLowerCase();
+            const iName = (item.name || '').toLowerCase();
+            const isGiftCardItem = item.isGiftCard || vId.includes('gift') || vId.includes('gutschein') || iName.includes('gift') || iName.includes('gutschein');
             if (!isGiftCardItem) hasOnlyGiftCards = false;
 
             verifiedCart.push({
