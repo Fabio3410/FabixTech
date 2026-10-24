@@ -319,30 +319,19 @@
                             <input type="text" id="prod-base-id" required placeholder="gandalf-staff">
                         </div>
                         <div class="form-group">
-                            <label>Titel*</label>
+                            <label>Titel</label>
                             <input type="text" id="prod-title" required placeholder="Gandalf The White Staff">
                         </div>
                     </div>
 
                     <div class="form-grid">
                         <div class="form-group">
-                            <label>Kategorie*</label>
-                            <input type="text" id="prod-category" required placeholder="Deko / Spielzeug">
-                        </div>
-                        <div class="form-group">
-                            <label>Ersteller (Creator)</label>
-                            <input type="text" id="prod-creator" placeholder="Name vom Ersteller">
-                        </div>
-                    </div>
-
-                    <div class="form-grid">
-                        <div class="form-group">
-                            <label>Link zum Modell</label>
-                            <input type="url" id="prod-link" placeholder="https://www.thingiverse.com/...">
-                        </div>
-                        <div class="form-group">
                             <label>Material</label>
                             <input type="text" id="prod-material" placeholder="PLA">
+                        </div>
+                        <div class="form-group">
+                            <label>Kategorie</label>
+                            <input type="text" id="prod-category" required placeholder="Deko / Spielzeug">
                         </div>
                     </div>
 
@@ -355,6 +344,12 @@
                             <label>Infill</label>
                             <input type="text" id="prod-infill" placeholder="20%">
                         </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Urheber & Link zum Modell</label>
+                        <div id="creator-links-container"></div>
+                        <button type="button" onclick="addCreatorLinkField()" style="background: #334155; margin-bottom: 20px;">+ Weiteren Ersteller / Link hinzufügen</button>
                     </div>
 
                     <div class="form-group">
@@ -492,9 +487,28 @@
     document.addEventListener('DOMContentLoaded', () => {
         loadOrders();
         addVariantField();
+        addCreatorLinkField();
         loadDashboardStats();
         loadStockManager();
     });
+
+    let creatorLinkCount = 0;
+
+    function addCreatorLinkField(name = '', url = '') {
+        creatorLinkCount++;
+        const container = document.getElementById('creator-links-container');
+        const div = document.createElement('div');
+        div.className = 'creator-link-box';
+        div.id = `creator-link-box-${creatorLinkCount}`;
+        div.style.cssText = "display: flex; gap: 10px; margin-bottom: 10px; align-items: center;";
+        
+        div.innerHTML = `
+            <input type="text" class="creator-name" placeholder="Name des Erstellers" value="${name}" style="flex: 1; padding: 10px; border-radius: 6px; border: 1px solid var(--border); background: var(--bg-body); color: var(--text-main); font-size: 14px;">
+            <input type="url" class="creator-url" placeholder="https://www.thingiverse.com/..." value="${url}" style="flex: 2; padding: 10px; border-radius: 6px; border: 1px solid var(--border); background: var(--bg-body); color: var(--text-main); font-size: 14px;">
+            <button type="button" onclick="document.getElementById('creator-link-box-${creatorLinkCount}').remove()" style="background: #d40202; padding: 10px 14px; font-size: 12px;">Entfernen</button>
+        `;
+        container.appendChild(div);
+    }
 
     async function loadPromoCodes() {
         const container = document.getElementById('promo-codes-list');
@@ -870,22 +884,30 @@
             }
         });
 
+        const creatorLinks = [];
+        document.querySelectorAll('.creator-link-box').forEach(box => {
+            const name = box.querySelector('.creator-name').value.trim();
+            const url = box.querySelector('.creator-url').value.trim();
+            if (url) {
+                creatorLinks.push({ name: name || 'Ersteller', url });
+            }
+        });
+
         if (variants.length === 0) {
             alert("Bitte erstelle mindestens eine gültige Variante!");
             return;
         }
 
-        const payload = {
+const payload = {
             baseId: document.getElementById('prod-base-id').value.trim(),
             title: document.getElementById('prod-title').value.trim(),
             category: document.getElementById('prod-category').value.trim(),
-            creator: document.getElementById('prod-creator').value.trim(),
-            link: document.getElementById('prod-link').value.trim(),
             material: document.getElementById('prod-material').value.trim(),
             quality: document.getElementById('prod-quality').value.trim(),
             infill: document.getElementById('prod-infill').value.trim(),
             longDescription: document.getElementById('prod-long-desc').value.trim(),
-            variants: variants
+            variants: variants,
+            creatorLinks: creatorLinks,
         };
 
         const token = getSessionToken();

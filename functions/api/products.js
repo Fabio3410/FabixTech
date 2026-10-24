@@ -59,12 +59,24 @@ export async function onRequestGet({ request, env }) {
                     images: v.images ? v.images.split(',').map(img => img.trim()) : []
                 }));
 
+            let creatorLinks = [];
+            try {
+                if (p.creator_links) {
+                    creatorLinks = JSON.parse(p.creator_links);
+                } else if (p.creator || p.link) {
+                    creatorLinks = [{ name: p.creator || 'Ersteller', url: p.link || '' }];
+                }
+            } catch (e) {
+                creatorLinks = [{ name: p.creator || 'Ersteller', url: p.link || '' }];
+            }
+
             return {
                 baseId: p.base_id,
                 title: p.title,
                 category: p.category,
                 creator: p.creator,
                 link: p.link,
+                creatorLinks: creatorLinks,
                 material: p.material,
                 quality: p.quality,
                 infill: p.infill,
@@ -126,11 +138,13 @@ export async function onRequestPost({ request, env }) {
             });
         }
 
+        const creatorLinksStr = JSON.stringify(data.creatorLinks || []);
+
         await env.DB.prepare(`
-            INSERT INTO products (base_id, title, category, creator, link, material, quality, infill, long_description, sort_order)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 999)
+            INSERT INTO products (base_id, title, category, creator, link, creator_links, material, quality, infill, long_description, sort_order)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 999)
         `).bind(
-            data.baseId, data.title, data.category, data.creator || '', data.link || '',
+            data.baseId, data.title, data.category, data.creator || '', data.link || '', creatorLinksStr,
             data.material || '', data.quality || '', data.infill || '', data.longDescription || ''
         ).run();
 
@@ -219,12 +233,14 @@ export async function onRequestPut({ request, env }) {
             }
         }
 
+        const creatorLinksStr = JSON.stringify(data.creatorLinks || []);
+
         await env.DB.prepare(`
             UPDATE products 
-            SET title = ?, category = ?, creator = ?, link = ?, material = ?, quality = ?, infill = ?, long_description = ?
+            SET title = ?, category = ?, creator = ?, link = ?, creator_links = ?, material = ?, quality = ?, infill = ?, long_description = ?
             WHERE base_id = ?
         `).bind(
-            data.title, data.category, data.creator || '', data.link || '',
+            data.title, data.category, data.creator || '', data.link || '', creatorLinksStr,
             data.material || '', data.quality || '', data.infill || '', data.longDescription || '',
             data.baseId
         ).run();

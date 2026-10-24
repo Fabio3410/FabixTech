@@ -195,6 +195,15 @@
                 </div>
             `;
 
+            const creatorLinksHtml = product.creatorLinks && product.creatorLinks.length > 0 ? `
+                <div style="margin-top: 20px; padding: 16px; background: var(--bg-dark); border-radius: 8px; border: 1.2px solid var(--border-color);">
+                    <h4 style="font-size: 14px; font-weight: 700; margin-bottom: 8px; color: var(--text-main);">Modell-Urheber & Lizenzen (CC-BY):</h4>
+                    <ul style="margin: 0; padding-left: 20px; font-size: 13.5px; display: flex; flex-direction: column; gap: 4px;">
+                        ${product.creatorLinks.map(cl => `<li><a href="${cl.url}" target="_blank" style="color: var(--light-color); text-decoration: none; font-weight: 600;">${cl.name || cl.url}</a> &#8599;</li>`).join('')}
+                    </ul>
+                </div>
+            ` : '';
+
             document.getElementById('product-detail-container').innerHTML = `
                 <h1>${product.title}</h1>
                 <div id="header-rating-container" style="display: flex; align-items: center; gap: 8px; margin-top: -5px; margin-bottom: 15px; grid-column: 1 / -1;">
@@ -218,6 +227,7 @@
                     <span class="prod-category">${product.category}</span>
                     <div class="long-description">
                         <p>${product.longDescription}</p>
+                        ${creatorLinksHtml}
                     </div>
                     <h4><strong>Varianten</strong></h4>
                     <div class="color-slider-container">
