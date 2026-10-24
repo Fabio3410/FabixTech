@@ -125,7 +125,6 @@ function renderProductCards(products) {
             </div>
             <div class="product-info">
                 <span class="prod-category">${prod.category}</span>
-                <h3><a href="product.html?id=${prod.baseId}" class="product-link">${prod.title}</a><br><div class="docs"><a href="${prod.link}">by ${prod.creator}</a></div></h3>
                 <div class="docs"><a href="product.html?id=${prod.baseId}">Mehr Details &#8594;</a></div>
                 <br>
                 <h4><strong>Varianten</strong></h4>
