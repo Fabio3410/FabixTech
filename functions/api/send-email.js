@@ -1,11 +1,25 @@
-import { EmailMessage } from "cloudflare:email";
+async function sendViaWorker(env, recipient, subject, htmlContent) {
+    const emailResponse = await env.EMAIL_SERVICE.fetch(new Request("https://internal/send", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            recipient: recipient,
+            subject: subject,
+            htmlContent: htmlContent
+        })
+    }));
+
+    const emailResult = await emailResponse.json();
+    if (emailResult.status !== "success") {
+        throw new Error(emailResult.message || "Fehler beim E-Mail-Versand über den Worker");
+    }
+}
 
 export async function onRequestPost(context) {
     const { request, env } = context;
 
     try {
         const body = await request.json();
-        const senderEmail = "info@fabixtech.ch";
 
         if (body.type === 'order_confirmation') {
             const { recipient, customerName, orderId, items, subtotal, discount, promoCode, shipping, total } = body;
@@ -72,18 +86,8 @@ export async function onRequestPost(context) {
                 </div>
             `;
 
-            const rawEmail = [
-                "From: FabixTech <" + senderEmail + ">",
-                "To: " + recipient,
-                "Subject: Bestellbestätigung #" + orderId + " | FabixTech",
-                "MIME-Version: 1.0",
-                "Content-Type: text/html; charset=utf-8",
-                "",
-                htmlContent
-            ].join("\r\n");
-
-            const emailMsg = new EmailMessage(senderEmail, recipient, rawEmail);
-            await env.SEB_EMAIL.send(emailMsg);
+            const subject = "Bestellbestätigung #" + orderId + " | FabixTech";
+            await sendViaWorker(env, recipient, subject, htmlContent);
 
             return new Response(JSON.stringify({ status: "success", message: "Bestellbestätigung gesendet" }), {
                 headers: { "Content-Type": "application/json" }
@@ -120,25 +124,14 @@ export async function onRequestPost(context) {
             </div>
         `;
 
-        const rawEmail = [
-            "From: FabixTech <" + senderEmail + ">",
-            "To: " + recipient,
-            "Subject: " + subject,
-            "MIME-Version: 1.0",
-            "Content-Type: text/html; charset=utf-8",
-            "",
-            htmlContent
-        ].join("\r\n");
-
-        const emailMsg = new EmailMessage(senderEmail, recipient, rawEmail);
-        await env.SEB_EMAIL.send(emailMsg);
+        await sendViaWorker(env, recipient, subject, htmlContent);
 
         return new Response(JSON.stringify({ status: "success", message: "E-Mail erfolgreich gesendet" }), {
             headers: { "Content-Type": "application/json" }
         });
 
     } catch (err) {
-        console.error("Fehler beim Senden über Cloudflare Email Routing:", err);
+        console.error("Fehler beim Senden über das Service Binding:", err);
         return new Response(JSON.stringify({ status: "error", message: err.message }), {
             status: 500,
             headers: { "Content-Type": "application/json" }

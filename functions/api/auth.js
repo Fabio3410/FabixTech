@@ -1,5 +1,3 @@
-import { EmailMessage } from "cloudflare:email";
-
 function parseCookie(cookieHeader, name) {
     if (!cookieHeader) return null;
     const matches = cookieHeader.match(new RegExp('(?:^|; )' + name.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, '\\$1') + '=([^;]*)'));
@@ -30,8 +28,6 @@ async function verifyTurnstile(token, secretKey) {
 }
 
 async function sendCodeEmail(env, recipient, subject, code, introText) {
-    const senderEmail = "info@fabixtech.ch";
-    
     const htmlContent = `
         <div style="font-family: Arial, sans-serif; max-width: 500px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 12px; background-color: #ffffff;">
             <h2 style="color: #d40202; margin-top: 0;">FABIO<span style="color: #0f172a;">3D</span></h2>
@@ -46,18 +42,20 @@ async function sendCodeEmail(env, recipient, subject, code, introText) {
         </div>
     `;
 
-    const rawEmail = [
-        "From: FabixTech <" + senderEmail + ">",
-        "To: " + recipient,
-        "Subject: " + subject,
-        "MIME-Version: 1.0",
-        "Content-Type: text/html; charset=utf-8",
-        "",
-        htmlContent
-    ].join("\r\n");
+    const emailResponse = await env.EMAIL_SERVICE.fetch(new Request("https://internal/send", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            recipient: recipient,
+            subject: subject,
+            htmlContent: htmlContent
+        })
+    }));
 
-    const emailMsg = new EmailMessage(senderEmail, recipient, rawEmail);
-    await env.SEB_EMAIL.send(emailMsg);
+    const emailResult = await emailResponse.json();
+    if (emailResult.status !== "success") {
+        throw new Error(emailResult.message || "Fehler beim E-Mail-Versand über den Worker");
+    }
 }
 
 export async function onRequestPost(context) {
