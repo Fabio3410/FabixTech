@@ -1,10 +1,6 @@
 import Stripe from 'stripe';
 import { EmailMessage } from "cloudflare:email";
 
-if (window.location.hostname === 'fabio3d.pages.dev') {
-            window.location.replace('https://fabixtech.ch' + window.location.pathname + window.location.search);
-}
-
 export async function onRequestGet(context) {
   const url = new URL(context.request.url);
   const paymentIntentId = url.searchParams.get('payment_intent');

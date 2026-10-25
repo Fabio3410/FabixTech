@@ -1,7 +1,3 @@
-if (window.location.hostname === 'fabio3d.pages.dev') {
-            window.location.replace('https://fabixtech.ch' + window.location.pathname + window.location.search);
-}
-
 export async function onRequestGet(context) {
     const begruessungText = "Es gab ein Problem!";
 
