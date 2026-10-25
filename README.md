@@ -1,5 +1,5 @@
 <div align="center">
-  <h1>Fabio3D</h1>
+  <h1>FabixTech</h1>
   <p><b>Ein Online-Shop für 3D-Druck-Produkte, programmiert mit HTML5, CSS3, JS, Cloudflare D1 und Cloudflare Pages.</b></p>
 
   <p>
@@ -14,7 +14,7 @@
 ---
 
 ##  Über das Projekt
-**Fabio3D** ist eine Plattform für den Verkauf von 3D-Druck-Produkten. Das Projekt vereint JavaScript, CSS sowie serverlose Cloudflare Pages Functions in Kombination mit einer SQLite-Datenbank (Cloudflare D1).
+**FabixTech** ist eine Plattform für den Verkauf von 3D-Druck-Produkten. Das Projekt vereint JavaScript, CSS sowie serverlose Cloudflare Pages Functions in Kombination mit einer SQLite-Datenbank (Cloudflare D1).
 
 ---
 
