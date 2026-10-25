@@ -294,6 +294,7 @@
             }, 1500);
         } else {
             showAlert(result.message || 'Falsche Anmeldedaten.', 'Fehler');
+            if (typeof turnstile !== 'undefined') turnstile.reset();
         }
     });
 

@@ -283,6 +283,7 @@
                 document.getElementById('formSubtitle').innerText = 'Wir haben einen Code an deine E-Mail gesendet.';
             } else {
                 showAlert(result.message || 'Es gab einen Fehler beim Senden der E-Mail.', 'Fehler');
+                if (typeof turnstile !== 'undefined') turnstile.reset();
             }
         }
     }
