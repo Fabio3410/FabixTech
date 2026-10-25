@@ -1,3 +1,7 @@
+if (window.location.hostname === 'fabio3d.pages.dev') {
+            window.location.replace('https://fabixtech.ch' + window.location.pathname + window.location.search);
+}
+
 export async function onRequestGet(context) {
     const begruessungText = "Es gab ein Problem!";
 
@@ -7,8 +11,9 @@ export async function onRequestGet(context) {
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <meta name="apple-mobile-web-app-title" content="Fabio3D">
+        <meta name="apple-mobile-web-app-title" content="FabixTech">
         <title>Ein Fehler ist aufgetreten!</title>
+        <link rel="canonical" href="https://fabixtech.ch/" />
         <script>
             const savedTheme = localStorage.getItem('theme') || 'light';
             document.documentElement.setAttribute('data-theme', savedTheme);

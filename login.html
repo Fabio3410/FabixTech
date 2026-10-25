@@ -3,11 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="apple-mobile-web-app-title" content="Fabio3D">
-    <title>Login | Fabio3D</title>
+    <meta name="apple-mobile-web-app-title" content="FabixTech">
+    <title>Login | FabixTech</title>
+    <link rel="canonical" href="https://fabixtech.ch/" />
     <script>
         const savedTheme = localStorage.getItem('theme') || 'light';
         document.documentElement.setAttribute('data-theme', savedTheme);
+
+        if (window.location.hostname === 'fabio3d.pages.dev') {
+            window.location.replace('https://fabixtech.ch' + window.location.pathname + window.location.search);
+        }
     </script>
     <script src="alert.js"></script>
     <link rel="icon" type="image/png" href="favicon/favicon-96x96.png" sizes="96x96"/>
@@ -243,7 +248,7 @@
             Noch kein Konto? <a href="register">Registrieren</a>
         </p>
         <footer>
-            <p>&copy; <span id="copyright"><script>document.getElementById('copyright').appendChild(document.createTextNode(new Date().getFullYear()))</script></span> Fabio3D. Alle Rechte vorbehalten.</p>
+            <p>&copy; <span id="copyright"><script>document.getElementById('copyright').appendChild(document.createTextNode(new Date().getFullYear()))</script></span> FabixTech. Alle Rechte vorbehalten.</p>
         </footer>
     </div>
     <script>

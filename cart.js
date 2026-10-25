@@ -1,7 +1,7 @@
-let cart = JSON.parse(localStorage.getItem('fabio3d_cart')) || [];
+let cart = JSON.parse(localStorage.getItem('fabixtech_cart')) || [];
 
 function saveCartToStorage() {
-    localStorage.setItem('fabio3d_cart', JSON.stringify(cart));
+    localStorage.setItem('fabixtech_cart', JSON.stringify(cart));
 }
 
 function toggleCart() {
@@ -328,7 +328,7 @@ async function initCheckoutPage(promoCode = null) {
                     const freeData = await freeRes.json();
                     if (freeData.success) {
                         localStorage.removeItem('cart');
-                        localStorage.removeItem('fabio3d_cart');
+                        localStorage.removeItem('fabixtech_cart');
                         window.location.href = `/success?free_order_id=${freeData.orderId}`;
                     } else {
                         alert(freeData.error || 'Fehler beim Bestellen.');
@@ -433,7 +433,7 @@ async function initCheckoutPage(promoCode = null) {
                 }
             } else if (paymentIntent && paymentIntent.status === 'succeeded') {
                 localStorage.removeItem('cart');
-                localStorage.removeItem('fabio3d_cart');
+                localStorage.removeItem('fabixtech_cart');
                 window.location.href = `/success?payment_intent=${paymentIntent.id}`;
             }
         };

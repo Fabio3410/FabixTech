@@ -3,11 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="apple-mobile-web-app-title" content="Fabio3D">
-    <title>Datenschutzerklärung | Fabio3D</title>
+    <meta name="apple-mobile-web-app-title" content="FabixTech">
+    <title>Datenschutzerklärung | FabixTech</title>
+    <link rel="canonical" href="https://fabixtech.ch/" />
     <script>
         const savedTheme = localStorage.getItem('theme') || 'light';
         document.documentElement.setAttribute('data-theme', savedTheme);
+
+        if (window.location.hostname === 'fabio3d.pages.dev') {
+            window.location.replace('https://fabixtech.ch' + window.location.pathname + window.location.search);
+        }
     </script>
     <link rel="icon" type="image/png" href="favicon/favicon-96x96.png" sizes="96x96"/>
     <link rel="icon" type="image/svg+xml" href="favicon/favicon.svg"/>
@@ -208,13 +213,13 @@
     <h1>Datenschutzerklärung</h1>
     <p><i>Stand: Juli 2026</i></p>
     
-    <h2 style="color: var(--text-main);">Der Schutz deiner Privatsphäre ist mir ein grosses Anliegen. Mit dieser Datenschutzerklärung informiere ich dich darüber, welche personenbezogenen Daten ich erhebe, wenn du meine Website <strong>Fabio3D</strong> besuchst, mein Kontaktformular nutzt oder in meinem Online-Shop bestellst, und was mit diesen Daten geschieht.</h2>
+    <h2 style="color: var(--text-main);">Der Schutz deiner Privatsphäre ist mir ein grosses Anliegen. Mit dieser Datenschutzerklärung informiere ich dich darüber, welche personenbezogenen Daten ich erhebe, wenn du meine Website <strong>FabixTech</strong> besuchst, mein Kontaktformular nutzt oder in meinem Online-Shop bestellst, und was mit diesen Daten geschieht.</h2>
     <h3>Diese Datenschutzerklärung basiert auf dem Schweizer Datenschutzgesetz (DSG). Da ich für einige technische Funktionen Dienstleister aus den USA nutze, lege ich grossen Wert auf Transparenz bei der Datenübermittlung ins Ausland.</h3>
     
     <h2>1. Wer ist für die Datenverarbeitung verantwortlich?</h2>
     <p>Verantwortlich für die Datenverarbeitung auf dieser Website ist:
     <ul><strong>
-    Fabio3D<br>
+    FabixTech<br>
     (Vorname und Nachname)<br>
     (Strasse und Hausnummer)<br>
     (PLZ und Ort)<br>
@@ -300,7 +305,7 @@
     <p>Ich werde diese Datenschutzerklärung immer wieder anpassen. Zum Beispiel, wenn sich die Gesetze ändern oder wenn ich neue Funktionen in meinem Shop einbaue. Für deinen erneuten Besuch gilt dann die jeweils aktuelle Datenschutzerklärung.</p>    
     
     <footer>
-        <p>&copy; <span id="copyright"><script>document.getElementById('copyright').appendChild(document.createTextNode(new Date().getFullYear()))</script></span> Fabio3D. Alle Rechte vorbehalten.</p>
+        <p>&copy; <span id="copyright"><script>document.getElementById('copyright').appendChild(document.createTextNode(new Date().getFullYear()))</script></span> FabixTech. Alle Rechte vorbehalten.</p>
     </footer>
 </div>
 </body>

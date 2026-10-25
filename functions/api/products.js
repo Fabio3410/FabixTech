@@ -190,7 +190,7 @@ export async function onRequestPut({ request, env }) {
                         const prodTitle = prodInfo ? prodInfo.title : "Produkt";
                         const variantName = v.name;
 
-                        const senderEmail = "info@fabio3d.ch";
+                        const senderEmail = "info@fabixtech.ch";
 
                         for (const sub of subs) {
                             try {
@@ -203,7 +203,7 @@ export async function onRequestPut({ request, env }) {
                                         <p style="font-size: 15px; color: #334155;">Hallo,</p>
                                         <p style="font-size: 14px; color: #475569; line-height: 1.5;">gute Nachrichten! Das Produkt <strong>${prodTitle} (${variantName})</strong> ist ab sofort wieder auf Lager und kann im Shop bestellt werden.</p>
                                         <div style="text-align: center; margin: 30px 0;">
-                                            <a href="https://fabio3d.pages.dev/product.html?id=${data.baseId}" style="background-color: #d40202; color: #ffffff; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 15px;">Jetzt ansehen & bestellen</a>
+                                            <a href="https://fabixtech.ch/product.html?id=${data.baseId}" style="background-color: #d40202; color: #ffffff; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 15px;">Jetzt ansehen & bestellen</a>
                                         </div>
                                         <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 20px 0;">
                                         <p style="font-size: 12px; color: #94a3b8; text-align: center; margin: 0;">Du erhältst diese E-Mail, weil du dich für die Benachrichtigung angemeldet hast.</p>
@@ -211,9 +211,9 @@ export async function onRequestPut({ request, env }) {
                                 `;
 
                                 const rawEmail = [
-                                    "From: Fabio3D <" + senderEmail + ">",
+                                    "From: FabixTech <" + senderEmail + ">",
                                     "To: " + sub.email,
-                                    "Subject: Wieder verfügbar: " + prodTitle + " (" + variantName + ") | Fabio3D",
+                                    "Subject: Wieder verfügbar: " + prodTitle + " (" + variantName + ") | FabixTech",
                                     "MIME-Version: 1.0",
                                     "Content-Type: text/html; charset=utf-8",
                                     "",

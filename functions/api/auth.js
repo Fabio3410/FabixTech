@@ -30,7 +30,7 @@ async function verifyTurnstile(token, secretKey) {
 }
 
 async function sendCodeEmail(env, recipient, subject, code, introText) {
-    const senderEmail = "info@fabio3d.ch";
+    const senderEmail = "info@fabixtech.ch";
     
     const htmlContent = `
         <div style="font-family: Arial, sans-serif; max-width: 500px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 12px; background-color: #ffffff;">
@@ -42,12 +42,12 @@ async function sendCodeEmail(env, recipient, subject, code, introText) {
                 </span>
             </div>
             <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 20px 0;">
-            <p style="font-size: 12px; color: #94a3b8; text-align: center;">Diese E-Mail wurde automatisch von Fabio3D versendet.</p>
+            <p style="font-size: 12px; color: #94a3b8; text-align: center;">Diese E-Mail wurde automatisch von FabixTech versendet.</p>
         </div>
     `;
 
     const rawEmail = [
-        "From: Fabio3D <" + senderEmail + ">",
+        "From: FabixTech <" + senderEmail + ">",
         "To: " + recipient,
         "Subject: " + subject,
         "MIME-Version: 1.0",

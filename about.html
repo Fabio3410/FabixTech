@@ -3,12 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="apple-mobile-web-app-title" content="Fabio3D">
-    <title>Über mich | Fabio3D</title>
+    <meta name="apple-mobile-web-app-title" content="FabixTech">
+    <title>Über mich | FabixTech</title>
+    <link rel="canonical" href="https://fabixtech.ch/" />
     <link rel="stylesheet" href="style.css">
     <script>
         const savedTheme = localStorage.getItem('theme') || 'light';
         document.documentElement.setAttribute('data-theme', savedTheme);
+
+        if (window.location.hostname === 'fabio3d.pages.dev') {
+            window.location.replace('https://fabixtech.ch' + window.location.pathname + window.location.search);
+        }
 
         function updateThemeIcon(theme) {
             const icon = document.getElementById('theme-icon') || document.querySelector('.theme-toggle-btn i, .theme-toggle i');
@@ -51,7 +56,7 @@
 <body>
     <nav class="navbar">
         <div class="nav-container">
-            <a href="index" class="logo">FABIO<span class="gradient-text">3D</span></a>
+            <a href="index" class="logo">Fabix<span class="gradient-text">Tech</span></a>
             <ul class="nav-links">
                 <li><a class="nav-link" href="index">Home</a></li>
                 <li><a class="nav-link" href="shop">Shop</a></li>
@@ -146,7 +151,7 @@
             <a href="contact">Kontakt</a> | 
             <a href="impressum">Impressum</a>
         </div>
-        <p>&copy; <span id="copyright"><script>document.getElementById('copyright').appendChild(document.createTextNode(new Date().getFullYear()))</script></span> Fabio3D. Alle Rechte vorbehalten.</p>
+        <p>&copy; <span id="copyright"><script>document.getElementById('copyright').appendChild(document.createTextNode(new Date().getFullYear()))</script></span> FabixTech. Alle Rechte vorbehalten.</p>
     </footer>
     <script src="alert.js" defer></script>
     <script src="script.js" defer></script>

@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+
+Host: fabixtech.ch
+
+Sitemap: https://fabixtech.ch/sitemap.xml

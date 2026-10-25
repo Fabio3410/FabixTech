@@ -5,7 +5,7 @@ export async function onRequestPost(context) {
 
     try {
         const body = await request.json();
-        const senderEmail = "info@fabio3d.ch";
+        const senderEmail = "info@fabixtech.ch";
 
         if (body.type === 'order_confirmation') {
             const { recipient, customerName, orderId, items, subtotal, discount, promoCode, shipping, total } = body;
@@ -68,14 +68,14 @@ export async function onRequestPost(context) {
                     </div>
 
                     <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 20px 0;">
-                    <p style="font-size: 12px; color: #94a3b8; text-align: center; margin: 0;">Fabio3D &bull; Hochwertiger 3D-Druck</p>
+                    <p style="font-size: 12px; color: #94a3b8; text-align: center; margin: 0;">FabixTech &bull;</p>
                 </div>
             `;
 
             const rawEmail = [
-                "From: Fabio3D <" + senderEmail + ">",
+                "From: FabixTech <" + senderEmail + ">",
                 "To: " + recipient,
-                "Subject: Bestellbestätigung #" + orderId + " | Fabio3D",
+                "Subject: Bestellbestätigung #" + orderId + " | FabixTech",
                 "MIME-Version: 1.0",
                 "Content-Type: text/html; charset=utf-8",
                 "",
@@ -91,7 +91,7 @@ export async function onRequestPost(context) {
         }
 
         const recipient = body.recipient;
-        const subject = body.subject ? body.subject : "Nachricht von Fabio3D";
+        const subject = body.subject ? body.subject : "Nachricht von FabixTech";
         const message = body.message ? body.message : "Hier ist dein Sicherheitscode:";
         const code = body.code ? body.code : "";
 
@@ -121,7 +121,7 @@ export async function onRequestPost(context) {
         `;
 
         const rawEmail = [
-            "From: Fabio3D <" + senderEmail + ">",
+            "From: FabixTech <" + senderEmail + ">",
             "To: " + recipient,
             "Subject: " + subject,
             "MIME-Version: 1.0",

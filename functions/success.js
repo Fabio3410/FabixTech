@@ -1,6 +1,10 @@
 import Stripe from 'stripe';
 import { EmailMessage } from "cloudflare:email";
 
+if (window.location.hostname === 'fabio3d.pages.dev') {
+            window.location.replace('https://fabixtech.ch' + window.location.pathname + window.location.search);
+}
+
 export async function onRequestGet(context) {
   const url = new URL(context.request.url);
   const paymentIntentId = url.searchParams.get('payment_intent');
@@ -242,7 +246,7 @@ export async function onRequestGet(context) {
                 </div>
                 
                 <div class="gift-card-amount">Wert: CHF ${Number(gc.value).toFixed(2)}</div>
-                <div class="gift-card-footer-text">Einlösbar im Checkout auf fabio3d.ch</div>
+                <div class="gift-card-footer-text">Einlösbar im Checkout auf fabixtech.ch</div>
             </div>
         `).join('') + `
             <div class="no-print" style="text-align: center; margin-bottom: 20px;">
@@ -260,6 +264,7 @@ export async function onRequestGet(context) {
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Danke für deinen Einkauf!</title>
+        <link rel="canonical" href="https://fabixtech.ch/" />
         <link rel="icon" type="image/png" href="/favicon/favicon-96x96.png" sizes="96x96"/>
         <script>
             const savedTheme = localStorage.getItem('theme') || 'light';
@@ -384,7 +389,7 @@ export async function onRequestGet(context) {
             <a href="/" class="btn no-print">Zurück zur Startseite</a>
         </div>
         <script>
-            localStorage.removeItem('fabio3d_cart');
+            localStorage.removeItem('fabixtech_cart');
             localStorage.removeItem('cart');
         </script>
     </body>
