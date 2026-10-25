@@ -1,0 +1,5 @@
+name = "fabixtech"
+compatibility_date = "2026-10-25"
+
+[[send_email]]
+name = "SEB_EMAIL"
