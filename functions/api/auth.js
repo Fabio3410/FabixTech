@@ -1,3 +1,41 @@
+let blocklistCache = null;
+
+async function loadBlocklist(request, env) {
+    if (blocklistCache) return blocklistCache;
+
+    try {
+        const res = await env.ASSETS.fetch(new URL('/disposable_email_blocklist.conf', request.url));
+        if (!res.ok) {
+            console.error('Blocklist konnte nicht geladen werden:', res.status);
+            return new Set();
+        }
+
+        const text = await res.text();
+        blocklistCache = new Set(
+            text.split('\n').map(s => s.trim().toLowerCase()).filter(Boolean)
+        );
+        return blocklistCache;
+    } catch (e) {
+        console.error('Blocklist-Fehler:', e);
+        return new Set();
+    }
+}
+
+async function isDisposableEmail(email, request, env) {
+    const blocklist = await loadBlocklist(request, env);
+    const domain = String(email || '').split('@').pop().trim().toLowerCase();
+    const parts = domain.split('.');
+    for (let i = 0; i < parts.length - 1; i++) {
+        if (blocklist.has(parts.slice(i).join('.'))) return true;
+    }
+    return false;
+}
+
+const DISPOSABLE_RESPONSE = () => new Response(JSON.stringify({
+    status: 'error',
+    message: 'Wegwerf-E-Mail-Adressen sind nicht erlaubt. Bitte verwende eine dauerhafte E-Mail-Adresse.'
+}), { status: 400, headers: { 'Content-Type': 'application/json' } });
+
 function parseCookie(cookieHeader, name) {
     if (!cookieHeader) return null;
     const matches = cookieHeader.match(new RegExp('(?:^|; )' + name.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, '\\$1') + '=([^;]*)'));
@@ -25,6 +63,15 @@ async function verifyTurnstile(token, secretKey) {
         console.error("Turnstile error:", e);
         return false;
     }
+}
+
+function isStrongPassword(password) {
+    if (!password) return false;
+    const minLength = password.length >= 8;
+    const hasUpper = /[A-Z]/.test(password);
+    const hasLower = /[a-z]/.test(password);
+    const hasNumber = /[0-9]/.test(password);
+    return minLength && hasUpper && hasLower && hasNumber;
 }
 
 async function sendCodeEmail(env, recipient, subject, code, introText) {
@@ -132,6 +179,8 @@ export async function onRequestPost(context) {
             });
         }
 
+        if (await isDisposableEmail(email, request, env)) return DISPOSABLE_RESPONSE();
+
         const { results } = await env.DB.prepare("SELECT * FROM users WHERE email = ? AND password_hash IS NOT NULL").bind(email).all();
         
         if (results.length > 0) {
@@ -152,6 +201,15 @@ export async function onRequestPost(context) {
     }
 
     if (action === 'register') {
+        if (await isDisposableEmail(email, request, env)) return DISPOSABLE_RESPONSE();
+
+        if (!isStrongPassword(password)) {
+            return new Response(JSON.stringify({ 
+                status: 'error', 
+                message: 'Das Passwort muss mindestens 8 Zeichen lang sein und Großbuchstaben, Kleinbuchstaben sowie Zahlen enthalten.' 
+            }), { status: 400, headers: { 'Content-Type': 'application/json' } });
+        }
+
         const { results } = await env.DB.prepare("SELECT * FROM users WHERE email = ? AND reset_code = ?")
             .bind(email, code).all();
 
@@ -161,7 +219,7 @@ export async function onRequestPost(context) {
 
         const hashedPassword = await hashPassword(password);
         
-        await env.DB.prepare("UPDATE users SET name = ?, password_hash = ?, reset_code = NULL WHERE email = ?")
+        await env.DB.prepare("UPDATE users SET name = ?, password_hash = ?, reset_code = NULL, failed_attempts = 0, locked_until = 0 WHERE email = ?")
             .bind(name || null, hashedPassword, email).run();
             
         return new Response(JSON.stringify({ status: 'success', message: 'Konto erfolgreich erstellt.' }));
@@ -175,17 +233,32 @@ export async function onRequestPost(context) {
             });
         }
 
-        const hashedPassword = await hashPassword(password);
-        const { results } = await env.DB.prepare("SELECT * FROM users WHERE email = ? AND password_hash = ?")
-            .bind(email, hashedPassword).all();
+        const user = await env.DB.prepare("SELECT * FROM users WHERE email = ?").bind(email).first();
         
-        if (results.length > 0) {
-            const userRow = results[0];
+        if (!user || !user.password_hash) {
+            return new Response(JSON.stringify({ status: 'error', message: 'Falsche E-Mail oder Passwort.' }));
+        }
+
+        const now = Math.floor(Date.now() / 1000);
+
+        if (user.locked_until && user.locked_until > now) {
+            const remainingMinutes = Math.ceil((user.locked_until - now) / 60);
+            return new Response(JSON.stringify({ 
+                status: 'error', 
+                message: `Konto vorübergehend gesperrt. Bitte versuche es in ${remainingMinutes} Minute(n) erneut.` 
+            }));
+        }
+
+        const hashedPassword = await hashPassword(password);
+
+        if (user.password_hash === hashedPassword) {
+            await env.DB.prepare("UPDATE users SET failed_attempts = 0, locked_until = 0 WHERE email = ?").bind(email).run();
+
             const sessionId = crypto.randomUUID();
 
             try {
                 await env.DB.prepare("UPDATE users SET session_id = ? WHERE email = ?")
-                    .bind(sessionId, userRow.email).run();
+                    .bind(sessionId, user.email).run();
             } catch (err) {
                 console.error("Fehler beim Speichern der Session-ID:", err);
             }
@@ -197,10 +270,10 @@ export async function onRequestPost(context) {
                 message: 'Erfolgreich angemeldet.',
                 session_id: sessionId,
                 user: {
-                    name: userRow.name || userRow.email,
-                    email: userRow.email,
-                    profile_picture: userRow.profile_picture || null,
-                    is_admin: userRow.is_admin === 1,
+                    name: user.name || user.email,
+                    email: user.email,
+                    profile_picture: user.profile_picture || null,
+                    is_admin: user.is_admin === 1,
                     session_id: sessionId
                 }
             }), {
@@ -211,6 +284,16 @@ export async function onRequestPost(context) {
                 }
             });
         } else {
+            const newAttempts = (user.failed_attempts || 0) + 1;
+            let lockUntilTime = 0;
+
+            if (newAttempts >= 5) {
+                lockUntilTime = now + 600;
+            }
+
+            await env.DB.prepare("UPDATE users SET failed_attempts = ?, locked_until = ? WHERE email = ?")
+                .bind(newAttempts, lockUntilTime, email).run();
+
             return new Response(JSON.stringify({ status: 'error', message: 'Falsche E-Mail oder Passwort.' }));
         }
     }
@@ -243,12 +326,19 @@ export async function onRequestPost(context) {
     }
 
     if (action === 'verify_code') {
+        if (!isStrongPassword(newPassword)) {
+            return new Response(JSON.stringify({ 
+                status: 'error', 
+                message: 'Das neue Passwort muss mindestens 8 Zeichen lang sein und Großbuchstaben, Kleinbuchstaben sowie Zahlen enthalten.' 
+            }), { status: 400, headers: { 'Content-Type': 'application/json' } });
+        }
+
         const { results } = await env.DB.prepare("SELECT * FROM users WHERE email = ? AND reset_code = ?")
             .bind(email, code).all();
 
         if (results.length > 0) {
             const hashedPassword = await hashPassword(newPassword);
-            await env.DB.prepare("UPDATE users SET password_hash = ?, reset_code = NULL WHERE email = ?")
+            await env.DB.prepare("UPDATE users SET password_hash = ?, reset_code = NULL, failed_attempts = 0, locked_until = 0 WHERE email = ?")
                 .bind(hashedPassword, email).run();
                 
             return new Response(JSON.stringify({ status: 'success', message: 'Passwort erfolgreich geändert.' }));
