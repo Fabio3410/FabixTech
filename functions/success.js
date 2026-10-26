@@ -143,7 +143,7 @@ export async function onRequestGet(context) {
 
                         while (!isUnique && maxAttempts > 0) {
                             const randomPart = crypto.randomUUID().replace(/-/g, '').substring(0, 8).toUpperCase();
-                            giftCode = `FABIO-${randomPart.substring(0,4)}-${randomPart.substring(4,8)}`;
+                            giftCode = `FABIX-${randomPart.substring(0,4)}-${randomPart.substring(4,8)}`;
 
                             const existing = await context.env.DB.prepare(
                                 "SELECT code FROM gift_cards WHERE code = ?"
@@ -234,7 +234,7 @@ export async function onRequestGet(context) {
     if (generatedGiftCards.length > 0) {
         giftCardCardsHtml = generatedGiftCards.map(gc => `
             <div class="gift-card-box">
-                <div class="gift-card-brand">FABIO<span>3D</span></div>
+                <div class="gift-card-brand">Fabix<span>Tech</span></div>
                 <div class="gift-card-subtitle">DIGITALER GESCHENKGUTSCHEIN</div>
                 
                 <div class="gift-card-code-wrapper">
