@@ -49,12 +49,12 @@ export async function onRequestPost(context) {
             const htmlContent = `
                 <div style="font-family: 'Inter', Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 30px; border: 1px solid #e2e8f0; border-radius: 16px; background-color: #ffffff;">
                     <div style="text-align: center; border-bottom: 2px solid #f1f5f9; padding-bottom: 20px; margin-bottom: 20px;">
-                        <h2 style="color: #1e293b; margin: 0; font-size: 24px; font-weight: 800;">FABIO<span style="color: #d40202;">3D</span></h2>
+                        <h2 style="color: #1e293b; margin: 0; font-size: 24px; font-weight: 800;">FabixTech<span style="color: #d40202;">Tech</span></h2>
                         <p style="color: #64748b; font-size: 14px; margin-top: 5px;">Vielen Dank für deine Bestellung!</p>
                     </div>
 
                     <p style="font-size: 15px; color: #334155;">Hallo <strong>${customerName || 'Kunde'}</strong>,</p>
-                    <p style="font-size: 14px; color: #475569; line-height: 1.5;">wir haben deine Bestellung <strong>#${orderId}</strong> erfolgreich erhalten und kümmern uns ab sofort um den 3D-Druck deiner Wunsch-Modelle.</p>
+                    <p style="font-size: 14px; color: #475569; line-height: 1.5;">ich habe deine Bestellung <strong>#${orderId}</strong> erhalten und kümmere mich jetzt darum. Viel Spass mit deinen Produkten!.</p>
 
                     <h3 style="font-size: 16px; color: #1e293b; margin-top: 25px; margin-bottom: 10px;">Bestellübersicht</h3>
                     <table style="width: 100%; border-collapse: collapse; margin-bottom: 15px;">
@@ -116,7 +116,7 @@ export async function onRequestPost(context) {
 
         const htmlContent = `
             <div style="font-family: Arial, sans-serif; max-width: 500px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 12px; background-color: #ffffff;">
-                <h2 style="color: #d40202; margin-top: 0;">FABIO<span style="color: #0f172a;">3D</span></h2>
+                <h2 style="color: #d40202; margin-top: 0;">FabixTech<span style="color: #0f172a;">Tech</span></h2>
                 <p style="font-size: 15px; color: #334155;">${message}</p>
                 ${codeBlock}
                 <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 20px 0;">

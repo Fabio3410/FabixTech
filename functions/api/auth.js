@@ -77,7 +77,7 @@ function isStrongPassword(password) {
 async function sendCodeEmail(env, recipient, subject, code, introText) {
     const htmlContent = `
         <div style="font-family: Arial, sans-serif; max-width: 500px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 12px; background-color: #ffffff;">
-            <h2 style="color: #d40202; margin-top: 0;">FABIO<span style="color: #0f172a;">3D</span></h2>
+            <h2 style="color: #d40202; margin-top: 0;">Fabix<span style="color: #0f172a;">Tech</span></h2>
             <p style="font-size: 15px; color: #334155;">${introText}</p>
             <div style="text-align: center; margin: 25px 0;">
                 <span style="font-size: 32px; font-weight: bold; letter-spacing: 6px; color: #d40202; background: #f8fafc; padding: 12px 24px; border-radius: 8px; border: 1px solid #cbd5e1; display: inline-block;">
