@@ -311,6 +311,20 @@ html, #cart-items-container {
     font-size: 24px;
 }
 
+.hero-avatar {
+    max-height: 420px;
+    width: auto;
+    object-fit: contain;
+    display: block;
+    margin: 0 auto;
+    filter: drop-shadow(0 15px 25px rgba(0, 0, 0, 0.1));
+    transition: transform 0.3s ease;
+}
+
+.hero-avatar:hover {
+    transform: scale(1.03);
+}
+
 .badge {
     background: rgba(150, 5, 5, 0.1);
     color: var(--dark-color);
@@ -1285,6 +1299,11 @@ html, body, .navbar, .tech-box, .material-card, footer {
   .hero-grid { 
     grid-template-columns: 1fr; 
   }
+
+  .hero-avatar {
+        max-height: 300px;
+        margin-top: 2rem;
+    }
 
   .sidebar { 
     position: fixed;
