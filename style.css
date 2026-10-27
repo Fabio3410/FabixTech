@@ -312,7 +312,7 @@ html, #cart-items-container {
 }
 
 .hero-avatar {
-    max-height: 620px;
+    max-height: 720px;
     width: auto;
     object-fit: contain;
     display: block;
