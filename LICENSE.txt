@@ -1,0 +1,49 @@
+FABIXTECH - LIZENZVEREINBARUNG & NUTZUNGSBEDINGUNGEN
+
+Copyright (c) 2026 FabixTech. Alle Rechte vorbehalten.
+
+Diese Lizenzvereinbarung regelt klar und verständlich die Nutzung von
+Quellcode, Designelementen, Medien und alle anderen Inhalte von FabixTech.
+
+1. QUELLCODE (HTML, CSS, JAVASCRIPT, WORKER-SKRIPTE)
+
+Der Quellcode dieser Website wird bereitgestellt, um Einblicke in die 
+technische Umsetzung zu gewähren und als Inspiration für eigene private
+Lern- oder Entwicklungsprojekte zu unterstützen.
+
+Erlaubt ist:
+- Das Ansehen, Herunterladen und Untersuchen des Quellcodes zu Lernzwecken.
+- Die Verwendung von Code Auschnitten in eigenen, nicht-kommerziellen Projekten,
+  wenn es einen Hinweis auf FabixTech im Projekt gibt.
+
+Nicht erlaubt ist:
+- Das Kopieren und Ausführen des gesamten Codes.
+- Das Weiterverkaufen, Unterlizenzieren oder Vertreiben des Quellcodes als
+  eigenes Produkt.
+
+2. MEDIEN, LOGOS, BRANDING UND INHALTE
+
+Alle Medien auf dieser Plattform gehören FabixTech. Dazu zählen:
+
+- Das FabixTech-Logo sowie alle Varianten davon.
+- Das Design der Website und die Benutzeroberfläche.
+- Alle Produktfotos, Grafiken und der Minecraft-Avatar.
+- Alle Texte und Beschreibungen.
+
+Strikte Regeln für Medien:
+- Sämtliche Bilder, Logos und Texte dürfen ohne vorherige schriftliche 
+  Genehmigung von FabixTech weder kopiert, noch auf anderen Websites 
+  hochgeladen, geändert oder für eigene Zwecke verwendet werden.
+
+3. HAFTUNGSAUSSCHLUSS
+
+Der Quellcode und die Inhalte dieser Plattform werden wie sie sind
+bereitgestellt. FabixTech gibt keine Garantie für 
+die Vollständigkeit, Korrektheit oder Fehlerfreiheit des Codes. 
+
+FabixTech haftet nicht für Schäden, Datenverluste oder sonstige 
+Komplikationen, die durch die Verwendung, Anpassung oder Weiterverwendung 
+des Codes oder anderer Inhalte entstehen.
+
+Bei Fragen zur Lizenz oder sonstigen Fragen wende dich
+direkt über das Kontaktformular auf https://fabixtech.ch an mich.
