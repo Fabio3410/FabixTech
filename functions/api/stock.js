@@ -61,12 +61,12 @@ export async function onRequestPost(context) {
                                     <p style="color: #64748b; font-size: 14px; margin-top: 5px;">Dein gewünschtes Produkt ist wieder da!</p>
                                 </div>
                                 <p style="font-size: 15px; color: #334155;">Hallo,</p>
-                                <p style="font-size: 14px; color: #475569; line-height: 1.5;">gute Nachrichten! Das Produkt <strong>${prodTitle} (${variantName})</strong> ist ab sofort wieder auf Lager und kann im Shop bestellt werden.</p>
+                                <p style="font-size: 14px; color: #475569; line-height: 1.5;">gute Nachrichten! Das Produkt <strong>${prodTitle} (${variantName})</strong> ist wieder auf Lager.</p>
                                 <div style="text-align: center; margin: 30px 0;">
-                                    <a href="https://fabixtech.ch/product.html?id=${baseId}" style="background-color: #d40202; color: #ffffff; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 15px;">Jetzt ansehen & bestellen</a>
+                                    <a href="https://fabixtech.ch/product.html?id=${data.baseId}" style="background-color: #d40202; color: #ffffff; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 15px;">Jetzt ansehen</a>
                                 </div>
                                 <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 20px 0;">
-                                <p style="font-size: 12px; color: #94a3b8; text-align: center; margin: 0;">Du erhältst diese E-Mail, weil du dich für die Benachrichtigung angemeldet hast.</p>
+                                <p style="font-size: 12px; color: #94a3b8; text-align: center; margin: 0;">Dies ist eine einmalige automatisch versendete E-Mail. Bitte antworte nicht darauf.</p>
                             </div>
                         `;
 
