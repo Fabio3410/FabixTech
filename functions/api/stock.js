@@ -79,6 +79,7 @@ export async function onRequestPost(context) {
                                 message: htmlContent
                             })
                         }));
+                        
                     } catch (mailErr) {
                         console.error("Fehler beim Senden der Benachrichtigungs-Mail an", sub.email, mailErr);
                     }
