@@ -250,7 +250,7 @@
                     <label>6-stelliger Bestätigungscode</label>
                     <input type="text" id="twoFactorCode" placeholder="123456" maxlength="6" style="text-align: center; letter-spacing: 4px; font-size: 1.2rem; font-weight: bold;">
                 </div>
-                <button type="button" onclick="verify2FALogin()" class="btn-action">Code bestätigen</button>
+                <button type="submit" class="btn-action">Code bestätigen</button>
                 <button type="button" onclick="resetToLoginStep()" style="background: transparent; color: var(--text-muted); border: none; width: 100%; margin-top: 10px; cursor: pointer; font-size: 0.85rem;">Zurück zum Login</button>
             </div>
         </form>
@@ -271,6 +271,13 @@
     document.getElementById('authForm').addEventListener('submit', async function(e) {
         e.preventDefault();
         
+        const is2FAStepVisible = document.getElementById('twoFactorStep').style.display !== 'none';
+        
+        if (is2FAStepVisible) {
+            verify2FALogin();
+            return;
+        }
+
         const email = document.getElementById('loginEmail').value.trim();
         const password = document.getElementById('loginPass').value;
         const turnstileToken = document.querySelector('[name="cf-turnstile-response"]')?.value;
@@ -294,6 +301,8 @@
             document.getElementById('twoFactorStep').style.display = 'block';
             document.getElementById('formTitle').innerText = '2FA Verifizierung';
             document.getElementById('formSubtitle').innerText = 'Wir haben einen 6-stelligen Code an deine E-Mail gesendet.';
+            
+            setTimeout(() => document.getElementById('twoFactorCode').focus(), 100);
             return;
         }
 
