@@ -83,7 +83,6 @@ export async function onRequestGet({ request, env }) {
                 promo_codes: promoCodes.results,
                 reviews: reviews.results,
                 section_products: sectionProducts.results,
-                sessions: sessions.results,
                 settings: settings.results,
                 shop_sections: shopSections.results,
                 sqlite_sequence: sqliteSequence.results,

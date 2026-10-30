@@ -504,6 +504,20 @@
         </div>
 
         <div class="settings-card">
+            <h2><i class="fa-solid fa-shield-halved"></i> Zwei-Faktor-Authentifizierung</h2>
+            <div class="setting-row">
+                <div class="setting-info">
+                    <span class="setting-title">E-Mail Verifizierung beim Login</span>
+                    <span class="setting-desc">Sichere dein Konto mit einem Code per E-Mail.</span>
+                </div>
+                <label class="theme-switch">
+                    <input type="checkbox" id="twoFactorToggle" onchange="toggle2FA()">
+                    <span class="slider"></span>
+                </label>
+            </div>
+        </div>
+
+        <div class="settings-card">
             <h2><i class="fa-solid fa-user-circle"></i> Profilbild</h2>
             <div class="setting-info" style="margin-bottom: 16px;">
                 <span class="setting-desc">Lade ein neues Bild hoch (.png, .jpg) oder lösche dein aktuelles.</span>
@@ -531,20 +545,6 @@
         </div>
     </div>
 
-    <div class="settings-card">
-        <h2><i class="fa-solid fa-shield-halved"></i> Zwei-Faktor-Authentifizierung</h2>
-        <div class="setting-row">
-            <div class="setting-info">
-                <span class="setting-title">E-Mail Verifizierung beim Login</span>
-                <span class="setting-desc">Sichere dein Konto mit einem  Code per E-Mail.</span>
-            </div>
-            <label class="theme-switch">
-                <input type="checkbox" id="twoFactorToggle" onchange="toggle2FA()">
-                <span class="slider"></span>
-            </label>
-        </div>
-    </div>
-
     <div class="modal-overlay" id="deleteModal">
         <div class="modal-card">
             <h3 class="modal-title"><i class="fa-solid fa-triangle-exclamation" style="color: var(--primary);"></i> Konto wirklich löschen?</h3>
@@ -555,12 +555,30 @@
             </div>
         </div>
     </div>
+
     <script>
-        window.addEventListener('load', () => {
+        window.addEventListener('load', async () => {
             document.body.classList.remove('preload');
             
             const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
             document.getElementById('darkModeToggle').checked = isDark;
+
+            const user = JSON.parse(localStorage.getItem('user') || '{}');
+            if (user.email) {
+                try {
+                    const res = await fetch('/api/auth', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ action: 'get_2fa_status', email: user.email })
+                    });
+                    const data = await res.json();
+                    if (data.status === 'success') {
+                        document.getElementById('twoFactorToggle').checked = data.two_factor_enabled;
+                    }
+                } catch (e) {
+                    console.error("Fehler beim Laden des 2FA-Status:", e);
+                }
+            }
         });
 
         function toggleDarkMode() {
@@ -569,6 +587,41 @@
         
             document.documentElement.setAttribute('data-theme', newTheme);
             localStorage.setItem('theme', newTheme);
+        }
+
+        async function toggle2FA() {
+            const enabled = document.getElementById('twoFactorToggle').checked;
+            const user = JSON.parse(localStorage.getItem('user') || '{}');
+            const sessionId = localStorage.getItem('session_id');
+
+            if (!user.email) {
+                showAlert('Bitte melde dich zuerst an.', 'Fehler');
+                document.getElementById('twoFactorToggle').checked = !enabled;
+                return;
+            }
+
+            try {
+                const res = await fetch('/api/auth', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        action: 'toggle_2fa',
+                        email: user.email,
+                        enabled: enabled,
+                        session_id: sessionId
+                    })
+                });
+                const result = await res.json();
+                if (result.status === 'success') {
+                    showAlert(enabled ? 'Zwei-Faktor-Authentifizierung erfolgreich aktiviert.' : 'Zwei-Faktor-Authentifizierung deaktiviert.', 'Erfolg');
+                } else {
+                    showAlert('Fehler beim Ändern der 2FA-Einstellungen.', 'Fehler');
+                    document.getElementById('twoFactorToggle').checked = !enabled;
+                }
+            } catch (e) {
+                showAlert('Verbindungsfehler zum Server.', 'Fehler');
+                document.getElementById('twoFactorToggle').checked = !enabled;
+            }
         }
 
         function confirmDeleteAccount() {
