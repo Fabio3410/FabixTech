@@ -138,7 +138,10 @@ function renderProductCards(products) {
                 </div>
 
                 <div class="product-footer">
-                    <span class="currency">CHF </span><span class="price">${defaultVariant.price.toFixed(2).replace('.', ',')}</span>
+                    <div style="white-space: nowrap; display: inline-flex; align-items: baseline; gap: 4px;">
+                        <span class="currency">CHF</span>
+                        <span class="price">${defaultVariant.price.toFixed(2).replace('.', ',')}</span>
+                    </div>
                     <button class="btn-buy" data-id="${defaultVariant.id}" onclick="addProductFromCard(this)">In den Warenkorb</button>
                 </div>
             </div>

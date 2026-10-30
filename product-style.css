@@ -490,6 +490,8 @@ body, .product-card-detail-view, #product-reviews-section, .material-card, .navb
     justify-content: space-between;
     padding-top: 20px;
     border-top: 1px solid #eee;
+    gap: 10px;
+    white-space: nowrap;
 }
 
 .color-slider-track::-webkit-scrollbar {
