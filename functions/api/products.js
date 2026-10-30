@@ -211,13 +211,13 @@ export async function onRequestPut({ request, env }) {
                                     </div>
                                 `;
 
-                                await env.EMAIL_SERVICE.fetch(new Request("https://internal/send", {
+                                await env.EMAIL_SERVICE.fetch(new Request("https://internal/", {
                                     method: "POST",
                                     headers: { "Content-Type": "application/json" },
                                     body: JSON.stringify({
                                         recipient: sub.email,
                                         subject: "Wieder verfügbar: " + prodTitle + " (" + variantName + ") | FabixTech",
-                                        htmlContent: htmlContent
+                                        message: htmlContent
                                     })
                                 }));
                             } catch (mailErr) {
