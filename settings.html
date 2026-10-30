@@ -227,7 +227,13 @@
         }
 
         html[data-theme="dark"] .slider {
+            background-color: var(--bg-page);
+            border: 1px solid var(--border-color);
+        }
+
+        input:checked + .slider {
             background-color: var(--primary);
+            border-color: transparent;
         }
 
         .slider:before {
