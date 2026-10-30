@@ -81,6 +81,7 @@ export async function onRequestGet({ request, env }) {
                 quality: p.quality,
                 infill: p.infill,
                 longDescription: p.long_description,
+                isCustom: p.is_custom === 1 || p.is_custom === true,
                 sortOrder: p.sort_order || 0,
                 isActive: p.is_active !== 0,
                 variants: productVariants
@@ -139,13 +140,15 @@ export async function onRequestPost({ request, env }) {
         }
 
         const creatorLinksStr = JSON.stringify(data.creatorLinks || []);
+        const isCustomVal = data.isCustom ? 1 : 0;
 
         await env.DB.prepare(`
-            INSERT INTO products (base_id, title, category, creator, link, creator_links, material, quality, infill, long_description, sort_order)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 999)
+            INSERT INTO products (base_id, title, category, creator, link, creator_links, material, quality, infill, long_description, is_custom, sort_order)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 999)
         `).bind(
             data.baseId, data.title, data.category, data.creator || '', data.link || '', creatorLinksStr,
-            data.material || '', data.quality || '', data.infill || '', data.longDescription || ''
+            data.material || '', data.quality || '', data.infill || '', data.longDescription || '', 
+            isCustomVal
         ).run();
 
         if (data.variants && data.variants.length > 0) {
@@ -233,15 +236,17 @@ export async function onRequestPut({ request, env }) {
             }
         }
 
-        const creatorLinksStr = JSON.stringify(data.creatorLinks || []);
+const creatorLinksStr = JSON.stringify(data.creatorLinks || []);
+        const isCustomVal = data.isCustom ? 1 : 0;
 
         await env.DB.prepare(`
             UPDATE products 
-            SET title = ?, category = ?, creator = ?, link = ?, creator_links = ?, material = ?, quality = ?, infill = ?, long_description = ?
+            SET title = ?, category = ?, creator = ?, link = ?, creator_links = ?, material = ?, quality = ?, infill = ?, long_description = ?, is_custom = ?
             WHERE base_id = ?
         `).bind(
             data.title, data.category, data.creator || '', data.link || '', creatorLinksStr,
-            data.material || '', data.quality || '', data.infill || '', data.longDescription || '',
+            data.material || '', data.quality || '', data.infill || '', data.longDescription || '', 
+            isCustomVal,
             data.baseId
         ).run();
 

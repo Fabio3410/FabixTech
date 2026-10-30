@@ -226,22 +226,33 @@
         <p class="subtitle" id="formSubtitle">Logge dich in dein Konto ein.</p>
 
         <form id="authForm">
-            <div class="input-group">
-                <label>E-Mail</label>
-                <input type="email" id="loginEmail" placeholder="name@beispiel.ch" required>
-            </div>
-            
-            <div class="input-group">
-                <label>Passwort</label>
-                <input type="password" id="loginPass" placeholder="••••••••" required>
-                <a href="reset-password" class="forgot-password" id="forgotLink">Passwort vergessen?</a>
-            </div>
+            <div id="loginStep">
+                <div class="input-group">
+                    <label>E-Mail</label>
+                    <input type="email" id="loginEmail" placeholder="name@beispiel.ch" required>
+                </div>
+                
+                <div class="input-group">
+                    <label>Passwort</label>
+                    <input type="password" id="loginPass" placeholder="••••••••" required>
+                    <a href="reset-password" class="forgot-password" id="forgotLink">Passwort vergessen?</a>
+                </div>
 
-            <div style="display: block; min-height: 99px;">
+                <div style="display: block; min-height: 99px;">
                     <div class="cf-turnstile" data-sitekey="0x4AAAAAAFW3mjyMEeBEdKP_" id="login-turnstile" style="margin: 15px 0;"></div>
+                </div>
+
+                <button type="submit" class="btn-action" id="submitBtn">Anmelden</button>
             </div>
 
-            <button type="submit" class="btn-action" id="submitBtn">Anmelden</button>
+            <div id="twoFactorStep" style="display: none;">
+                <div class="input-group">
+                    <label>6-stelliger Bestätigungscode</label>
+                    <input type="text" id="twoFactorCode" placeholder="123456" maxlength="6" style="text-align: center; letter-spacing: 4px; font-size: 1.2rem; font-weight: bold;">
+                </div>
+                <button type="button" onclick="verify2FALogin()" class="btn-action">Code bestätigen</button>
+                <button type="button" onclick="resetToLoginStep()" style="background: transparent; color: var(--text-muted); border: none; width: 100%; margin-top: 10px; cursor: pointer; font-size: 0.85rem;">Zurück zum Login</button>
+            </div>
         </form>
         
         <p class="toggle-text" id="toggleText">
@@ -251,13 +262,16 @@
             <p>&copy; <span id="copyright"><script>document.getElementById('copyright').appendChild(document.createTextNode(new Date().getFullYear()))</script></span> FabixTech. Alle Rechte vorbehalten.</p>
         </footer>
     </div>
+
     <script>
+    let active2FAEmail = '';
+
     document.getElementById('login-turnstile').setAttribute('data-theme', localStorage.getItem('theme') || 'light');
 
     document.getElementById('authForm').addEventListener('submit', async function(e) {
         e.preventDefault();
         
-        const email = document.getElementById('loginEmail').value;
+        const email = document.getElementById('loginEmail').value.trim();
         const password = document.getElementById('loginPass').value;
         const turnstileToken = document.querySelector('[name="cf-turnstile-response"]')?.value;
 
@@ -273,30 +287,73 @@
         });
 
         const result = await response.json();
-        
-        if (result.status === 'success') {
-            localStorage.setItem('user', JSON.stringify(result.user));
-            
-            const sessionId = result.session_id || (result.user && result.user.session_id);
-            if (sessionId) {
-                localStorage.setItem('session_id', sessionId);
-            }
-            
-            if (result.user && result.user.is_admin) {
-                localStorage.setItem('is_admin', 'true');
-            } else {
-                localStorage.removeItem('is_admin');
-            }
 
-            showAlert('Erfolgreich angemeldet!', 'Willkommen');
-            setTimeout(() => {
-                window.location.href = result.user && result.user.is_admin ? '/admin' : '/'; 
-            }, 1500);
+        if (result.status === 'requires_2fa') {
+            active2FAEmail = result.email;
+            document.getElementById('loginStep').style.display = 'none';
+            document.getElementById('twoFactorStep').style.display = 'block';
+            document.getElementById('formTitle').innerText = '2FA Verifizierung';
+            document.getElementById('formSubtitle').innerText = 'Wir haben einen 6-stelligen Code an deine E-Mail gesendet.';
+            return;
+        }
+
+        if (result.status === 'success') {
+            handleSuccessfulLogin(result);
         } else {
             showAlert(result.message || 'Falsche Anmeldedaten.', 'Fehler');
             if (typeof turnstile !== 'undefined') turnstile.reset();
         }
     });
+
+    async function verify2FALogin() {
+        const code = document.getElementById('twoFactorCode').value.trim();
+        if (!code || code.length !== 6) {
+            showAlert('Bitte gib den 6-stelligen Code ein.', 'Fehler');
+            return;
+        }
+
+        const response = await fetch('/api/auth', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action: 'verify_2fa_login', email: active2FAEmail, code: code })
+        });
+
+        const result = await response.json();
+
+        if (result.status === 'success') {
+            handleSuccessfulLogin(result);
+        } else {
+            showAlert(result.message || 'Ungültiger Code.', 'Fehler');
+        }
+    }
+
+    function handleSuccessfulLogin(result) {
+        localStorage.setItem('user', JSON.stringify(result.user));
+        
+        const sessionId = result.session_id || (result.user && result.user.session_id);
+        if (sessionId) {
+            localStorage.setItem('session_id', sessionId);
+        }
+        
+        if (result.user && result.user.is_admin) {
+            localStorage.setItem('is_admin', 'true');
+        } else {
+            localStorage.removeItem('is_admin');
+        }
+
+        showAlert('Erfolgreich angemeldet!', 'Willkommen');
+        setTimeout(() => {
+            window.location.href = result.user && result.user.is_admin ? '/admin' : '/'; 
+        }, 1500);
+    }
+
+    function resetToLoginStep() {
+        document.getElementById('twoFactorStep').style.display = 'none';
+        document.getElementById('loginStep').style.display = 'block';
+        document.getElementById('formTitle').innerText = 'Willkommen zurück';
+        document.getElementById('formSubtitle').innerText = 'Logge dich in dein Konto ein.';
+        if (typeof turnstile !== 'undefined') turnstile.reset();
+    }
 
     document.addEventListener("DOMContentLoaded", () => {
         const theme = localStorage.getItem('theme') || 'light';

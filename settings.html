@@ -531,6 +531,20 @@
         </div>
     </div>
 
+    <div class="settings-card">
+        <h2><i class="fa-solid fa-shield-halved"></i> Zwei-Faktor-Authentifizierung</h2>
+        <div class="setting-row">
+            <div class="setting-info">
+                <span class="setting-title">E-Mail Verifizierung beim Login</span>
+                <span class="setting-desc">Sichere dein Konto mit einem  Code per E-Mail.</span>
+            </div>
+            <label class="theme-switch">
+                <input type="checkbox" id="twoFactorToggle" onchange="toggle2FA()">
+                <span class="slider"></span>
+            </label>
+        </div>
+    </div>
+
     <div class="modal-overlay" id="deleteModal">
         <div class="modal-card">
             <h3 class="modal-title"><i class="fa-solid fa-triangle-exclamation" style="color: var(--primary);"></i> Konto wirklich löschen?</h3>

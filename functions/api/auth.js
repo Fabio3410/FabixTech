@@ -42,6 +42,17 @@ function parseCookie(cookieHeader, name) {
     return matches ? decodeURIComponent(matches[1]) : null;
 }
 
+function sanitizeInput(str) {
+    if (!str) return '';
+    return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#x27;')
+        .trim();
+}
+
 async function hashPassword(password) {
     const msgBuffer = new TextEncoder().encode(password);
     const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
@@ -109,7 +120,37 @@ export async function onRequestPost(context) {
     const { request, env } = context;
     const data = await request.json();
     
-    const { action, email, password, code, newPassword, profile_picture, name, turnstileToken } = data;
+    let { action, email, password, code, newPassword, profile_picture, name, turnstileToken } = data;
+    
+    email = sanitizeInput(email);
+    name = sanitizeInput(name);
+
+    if (action === 'get_2fa_status') {
+        const user = await env.DB.prepare("SELECT two_factor_enabled FROM users WHERE email = ?").bind(email).first();
+        return new Response(JSON.stringify({ 
+            status: 'success', 
+            two_factor_enabled: user ? (user.two_factor_enabled === 1 || user.two_factor_enabled === true) : false 
+        }), { headers: { 'Content-Type': 'application/json' } });
+    }
+
+    if (action === 'toggle_2fa') {
+        const cookieHeader = request.headers.get('Cookie') || '';
+        const sessionId = parseCookie(cookieHeader, 'session_id');
+
+        if (!sessionId) {
+            return new Response(JSON.stringify({ status: 'error', message: 'Nicht angemeldet.' }), { status: 401, headers: { 'Content-Type': 'application/json' } });
+        }
+
+        const user = await env.DB.prepare("SELECT * FROM users WHERE session_id = ?").bind(sessionId).first();
+        if (!user || user.email !== email) {
+            return new Response(JSON.stringify({ status: 'error', message: 'Ungültige Sitzung.' }), { status: 401, headers: { 'Content-Type': 'application/json' } });
+        }
+
+        const enabledVal = data.enabled ? 1 : 0;
+        await env.DB.prepare("UPDATE users SET two_factor_enabled = ? WHERE email = ?").bind(enabledVal, email).run();
+
+        return new Response(JSON.stringify({ status: 'success', message: '2FA Status aktualisiert.' }), { headers: { 'Content-Type': 'application/json' } });
+    }
 
     if (action === 'update_avatar' || action === 'delete_avatar') {
         const cookieHeader = request.headers.get('Cookie') || '';
@@ -254,6 +295,21 @@ export async function onRequestPost(context) {
         if (user.password_hash === hashedPassword) {
             await env.DB.prepare("UPDATE users SET failed_attempts = 0, locked_until = 0 WHERE email = ?").bind(email).run();
 
+            if (user.two_factor_enabled === 1 || user.two_factor_enabled === true) {
+                const twoFactorCode = Math.floor(100000 + Math.random() * 900000).toString();
+                await env.DB.prepare("UPDATE users SET reset_code = ? WHERE email = ?").bind(twoFactorCode, email).run();
+
+                try {
+                    await sendCodeEmail(env, email, "Dein 2FA-Anmeldecode", twoFactorCode, "Dein Bestätigungscode für den Login lautet:");
+                    return new Response(JSON.stringify({ 
+                        status: 'requires_2fa', 
+                        email: email 
+                    }), { headers: { 'Content-Type': 'application/json' } });
+                } catch (err) {
+                    return new Response(JSON.stringify({ status: 'error', message: 'Fehler beim Senden des 2FA-Codes.' }), { status: 500 });
+                }
+            }
+
             const sessionId = crypto.randomUUID();
 
             try {
@@ -298,6 +354,39 @@ export async function onRequestPost(context) {
         }
     }
 
+    if (action === 'verify_2fa_login') {
+        const user = await env.DB.prepare("SELECT * FROM users WHERE email = ? AND reset_code = ?").bind(email, code).first();
+        if (!user) {
+            return new Response(JSON.stringify({ status: 'error', message: 'Ungültiger oder abgelaufener 2FA-Code.' }), { status: 400, headers: { 'Content-Type': 'application/json' } });
+        }
+
+        await env.DB.prepare("UPDATE users SET reset_code = NULL WHERE email = ?").bind(email).run();
+
+        const sessionId = crypto.randomUUID();
+        await env.DB.prepare("UPDATE users SET session_id = ? WHERE email = ?").bind(sessionId, user.email).run();
+
+        const cookieHeader = `session_id=${sessionId}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=2592000`;
+
+        return new Response(JSON.stringify({ 
+            status: 'success', 
+            message: 'Erfolgreich angemeldet.',
+            session_id: sessionId,
+            user: {
+                name: user.name || user.email,
+                email: user.email,
+                profile_picture: user.profile_picture || null,
+                is_admin: user.is_admin === 1,
+                session_id: sessionId
+            }
+        }), {
+            status: 200,
+            headers: {
+                'Content-Type': 'application/json',
+                'Set-Cookie': cookieHeader
+            }
+        });
+    }
+
     if (action === 'send_reset_code') {
         const isValidCaptcha = await verifyTurnstile(turnstileToken, env.TURNSTILE_SECRET_KEY);
         if (!isValidCaptcha) {
@@ -329,7 +418,7 @@ export async function onRequestPost(context) {
         if (!isStrongPassword(newPassword)) {
             return new Response(JSON.stringify({ 
                 status: 'error', 
-                message: 'Das neue Passwort muss mindestens 8 Zeichen lang sein und Großbuchstaben, Kleinbuchstaben sowie Zahlen enthalten.' 
+                message: 'Das neue Passwort muss mindestens 8 Zeichen lang sein und Großbuchstaben, Kleinbuchstaben und Zahlen enthalten.' 
             }), { status: 400, headers: { 'Content-Type': 'application/json' } });
         }
 

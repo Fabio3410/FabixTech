@@ -307,6 +307,14 @@
             </div>
 
             <div class="order-card">
+                <h3 style="margin-top: 0; margin-bottom: 15px;">Datenbank-Backup</h3>
+                <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 15px;">Lade ein vollständiges JSON-Backup aller D1-Tabellen herunter.</p>
+                <button type="button" onclick="downloadDatabaseBackup()" style="background: var(--primary); width: 100%;">
+                    <i class="fa-solid fa-download"></i> Backup herunterladen
+                </button>
+            </div>
+
+            <div class="order-card">
                 <h3 style="margin-top: 0; margin-bottom: 10px;">Produkt-Reihenfolge im Shop</h3>
                 <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 15px;">Ändere die Reihenfolge der Produkte</p>
                 <div id="product-sort-list" style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px;">
@@ -320,7 +328,7 @@
                 <form id="create-product-form" onsubmit="createNewProduct(event)">
                     <div class="form-grid">
                         <div class="form-group">
-                            <label>Base ID (z. B. gandalf-staff)*</label>
+                            <label>Base ID (z. B. gandalf-staff)</label>
                             <input type="text" id="prod-base-id" required placeholder="gandalf-staff">
                         </div>
                         <div class="form-group">
@@ -352,13 +360,18 @@
                     </div>
 
                     <div class="form-group">
-                        <label>Urheber & Link zum Modell</label>
+                        <label>Creator & Link zum Modell</label>
                         <div id="creator-links-container"></div>
-                        <button type="button" onclick="addCreatorLinkField()" style="background: #334155; margin-bottom: 20px;">+ Weiteren Ersteller / Link hinzufügen</button>
+                        <button type="button" onclick="addCreatorLinkField()" style="background: #334155; margin-bottom: 20px;">+ Weiteren Creator hinzufügen</button>
+                    </div>
+
+                    <div class="form-group" style="flex-direction: row; align-items: center; gap: 8px; margin-bottom: 20px;">
+                        <input type="checkbox" id="prod-is-custom" style="width: 18px; height: 18px; cursor: pointer;">
+                        <label for="prod-is-custom" style="cursor: pointer; margin: 0;">Meine eigene Kreation</label>
                     </div>
 
                     <div class="form-group">
-                        <label>Ausführliche Beschreibung</label>
+                        <label>Beschreibung</label>
                         <textarea id="prod-long-desc" rows="3" placeholder="Produktbeschreibung"></textarea>
                     </div>
 
@@ -366,7 +379,7 @@
                     <div id="variants-container"></div>
 
                     <button type="button" onclick="addVariantField()" style="background: #334155; margin-bottom: 20px;">
-                        + Weitere Variante hinzufügen
+                        + Variante hinzufügen
                     </button>
 
                     <hr style="border: 0; border-top: 1px solid var(--border); margin-bottom: 20px;">
@@ -513,6 +526,27 @@
             <button type="button" onclick="document.getElementById('creator-link-box-${creatorLinkCount}').remove()" style="background: #d40202; padding: 10px 14px; font-size: 12px;">Entfernen</button>
         `;
         container.appendChild(div);
+    }
+
+    async function downloadDatabaseBackup() {
+        const token = getSessionToken();
+        try {
+            const res = await fetch('/api/backup', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (!res.ok) throw new Error("Fehler beim Erstellen des Backups");
+            
+            const blob = await res.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `fabixtech-backup-${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+        } catch (e) {
+            alert("Backup fehlgeschlagen: " + e.message);
+        }
     }
 
     async function loadPromoCodes() {
@@ -903,7 +937,7 @@
             return;
         }
 
-const payload = {
+        const payload = {
             baseId: document.getElementById('prod-base-id').value.trim(),
             title: document.getElementById('prod-title').value.trim(),
             category: document.getElementById('prod-category').value.trim(),
@@ -911,6 +945,7 @@ const payload = {
             quality: document.getElementById('prod-quality').value.trim(),
             infill: document.getElementById('prod-infill').value.trim(),
             longDescription: document.getElementById('prod-long-desc').value.trim(),
+            isCustom: document.getElementById('prod-is-custom').checked ? 1 : 0,
             variants: variants,
             creatorLinks: creatorLinks,
         };
