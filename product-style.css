@@ -488,10 +488,9 @@ body, .product-card-detail-view, #product-reviews-section, .material-card, .navb
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding-top: 20px;
-    border-top: 1px solid #eee;
-    gap: 10px;
-    white-space: nowrap;
+    padding-top: 18px;
+    border-top: 1px solid var(--border-color);
+    gap: 16px;
 }
 
 .color-slider-track::-webkit-scrollbar {
@@ -717,11 +716,13 @@ body, .product-card-detail-view, #product-reviews-section, .material-card, .navb
     background-color: transparent;
     color: var(--light-color);
     border: 1.2px solid var(--light-color);
-    padding: 0.72rem 1.44rem;
+    padding: 0.6rem 1.1rem;
     border-radius: 5px;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.2s;
+    white-space: nowrap;
+    flex-shrink: 0;
 }
 
 .btn-buy:hover {

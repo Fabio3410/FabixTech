@@ -313,13 +313,56 @@ export async function onRequestGet(context) {
                 width: 90%; 
             }
 
-            h1 { text-align: center; font-size: 22px; color: var(--text-main); }
-            .btn { display: block; text-align: center; background: #d40202; color: white; padding: 12px; border-radius: 8px; text-decoration: none; margin-top: 20px; font-weight: bold; }
-            .btn-print { background: var(--bg-body); color: var(--text-main); border: 1px solid var(--border-color); padding: 10px 18px; border-radius: 8px; font-size: 13px; font-weight: bold; cursor: pointer; transition: all 0.2s; }
-            .btn-print:hover { border-color: #d40202; color: #d40202; }
+            h1 { 
+                text-align: center; 
+                font-size: 22px; 
+                color: var(--text-main); 
+            }
 
-            .icon { display: flex; justify-content: center; align-items: center; width: 56px; height: 56px; background-color: var(--icon-bg); border-radius: 50%; margin: 0 auto 24px auto; }
-            .icon img { width: 56px; height: 56px; }
+            .btn { 
+                display: block; 
+                text-align: center; 
+                background: #d40202; 
+                color: white; 
+                padding: 12px; 
+                border-radius: 8px; 
+                text-decoration: none; 
+                margin-top: 20px; 
+                font-weight: bold; 
+            }
+
+            .btn-print {
+                background: var(--bg-body); 
+                color: var(--text-main); 
+                border: 1px solid var(--border-color); 
+                padding: 10px 18px;
+                border-radius: 8px; 
+                font-size: 13px; 
+                font-weight: bold; 
+                cursor: pointer; 
+                transition: all 0.2s; 
+            }
+
+            .btn-print:hover { 
+                border-color: #d40202; 
+                color: #d40202; 
+            }
+
+            .icon { 
+                display: flex; 
+                justify-content: center; 
+                align-items: center; 
+                width: 56px; 
+                height: 56px; 
+                background-color: var(--icon-bg); 
+                border-radius: 50%; 
+                margin: 0 auto 24px auto; 
+            }
+
+            .icon img {
+                width: 56px;
+                height: 56px; 
+            }
 
             .gift-card-box {
                 background: var(--gc-bg);
@@ -331,33 +374,116 @@ export async function onRequestGet(context) {
                 border: 2px solid var(--gc-border);
                 box-shadow: 0 8px 20px rgba(0,0,0,0.06);
             }
-            .gift-card-brand { font-size: 22px; font-weight: 900; letter-spacing: 1px; color: var(--gc-text); }
-            .gift-card-brand span { color: #d40202; }
-            .gift-card-subtitle { font-size: 11px; color: var(--text-muted); letter-spacing: 1.5px; margin: 4px 0 16px 0; font-weight: bold; }
-            .gift-card-code-wrapper { background: rgba(212, 2, 2, 0.08); padding: 12px; border-radius: 8px; border: 1px dashed #d40202; margin: 12px 0; }
-            .gift-card-code { font-size: 22px; font-weight: 900; letter-spacing: 3px; color: #d40202; }
-            .gift-card-amount { font-size: 16px; font-weight: bold; margin-top: 10px; }
-            .gift-card-footer-text { font-size: 11px; color: var(--text-muted); margin-top: 4px; }
+
+            .gift-card-brand { 
+                font-size: 22px; 
+                font-weight: 900; 
+                letter-spacing: 1px; 
+                color: var(--gc-text); 
+            }
+
+            .gift-card-brand span { 
+                color: #d40202; 
+            }
+
+            .gift-card-subtitle { 
+                font-size: 11px;
+                color: var(--text-muted); 
+                letter-spacing: 1.5px; 
+                margin: 4px 0 16px 0; 
+                font-weight: bold; 
+            }
+
+            .gift-card-code-wrapper { 
+                background: rgba(212, 2, 2, 0.08); 
+                padding: 12px; 
+                border-radius: 8px; 
+                border: 1px dashed #d40202; 
+                margin: 12px 0; 
+            }
+
+            .gift-card-code { 
+                font-size: 22px; 
+                font-weight: 900; 
+                letter-spacing: 3px; 
+                color: #d40202; 
+            }
+
+            .gift-card-amount {
+                font-size: 16px; 
+                font-weight: bold; 
+                margin-top: 10px; 
+            }
+
+            .gift-card-footer-text {
+                font-size: 11px; 
+                color: var(--text-muted); 
+                margin-top: 4px; 
+            }
 
             @media print {
-                body { background: #ffffff !important; color: #000000 !important; display: block !important; padding: 0 !important; margin: 0 !important; }
-                .card { box-shadow: none !important; border: none !important; width: 100% !important; max-width: 100% !important; padding: 0 !important; margin: 0 !important; }
-                .no-print, .icon, h1, p, .btn, .item, .item-price, button { display: none !important; }
-                .gift-card-box { 
-                    border: 2px solid #000000 !important; 
+                body { 
                     background: #ffffff !important; 
                     color: #000000 !important; 
-                    width: 100% !important; 
-                    max-width: 450px !important;
-                    margin: 10px auto !important; 
-                    padding: 25px !important; 
-                    page-break-inside: avoid !important;
-                    break-inside: avoid !important;
+                    display: block !important; 
+                    padding: 0 !important; 
+                    margin: 0 !important; 
+                    height: auto !important; 
+                    min-height: 0 !important; 
                 }
-                .gift-card-brand { color: #000000 !important; font-size: 24px !important; }
-                .gift-card-code-wrapper { border: 2px dashed #000000 !important; background: #f8fafc !important; }
-                .gift-card-code { color: #000000 !important; font-size: 22px !important; }
-                @page { margin: 15mm; size: auto; }
+
+                html { 
+                    height: auto !important; 
+                    min-height: 0 !important;
+                }
+
+                .card { 
+                    box-shadow: none !important; 
+                    border: none !important; 
+                    width: 100% !important; 
+                    max-width: 100% !important; 
+                    padding: 0 !important; 
+                    margin: 0 !important; 
+                    background: transparent !important; 
+                }
+
+                .no-print, .icon, h1, p, .btn, .item, .item-price, button { 
+                    display: none !important; 
+                }
+
+                .gift-card-box { 
+                        border: 2px solid #000000 !important; 
+                        background: #ffffff !important; 
+                        color: #000000 !important; 
+                        width: 100% !important; 
+                        max-width: 450px !important;
+                        margin: 0 auto !important; 
+                        padding: 25px !important; 
+                        page-break-after: avoid !important;
+                        page-break-before: avoid !important;
+                        page-break-inside: avoid !important;
+                        break-after: avoid !important;
+                        break-before: avoid !important;
+                        break-inside: avoid !important;
+                }
+                .gift-card-brand {
+                    color: #000000 !important;
+                    font-size: 24px !important;
+                }
+                
+                .gift-card-code-wrapper {
+                    border: 2px dashed #000000 !important; 
+                    background: #f8fafc !important; 
+                }
+
+                .gift-card-code { 
+                    color: #000000 !important; 
+                    font-size: 22px !important; 
+                }
+                @page {
+                    margin: 10mm; 
+                    size: auto; 
+                }
             }
         </style>
     </head>
